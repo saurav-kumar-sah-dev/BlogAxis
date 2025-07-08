@@ -16,5 +16,5 @@ A fully functional **Simple Blog Application** built using the **MERN Stack** (M
 | Backend    | Node.js, Express.js  |
 | Database   | MongoDB (Mongoose)   |
 
-## 📁 Folder Structure
+
 
