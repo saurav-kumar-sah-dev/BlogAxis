@@ -24,7 +24,7 @@ app.use((req, res) => {
 });
 
 // MongoDB Connection
-mongoose.connect('mongodb+srv://bloguser:963852741@cluster0.uba4fgn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+mongoose.connect('Here your own mongo url')
   .then(() => console.log('MongoDB Atlas Connected'))
   .catch(err => console.error(err));
 
