@@ -1,6 +1,9 @@
 // src/api/client.js
 const BASE = (import.meta.env && import.meta.env.VITE_API_BASE_URL) || '/api';
 
+// Remove trailing /api if it exists to prevent double /api/api paths
+const cleanBase = BASE.endsWith('/api') ? BASE.slice(0, -4) : BASE;
+
 function authHeader() {
   const t = localStorage.getItem('token');
   return t ? { Authorization: `Bearer ${t}` } : {};
@@ -8,12 +11,12 @@ function authHeader() {
 
 export const api = {
   get: async (path) => {
-    const res = await fetch(`${BASE}${path}`, { headers: { ...authHeader() } });
+    const res = await fetch(`${cleanBase}/api${path}`, { headers: { ...authHeader() } });
     return res;
   },
 
   post: (path, body, isFormData = false) =>
-    fetch(`${BASE}${path}`, {
+    fetch(`${cleanBase}/api${path}`, {
       method: 'POST',
       headers: isFormData
         ? { ...authHeader() } // browser sets Content-Type + boundary for FormData
@@ -22,7 +25,7 @@ export const api = {
     }),
 
   put: (path, body, isFormData = false) =>
-    fetch(`${BASE}${path}`, {
+    fetch(`${cleanBase}/api${path}`, {
       method: 'PUT',
       headers: isFormData
         ? { ...authHeader() }
@@ -31,5 +34,5 @@ export const api = {
     }),
 
   del: (path) =>
-    fetch(`${BASE}${path}`, { method: 'DELETE', headers: { ...authHeader() } }),
+    fetch(`${cleanBase}/api${path}`, { method: 'DELETE', headers: { ...authHeader() } }),
 };

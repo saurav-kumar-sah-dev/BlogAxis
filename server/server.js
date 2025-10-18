@@ -26,9 +26,17 @@ const PORT = process.env.PORT || 10000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // CORS first
-const allowedOrigins = (process.env.CLIENT_ORIGIN?.split(',') || ['http://localhost:5173', 'http://localhost:5174']).map(o => o.trim());
+const allowedOrigins = (process.env.CLIENT_ORIGIN?.split(',') || ['http://localhost:5173', 'http://localhost:5174', 'https://blog-axis.vercel.app']).map(o => o.trim());
 app.use(cors({
-  origin: (origin, cb) => (!origin || allowedOrigins.includes(origin) ? cb(null, true) : cb(new Error('Not allowed by CORS'))),
+  origin: (origin, cb) => {
+    console.log('CORS request from origin:', origin);
+    if (!origin || allowedOrigins.includes(origin)) {
+      cb(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      cb(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
   allowedHeaders: ['Content-Type','Authorization'],
