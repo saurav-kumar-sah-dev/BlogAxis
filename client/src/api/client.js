@@ -6,7 +6,8 @@ const cleanBase = BASE.endsWith('/api') ? BASE.slice(0, -4) : BASE;
 
 // Debug log for production
 if (import.meta.env.PROD) {
-  console.log('API Base URL:', cleanBase);
+  console.log('Original BASE:', BASE);
+  console.log('Cleaned BASE:', cleanBase);
   console.log('Frontend deployed at:', new Date().toISOString());
 }
 
