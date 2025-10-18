@@ -31,7 +31,7 @@ git add .
 git commit -m "Initial commit: BlogAxis - Your Central Hub for Blogging"
 
 # Add remote origin (replace YOUR_USERNAME with your GitHub username)
-git remote add origin https://github.com/YOUR_USERNAME/BlogAxis.git
+git remote add origin https://github.com/saurav-kumar-sah-dev/BlogAxis.git
 
 # Push to GitHub
 git branch -M main
@@ -183,11 +183,12 @@ Add these badges to your README.md:
 
 After setting up GitHub:
 1. ✅ Repository created and code pushed
-2. 🔄 Set up MongoDB Atlas database
-3. 🔄 Deploy backend to Render
-4. 🔄 Deploy frontend to Vercel
-5. 🔄 Configure environment variables
-6. 🔄 Test complete deployment
+2. ✅ Repository renamed to BlogAxis
+3. 🔄 Set up MongoDB Atlas database
+4. 🔄 Deploy backend to Render
+5. 🔄 Deploy frontend to Vercel
+6. 🔄 Configure environment variables
+7. 🔄 Test complete deployment
 
 ## Troubleshooting
 

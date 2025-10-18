@@ -40,22 +40,47 @@ Set the following environment variable in Vercel:
 VITE_API_BASE_URL=https://your-render-app.onrender.com/api
 ```
 
+## Prerequisites
+
+### 1. MongoDB Atlas Setup
+1. Go to [mongodb.com/atlas](https://mongodb.com/atlas)
+2. Create a free account
+3. Create a new cluster (choose the free tier)
+4. Create a database user with read/write permissions
+5. Get your connection string (replace `<password>` with your user password)
+6. Whitelist your IP address (or use 0.0.0.0/0 for all IPs in development)
+
+### 2. Cloudinary Setup
+1. Go to [cloudinary.com](https://cloudinary.com)
+2. Create a free account
+3. Get your Cloud Name, API Key, and API Secret from the dashboard
+
 ## Deployment Steps
 
 ### 1. Frontend (Vercel)
-1. Connect your GitHub repository to Vercel
-2. Set build command: `npm run build`
-3. Set output directory: `dist`
-4. Set environment variable: `VITE_API_BASE_URL`
-5. Deploy!
+1. Go to [vercel.com](https://vercel.com) and sign up with GitHub
+2. Click "New Project" and import your BlogAxis repository
+3. Configure the project:
+   - **Framework Preset**: Vite
+   - **Root Directory**: `client`
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+4. Add environment variable: `VITE_API_BASE_URL=https://your-render-app.onrender.com/api`
+5. Click "Deploy"
 
 ### 2. Backend (Render)
-1. Connect your GitHub repository to Render
-2. Create a new Web Service
-3. Set build command: `npm install`
-4. Set start command: `npm start`
-5. Configure environment variables in Render dashboard
-6. Deploy automatically on every push
+1. Go to [render.com](https://render.com) and sign up with GitHub
+2. Click "New +" → "Web Service"
+3. Connect your BlogAxis repository
+4. Configure the service:
+   - **Name**: `blogaxis-api`
+   - **Environment**: Node
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Root Directory**: `server`
+5. Add all environment variables from the list above
+6. Click "Create Web Service"
+7. Deploy automatically on every push
 
 ## Security Checklist
 - ✅ Environment variables are set
@@ -76,5 +101,49 @@ VITE_API_BASE_URL=https://your-render-app.onrender.com/api
 - Monitor database performance
 - Track API response times
 - Monitor user engagement
+
+## Troubleshooting
+
+### Common Issues:
+
+#### Frontend (Vercel) Issues:
+- **Build fails**: Check if all dependencies are in package.json
+- **Environment variables not working**: Ensure VITE_ prefix is used
+- **API calls failing**: Verify VITE_API_BASE_URL is correct
+
+#### Backend (Render) Issues:
+- **Build fails**: Check if server/package.json exists and has correct scripts
+- **Environment variables**: Ensure all required variables are set in Render dashboard
+- **Database connection**: Verify MONGO_URI is correct and database is accessible
+- **CORS errors**: Update CLIENT_ORIGIN with your Vercel URL
+
+#### Database Issues:
+- **Connection timeout**: Check IP whitelist in MongoDB Atlas
+- **Authentication failed**: Verify username/password in connection string
+- **Database not found**: MongoDB Atlas will create the database automatically
+
+### Useful Commands:
+```bash
+# Test local backend
+cd server && npm start
+
+# Test local frontend
+cd client && npm run dev
+
+# Check environment variables
+echo $MONGO_URI
+echo $VITE_API_BASE_URL
+```
+
+## Final Checklist
+
+Before going live:
+- [ ] MongoDB Atlas cluster is running
+- [ ] Cloudinary account is set up
+- [ ] All environment variables are configured
+- [ ] Frontend is deployed on Vercel
+- [ ] Backend is deployed on Render
+- [ ] CORS is configured correctly
+- [ ] Test all major features (login, posts, uploads)
 
 Your BlogAxis application is ready for production! 🎉
