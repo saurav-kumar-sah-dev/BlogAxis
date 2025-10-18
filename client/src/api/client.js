@@ -7,6 +7,7 @@ const cleanBase = BASE.endsWith('/api') ? BASE.slice(0, -4) : BASE;
 // Debug log for production
 if (import.meta.env.PROD) {
   console.log('API Base URL:', cleanBase);
+  console.log('Frontend deployed at:', new Date().toISOString());
 }
 
 function authHeader() {
