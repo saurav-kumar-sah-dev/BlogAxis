@@ -4,6 +4,11 @@ const BASE = (import.meta.env && import.meta.env.VITE_API_BASE_URL) || '/api';
 // Remove trailing /api if it exists to prevent double /api/api paths
 const cleanBase = BASE.endsWith('/api') ? BASE.slice(0, -4) : BASE;
 
+// Debug log for production
+if (import.meta.env.PROD) {
+  console.log('API Base URL:', cleanBase);
+}
+
 function authHeader() {
   const t = localStorage.getItem('token');
   return t ? { Authorization: `Bearer ${t}` } : {};
