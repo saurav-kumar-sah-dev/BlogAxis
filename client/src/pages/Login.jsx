@@ -26,7 +26,7 @@ export default function Login() {
 
   const onSubmit = async (vals) => {
     try {
-      const res = await api.post('/api/auth/login', vals);
+      const res = await api.post('/auth/login', vals);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Login failed');
       login(data.token, data.user);

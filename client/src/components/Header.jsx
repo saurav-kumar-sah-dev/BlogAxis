@@ -268,7 +268,7 @@ export default function Header() {
                       // Mark notification as read if it's not already read
                       if (!n.read) {
                         try {
-                          await api.put(`/api/notifications/${n._id}/read`);
+                          await api.put(`/notifications/${n._id}/read`);
                           // Update the notification in the local state
                           setNotifItems(prev => prev.map(notif => 
                             notif._id === n._id ? { ...notif, read: true } : notif
@@ -305,7 +305,7 @@ export default function Header() {
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
-                            api.del(`/api/notifications/${n._id}`).then(() => {
+                            api.del(`/notifications/${n._id}`).then(() => {
                               setNotifItems(list => list.filter(x => x._id !== n._id));
                               // Update unread count if the deleted notification was unread
                               if (!n.read) {
@@ -324,13 +324,13 @@ export default function Header() {
                     <div className="flex gap-2">
                       <button onClick={async()=>{ 
                         try { 
-                          await api.post('/api/notifications/read-all', {}); 
+                          await api.post('/notifications/read-all', {}); 
                           setUnread(0);
                           // Update all notifications to read in local state
                           setNotifItems(prev => prev.map(notif => ({ ...notif, read: true })));
                         } catch {} 
                       }} className="flex-1 text-center px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm">Mark all read</button>
-                      <button onClick={async()=>{ try { await api.del('/api/notifications'); setNotifItems([]); setUnread(0);} catch {} }} className="px-3 py-2 rounded-lg bg-red-100 hover:bg-red-200 text-sm text-red-700">Delete all</button>
+                      <button onClick={async()=>{ try { await api.del('/notifications'); setNotifItems([]); setUnread(0);} catch {} }} className="px-3 py-2 rounded-lg bg-red-100 hover:bg-red-200 text-sm text-red-700">Delete all</button>
                     </div>
                   </div>
                 </div>

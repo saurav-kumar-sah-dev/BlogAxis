@@ -72,7 +72,7 @@ export default function PostCard({ post, onDelete }) {
   async function toggleLike() {
     if (!user) return;
     try {
-      const res = await api.post(`/api/posts/${post._id}/like`, {});
+      const res = await api.post(`/posts/${post._id}/like`, {});
       const data = await res.json();
       if (!res.ok) throw new Error();
       setLikes(data.likes); setDislikes(data.dislikes);
@@ -83,7 +83,7 @@ export default function PostCard({ post, onDelete }) {
   async function toggleDislike() {
     if (!user) return;
     try {
-      const res = await api.post(`/api/posts/${post._id}/dislike`, {});
+      const res = await api.post(`/posts/${post._id}/dislike`, {});
       const data = await res.json();
       if (!res.ok) throw new Error();
       setLikes(data.likes); setDislikes(data.dislikes);
@@ -112,7 +112,7 @@ export default function PostCard({ post, onDelete }) {
     const body = (newComment || '').trim();
     if (!body) return;
     try {
-      const res = await api.post(`/api/posts/${post._id}/comments`, { body, parent });
+      const res = await api.post(`/posts/${post._id}/comments`, { body, parent });
       const item = await res.json();
       if (!res.ok) throw new Error();
       if (parent) {
@@ -140,7 +140,7 @@ export default function PostCard({ post, onDelete }) {
   async function toggleCommentLike(commentId, type) { // type: 'like' | 'dislike'
     if (!user) return;
     try {
-      const res = await api.post(`/api/posts/${post._id}/comments/${commentId}/reaction`, { type });
+      const res = await api.post(`/posts/${post._id}/comments/${commentId}/reaction`, { type });
       const counts = await res.json();
       if (!res.ok) throw new Error();
       const upd = (list) => (list || []).map(c => c._id === commentId ? { ...c, likes: new Array(counts.likes).fill(0), dislikes: new Array(counts.dislikes).fill(0) } : c);
@@ -391,7 +391,7 @@ export default function PostCard({ post, onDelete }) {
                             <button onClick={async () => {
                               if (!confirm('Delete this comment?')) return;
                               try {
-                                const res = await api.del(`/api/posts/${post._id}/comments/${c._id}`);
+                                const res = await api.del(`/posts/${post._id}/comments/${c._id}`);
                                 if (!res.ok) throw new Error();
                                 setComments(prev => prev.filter(x => x._id !== c._id));
                                 setCommentCount(cnt => Math.max(0, cnt - 1));
@@ -438,7 +438,7 @@ export default function PostCard({ post, onDelete }) {
                                         const text = prompt('Edit reply:', r.body);
                                         if (text == null) return;
                                         try {
-                                          const res = await api.put(`/api/posts/${post._id}/comments/${r._id}`, { body: text });
+                                          const res = await api.put(`/posts/${post._id}/comments/${r._id}`, { body: text });
                                           const updated = await res.json();
                                           if (!res.ok) throw new Error();
                                           setReplies(prev => ({ ...prev, [c._id]: (prev[c._id] || []).map(x => x._id === r._id ? updated : x) }));
@@ -447,7 +447,7 @@ export default function PostCard({ post, onDelete }) {
                                       <button onClick={async () => {
                                         if (!confirm('Delete this reply?')) return;
                                         try {
-                                          const res = await api.del(`/api/posts/${post._id}/comments/${r._id}`);
+                                          const res = await api.del(`/posts/${post._id}/comments/${r._id}`);
                                           if (!res.ok) throw new Error();
                                           setReplies(prev => ({ ...prev, [c._id]: (prev[c._id] || []).filter(x => x._id !== r._id) }));
                                           setCommentCount(cnt => Math.max(0, cnt - 1));

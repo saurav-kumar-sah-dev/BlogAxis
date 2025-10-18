@@ -163,7 +163,7 @@ export default function PostDetails() {
     if (!post || !user) return;
     if (!confirm('Delete this post?')) return;
     try {
-      const res = await api.del(`/api/posts/${post._id}`);
+      const res = await api.del(`/posts/${post._id}`);
       if (res.status === 401) {
         logout();
         navigate('/login', { replace: true, state: { from: { pathname: `/posts/${id}` } } });
@@ -180,7 +180,7 @@ export default function PostDetails() {
   async function toggleLike(type) { // type: 'like' | 'dislike'
     if (!post || !user) return;
     try {
-      const res = await api.post(`/api/posts/${post._id}/${type}`, {});
+      const res = await api.post(`/posts/${post._id}/${type}`, {});
       const data = await res.json();
       if (!res.ok) throw new Error('Failed to react');
       setLikesCount(data.likes);
@@ -195,7 +195,7 @@ export default function PostDetails() {
     const body = (newComment || '').trim();
     if (!body) return;
     try {
-      const res = await api.post(`/api/posts/${id}/comments`, { body });
+      const res = await api.post(`/posts/${id}/comments`, { body });
       const item = await res.json();
       if (!res.ok) throw new Error('Failed to comment');
       setComments(prev => [item, ...prev]);
@@ -217,7 +217,7 @@ export default function PostDetails() {
   async function toggleCommentReaction(commentId, type) { // 'like' | 'dislike'
     if (!user) return;
     try {
-      const res = await api.post(`/api/posts/${id}/comments/${commentId}/reaction`, { type });
+      const res = await api.post(`/posts/${id}/comments/${commentId}/reaction`, { type });
       const counts = await res.json();
       if (!res.ok) throw new Error('Failed to react on comment');
       const upd = (list) => (list || []).map(c => c._id === commentId ? { ...c, likes: new Array(counts.likes).fill(0), dislikes: new Array(counts.dislikes).fill(0) } : c);
@@ -235,7 +235,7 @@ export default function PostDetails() {
     const body = (newComment || '').trim();
     if (!body) return;
     try {
-      const res = await api.post(`/api/posts/${id}/comments`, { body, parent: parentId });
+      const res = await api.post(`/posts/${id}/comments`, { body, parent: parentId });
       const item = await res.json();
       if (!res.ok) throw new Error('Failed to reply');
       setReplies(prev => ({ ...prev, [parentId]: [item, ...(prev[parentId] || [])] }));

@@ -36,7 +36,7 @@ export default function Compose() {
       if (vals.status) fd.append('status', vals.status);
       if (vals.scheduledAt) fd.append('scheduledAt', vals.scheduledAt);
 
-      const res = await api.post('/api/posts', fd, true);
+      const res = await api.post('/posts', fd, true);
       if (res.status === 401) {
         toast.error('Session expired. Please log in again.');
         logout();

@@ -29,7 +29,7 @@ export default function ReportButton({ targetType, targetId, targetTitle, classN
 
     setIsSubmitting(true);
     try {
-      const response = await api.post('/api/reports', {
+      const response = await api.post('/reports', {
         reason: selectedReason,
         description: description.trim(),
         targetType,

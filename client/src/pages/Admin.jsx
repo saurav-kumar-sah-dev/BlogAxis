@@ -73,14 +73,14 @@ function UsersTab() {
   }, [page]);
 
   async function setRole(id, role) {
-    const res = await api.put(`/api/admin/users/${id}/role`, { role });
+    const res = await api.put(`/admin/users/${id}/role`, { role });
     const data = await res.json();
     if (res.ok) setItems(lst => lst.map(u => u._id === id ? data : u));
   }
 
   async function setSuspended(id, suspended) {
     try {
-      const res = await api.put(`/api/admin/users/${id}/suspend`, { suspended });
+      const res = await api.put(`/admin/users/${id}/suspend`, { suspended });
       const data = await res.json();
       if (res.ok) {
         setItems(lst => lst.map(u => u._id === id ? data : u));
@@ -99,7 +99,7 @@ function UsersTab() {
     if (!confirm('Delete this user?')) return;
     
     try {
-      const res = await api.del(`/api/admin/users/${id}`);
+      const res = await api.del(`/admin/users/${id}`);
       if (res.ok) {
         setItems(lst => lst.filter(u => u._id !== id));
         // Show success message
@@ -239,7 +239,7 @@ function PostsTab() {
 
   async function hideToggle(id, hidden) {
     try {
-      const res = await api.put(`/api/admin/posts/${id}/hidden`, { hidden });
+      const res = await api.put(`/admin/posts/${id}/hidden`, { hidden });
       const data = await res.json();
       if (res.ok) {
         setItems(lst => lst.map(p => p._id === id ? data : p));
@@ -258,7 +258,7 @@ function PostsTab() {
     if (!confirm('Delete this post?')) return;
     
     try {
-      const res = await api.del(`/api/admin/posts/${id}`);
+      const res = await api.del(`/admin/posts/${id}`);
       if (res.ok) {
         setItems(lst => lst.filter(p => p._id !== id));
         // Show success message

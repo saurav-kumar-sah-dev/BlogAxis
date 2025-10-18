@@ -54,7 +54,7 @@ useEffect(() => {
       if (vals.status) fd.append('status', vals.status);
       if (vals.scheduledAt) fd.append('scheduledAt', vals.scheduledAt);
 
-      const res = await api.put(`/api/posts/${id}`, fd, true);
+      const res = await api.put(`/posts/${id}`, fd, true);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Update failed');
 

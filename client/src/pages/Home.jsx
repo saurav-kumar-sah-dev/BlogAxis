@@ -44,7 +44,7 @@ export default function Home() {
   const handleDelete = async (id) => {
     if (!confirm('Delete this post?')) return;
     try {
-      const res = await api.del(`/api/posts/${id}`);
+      const res = await api.del(`/posts/${id}`);
       if (res.status === 401) {
         toast.error('Session expired. Please log in again.');
         logout();

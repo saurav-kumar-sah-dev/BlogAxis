@@ -120,7 +120,7 @@ export default function Profile() {
       form.append('info', info || '');
       if (dateOfBirth) form.append('dateOfBirth', dateOfBirth);
       if (avatarFile) form.append('avatar', avatarFile);
-      const res = await api.put('/api/users/me', form, true);
+      const res = await api.put('/users/me', form, true);
       const updated = await res.json();
       if (!res.ok) throw new Error(updated?.error || 'Update failed');
       setProfile(updated);
@@ -151,7 +151,7 @@ export default function Profile() {
     try {
       const form = new FormData();
       form.append('removeAvatar', 'true');
-      const res = await api.put('/api/users/me', form, true);
+      const res = await api.put('/users/me', form, true);
       const updated = await res.json();
       if (!res.ok) throw new Error(updated?.error || 'Update failed');
       setProfile(updated);

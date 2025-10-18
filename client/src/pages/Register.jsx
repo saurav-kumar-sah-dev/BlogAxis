@@ -38,7 +38,7 @@ export default function Register() {
 
   const onSubmit = async (vals) => {
     try {
-      const res = await api.post('/api/auth/register', vals);
+      const res = await api.post('/auth/register', vals);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Registration failed');
       // Save initial token/user then immediately refresh with /auth/me to ensure all fields (dob/place/info)

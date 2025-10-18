@@ -73,7 +73,7 @@ export default function Moderation() {
 
     setIsUpdating(true);
     try {
-      const response = await api.put(`/api/reports/${selectedReport._id}`, {
+      const response = await api.put(`/reports/${selectedReport._id}`, {
         status: 'resolved',
         moderationNotes,
         actionTaken
@@ -83,7 +83,7 @@ export default function Moderation() {
         // If hiding content, also call the admin endpoint to ensure it's hidden
         if (actionTaken === 'hide_content' && selectedReport.reportedPost) {
           try {
-            await api.put(`/api/admin/posts/${selectedReport.reportedPost._id}/hidden`, {
+            await api.put(`/admin/posts/${selectedReport.reportedPost._id}/hidden`, {
               hidden: true,
               reason: moderationNotes || 'Content hidden due to report'
             });
@@ -111,7 +111,7 @@ export default function Moderation() {
 
   const handleDismissReport = async (reportId) => {
     try {
-      const response = await api.put(`/api/reports/${reportId}`, {
+      const response = await api.put(`/reports/${reportId}`, {
         status: 'dismissed',
         moderationNotes: 'Report dismissed as invalid',
         actionTaken: 'none'
@@ -363,7 +363,7 @@ export default function Moderation() {
                     <button
                       onClick={async () => {
                         try {
-                          await api.put(`/api/admin/posts/${report.reportedPost._id}/hidden`, {
+                          await api.put(`/admin/posts/${report.reportedPost._id}/hidden`, {
                             hidden: true,
                             reason: 'Quick hide from moderation dashboard'
                           });
