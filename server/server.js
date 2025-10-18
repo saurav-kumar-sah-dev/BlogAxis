@@ -22,7 +22,7 @@ const { searchUsers } = require('./controllers/userController');
 const sanitizeRequest = require('./middleware/sanitize');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // CORS first
@@ -87,13 +87,18 @@ app.use('/api/accounts', accountRoutes);
 app.use('/api/reports', reportRoutes);
 
 // DB
+if (!process.env.MONGO_URI) {
+  console.error('❌ MONGO_URI environment variable is not set');
+  process.exit(1);
+}
+
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
 .then(() => console.log('✅ MongoDB connected'))
 .catch(err => {
-  console.error('MongoDB connection error:', err);
+  console.error('❌ MongoDB connection error:', err);
   process.exit(1); // Exit the process if DB connection fails
 });
 
