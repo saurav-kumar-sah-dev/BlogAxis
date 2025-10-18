@@ -151,7 +151,7 @@ export default function Login() {
 
             {/* Google Login Button */}
             <a
-              href="http://localhost:5000/api/auth/google"
+              href={`${import.meta.env.VITE_API_BASE_URL || 'https://blogaxis.onrender.com'}/api/auth/google`}
               className="w-full flex justify-center items-center px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
             >
               <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
