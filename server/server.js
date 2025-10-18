@@ -30,7 +30,9 @@ const allowedOrigins = (process.env.CLIENT_ORIGIN?.split(',') || ['http://localh
 app.use(cors({
   origin: (origin, cb) => {
     console.log('CORS request from origin:', origin);
+    console.log('Allowed origins:', allowedOrigins);
     if (!origin || allowedOrigins.includes(origin)) {
+      console.log('CORS allowed for origin:', origin);
       cb(null, true);
     } else {
       console.log('CORS blocked origin:', origin);
