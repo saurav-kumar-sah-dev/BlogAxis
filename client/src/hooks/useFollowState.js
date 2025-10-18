@@ -80,7 +80,7 @@ export function useFollowState(userId) {
 
     setLoading(true);
     try {
-      const path = isFollowing ? `/api/users/${userId}/unfollow` : `/api/users/${userId}/follow`;
+      const path = isFollowing ? `/users/${userId}/unfollow` : `/users/${userId}/follow`;
       const res = await api.post(path, {});
       const data = await res.json();
       

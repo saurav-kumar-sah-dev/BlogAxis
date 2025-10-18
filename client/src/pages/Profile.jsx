@@ -202,7 +202,7 @@ export default function Profile() {
 
   async function toggleFollowFromList(userId, currentlyFollowing) {
     try {
-      const path = currentlyFollowing ? `/api/users/${userId}/unfollow` : `/api/users/${userId}/follow`;
+      const path = currentlyFollowing ? `/users/${userId}/unfollow` : `/users/${userId}/follow`;
       const res = await api.post(path, {});
       await res.json().catch(() => ({}));
       if (!res.ok) throw new Error('Action failed');
