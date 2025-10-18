@@ -65,7 +65,7 @@ function UsersTab() {
   useEffect(() => { 
     (async () => {
       setLoading(true);
-      const res = await api.get(`/api/admin/users?page=${page}&limit=${limit}`);
+      const res = await api.get(`/admin/users?page=${page}&limit=${limit}`);
       const data = await res.json();
       if (res.ok) { setItems(data.data||[]); setTotal(data.total||0); }
       setLoading(false);
@@ -230,7 +230,7 @@ function PostsTab() {
   useEffect(() => { 
     (async () => {
       setLoading(true);
-      const res = await api.get(`/api/admin/posts?page=${page}&limit=${limit}`);
+      const res = await api.get(`/admin/posts?page=${page}&limit=${limit}`);
       const data = await res.json();
       if (res.ok) { setItems(data.data||[]); setTotal(data.total||0); }
       setLoading(false);

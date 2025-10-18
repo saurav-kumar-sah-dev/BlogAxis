@@ -42,7 +42,7 @@ export function useFollowState(userId) {
     let cancelled = false;
     async function loadFollowState() {
       try {
-        const res = await api.get(`/api/users/${userId}`);
+        const res = await api.get(`/users/${userId}`);
         if (!res.ok || cancelled) return;
         const data = await res.json();
         if (!cancelled && typeof data.isFollowing === 'boolean') {

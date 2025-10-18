@@ -36,7 +36,7 @@ export default function PostCard({ post, onDelete }) {
     let cancelled = false;
     async function loadReactions() {
       try {
-        const res = await api.get(`/api/posts/${post._id}`);
+        const res = await api.get(`/posts/${post._id}`);
         if (!res.ok) return;
         const data = await res.json();
         if (cancelled) return;
@@ -59,7 +59,7 @@ export default function PostCard({ post, onDelete }) {
     let cancelled = false;
     async function loadCount() {
       try {
-        const res = await api.get(`/api/posts/${post._id}/comments?limit=1`);
+        const res = await api.get(`/posts/${post._id}/comments?limit=1`);
         const data = await res.json();
         if (!res.ok) throw new Error();
         if (!cancelled) setCommentCount(Number(data.total || 0));
@@ -95,7 +95,7 @@ export default function PostCard({ post, onDelete }) {
     setCommentOpen(true);
     setCommentLoading(true);
     try {
-      const res = await api.get(`/api/posts/${post._id}/comments`);
+      const res = await api.get(`/posts/${post._id}/comments`);
       const data = await res.json();
       if (!res.ok) throw new Error();
       setComments(data.data || []);
@@ -128,7 +128,7 @@ export default function PostCard({ post, onDelete }) {
 
   async function loadReplies(parentId) {
     try {
-      const res = await api.get(`/api/posts/${post._id}/comments?parent=${parentId}`);
+      const res = await api.get(`/posts/${post._id}/comments?parent=${parentId}`);
       const data = await res.json();
       if (!res.ok) throw new Error();
       setReplies(prev => ({ ...prev, [parentId]: data.data || [] }));

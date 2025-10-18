@@ -46,7 +46,7 @@ export default function Profile() {
       setLoading(true);
       setError('');
       try {
-        const res = await api.get(isOwn ? '/api/users/me' : `/api/users/${id}`);
+        const res = await api.get(isOwn ? '/users/me' : `/users/${id}`);
         if (!res.ok) throw new Error('Failed to load profile');
         const data = await res.json();
         const p = data.user || data; // server returns {user} for /me and raw for public
@@ -90,7 +90,7 @@ export default function Profile() {
       try {
         if (!isOwn) return;
         if (dateOfBirth) return; // already have it
-        const res = await api.get('/api/auth/me');
+        const res = await api.get('/auth/me');
         if (!res.ok) return;
         const me = await res.json();
         const u = me?.user;
@@ -189,7 +189,7 @@ export default function Profile() {
     setListLoading(true);
     setListItems([]);
     try {
-      const res = await api.get(`/api/users/${id || authUser?.id}/${type}`);
+      const res = await api.get(`/users/${id || authUser?.id}/${type}`);
       if (!res.ok) throw new Error('Failed to load list');
       const items = await res.json();
       setListItems(Array.isArray(items) ? items : []);

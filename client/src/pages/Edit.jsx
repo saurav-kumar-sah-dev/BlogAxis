@@ -13,7 +13,7 @@ export default function Edit() {
 useEffect(() => {
   (async () => {
     try {
-      const res = await api.get(`/api/posts/${id}`);
+      const res = await api.get(`/posts/${id}`);
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || 'Failed to load post');

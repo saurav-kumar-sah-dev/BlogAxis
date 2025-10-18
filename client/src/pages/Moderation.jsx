@@ -39,7 +39,7 @@ export default function Moderation() {
         ...(filters.targetType && { targetType: filters.targetType })
       });
 
-      const response = await api.get(`/api/reports?${params}`);
+      const response = await api.get(`/reports?${params}`);
       const data = await response.json();
       
       if (response.ok) {
@@ -57,7 +57,7 @@ export default function Moderation() {
 
   const loadStats = async () => {
     try {
-      const response = await api.get('/api/reports/stats');
+      const response = await api.get('/reports/stats');
       const data = await response.json();
       
       if (response.ok) {

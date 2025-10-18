@@ -44,7 +44,7 @@ export default function Register() {
       // Save initial token/user then immediately refresh with /auth/me to ensure all fields (dob/place/info)
       login(data.token, data.user);
       try {
-        const meRes = await api.get('/api/auth/me');
+        const meRes = await api.get('/auth/me');
         const meData = await meRes.json();
         if (meRes.ok && meData?.user) {
           login(data.token, meData.user);

@@ -76,7 +76,7 @@ export default function PostDetails() {
     setLoading(true);
     setError('');
     try {
-      const res = await api.get(`/api/posts/${id}`);
+      const res = await api.get(`/posts/${id}`);
       if (res.status === 404) {
         setError('Post not found');
         setPost(null);
@@ -88,7 +88,7 @@ export default function PostDetails() {
       let enriched = data;
       if (data && data.user && typeof data.user === 'string') {
         try {
-          const ures = await api.get(`/api/users/${data.user}`);
+          const ures = await api.get(`/users/${data.user}`);
           const u = await ures.json();
           if (ures.ok && u && (u.name || u.avatarUrl)) {
             enriched = { ...data, user: { _id: data.user, name: u.name || 'User', avatarUrl: u.avatarUrl || null } };
@@ -117,7 +117,7 @@ export default function PostDetails() {
   const loadComments = useCallback(async () => {
     setCommentsLoading(true);
     try {
-      const res = await api.get(`/api/posts/${id}/comments`);
+      const res = await api.get(`/posts/${id}/comments`);
       const data = await res.json();
       if (!res.ok) throw new Error('Failed to load comments');
       setComments(data.data || []);
@@ -205,7 +205,7 @@ export default function PostDetails() {
 
   async function loadReplies(parentId) {
     try {
-      const res = await api.get(`/api/posts/${id}/comments?parent=${parentId}`);
+      const res = await api.get(`/posts/${id}/comments?parent=${parentId}`);
       const data = await res.json();
       if (!res.ok) throw new Error('Failed to load replies');
       setReplies(prev => ({ ...prev, [parentId]: data.data || [] }));

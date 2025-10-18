@@ -32,7 +32,7 @@ export default function AuditTrail() {
         ...(filters.admin && { admin: filters.admin })
       });
 
-      const response = await api.get(`/api/admin/audits?${params}`);
+      const response = await api.get(`/admin/audits?${params}`);
       const data = await response.json();
       
       if (response.ok) {

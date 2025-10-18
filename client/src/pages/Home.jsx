@@ -23,7 +23,7 @@ export default function Home() {
     setLoading(true);
     try {
       const params = new URLSearchParams({ page, limit: LIMIT, ...(search ? { search } : {}) });
-      const res = await api.get(`/api/posts?${params.toString()}`);
+      const res = await api.get(`/posts?${params.toString()}`);
       const data = await res.json();
       setPosts(data.data || []);
       setTotal(data.total || 0);

@@ -32,7 +32,7 @@ export default function Login() {
       login(data.token, data.user);
       // Immediately refresh with /auth/me to ensure all profile fields are present
       try {
-        const meRes = await api.get('/api/auth/me');
+        const meRes = await api.get('/auth/me');
         const meData = await meRes.json();
         if (meRes.ok && meData?.user) {
           login(data.token, meData.user);

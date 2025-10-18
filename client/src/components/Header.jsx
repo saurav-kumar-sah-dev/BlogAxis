@@ -24,7 +24,7 @@ export default function Header() {
     async function load() {
       try {
         if (!user) { setUnread(0); setNotifItems([]); return; }
-        const res = await api.get('/api/notifications?limit=10');
+        const res = await api.get('/notifications?limit=10');
         if (!res.ok) return;
         const data = await res.json();
         setUnread(data.unreadCount || 0);
@@ -44,7 +44,7 @@ export default function Header() {
     if (!q) { setResults([]); setOpen(false); setHighlighted(-1); return; }
     const id = setTimeout(async () => {
       try {
-        const res = await api.get(`/api/users/search?q=${encodeURIComponent(q)}`);
+        const res = await api.get(`/users/search?q=${encodeURIComponent(q)}`);
         if (!res.ok) return;
         const data = await res.json();
         setResults(Array.isArray(data) ? data.slice(0, 8) : []);
