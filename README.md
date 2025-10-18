@@ -2,6 +2,22 @@
 
 **BlogAxis** is a **full-featured, modern blog application** built with the **MERN Stack** (MongoDB, Express.js, React, Node.js). This application serves as your central hub for blogging, showcasing advanced web development practices including authentication, user profiles, image uploads, content moderation, reporting system, and comprehensive admin controls.
 
+## 🚀 Live Application
+
+**🌐 [Visit BlogAxis Live Application](https://blog-axis.vercel.app)**
+
+### 🔗 Deployment Links:
+- **Frontend**: [https://blog-axis.vercel.app](https://blog-axis.vercel.app) (Vercel)
+- **Backend API**: [https://blogaxis.onrender.com](https://blogaxis.onrender.com) (Render)
+- **Database**: MongoDB Atlas
+- **Media Storage**: Cloudinary
+
+### 🎯 Quick Start:
+1. **Visit**: [https://blog-axis.vercel.app](https://blog-axis.vercel.app)
+2. **Register** with email/password or **Login with Google**
+3. **Create your first post** and start blogging!
+4. **Explore features** like following users, commenting, and more
+
 ## ✨ Key Features
 
 ### 🔐 **Authentication & User Management**
@@ -385,10 +401,25 @@ This blog application has evolved from a basic CRUD application to a comprehensi
 - ✅ **Enhanced security features**
 - ✅ **Professional UI/UX design**
 
+## 🚀 Deployment Status
+
+**✅ PRODUCTION READY**
+
+- **Frontend**: Successfully deployed on Vercel
+- **Backend**: Successfully deployed on Render
+- **Database**: Connected to MongoDB Atlas
+- **Authentication**: Google OAuth + JWT working
+- **All Features**: Fully functional and tested
+
+### 🔧 Deployment Platforms:
+- **Frontend Hosting**: [Vercel](https://vercel.com)
+- **Backend Hosting**: [Render](https://render.com)
+- **Database**: [MongoDB Atlas](https://www.mongodb.com/atlas)
+- **Media Storage**: [Cloudinary](https://cloudinary.com)
+
 ---
 
 **BlogAxis - Built with ❤️ using the MERN Stack - Your Central Hub for Advanced Blogging**
-=======
 
->>>>>>> 5c87989bfc04063bdd71198fdfec70e91227b2cf
+**🌐 [Live Application](https://blog-axis.vercel.app) | 📚 [GitHub Repository](https://github.com/saurav-kumar-sah-dev/BlogAxis)**
 
