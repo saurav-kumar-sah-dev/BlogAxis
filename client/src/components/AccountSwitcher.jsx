@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../api/client';
 
 export default function AccountSwitcher() {
   const { user, accounts, switchAccount, removeAccount, logout } = useAuth();
@@ -12,14 +13,7 @@ export default function AccountSwitcher() {
     setSwitchingAccount(account.user.id);
     try {
       // Validate the token before switching
-      const response = await fetch('/api/accounts/validate-token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${account.token}`
-        },
-        body: JSON.stringify({ token: account.token })
-      });
+      const response = await api.post('/accounts/validate-token', { token: account.token });
       
       const data = await response.json();
       
