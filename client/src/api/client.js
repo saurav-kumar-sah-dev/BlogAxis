@@ -17,7 +17,14 @@ function authHeader() {
 
 export const api = {
   get: async (path) => {
-    const res = await fetch(`${cleanBase}/api${path}`, { headers: { ...authHeader() } });
+    const url = `${cleanBase}/api${path}`;
+    if (import.meta.env.PROD) {
+      console.log('Making GET request to:', url);
+    }
+    const res = await fetch(url, { headers: { ...authHeader() } });
+    if (import.meta.env.PROD) {
+      console.log('Response status:', res.status, 'for URL:', url);
+    }
     return res;
   },
 
