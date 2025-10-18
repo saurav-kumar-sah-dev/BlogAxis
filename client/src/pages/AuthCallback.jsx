@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../api/client';
 import toast from 'react-hot-toast';
 
 export default function AuthCallback() {
@@ -23,18 +24,14 @@ export default function AuthCallback() {
       localStorage.setItem('token', token);
       
       // Fetch user data
-      fetch('/api/auth/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      api.get('/auth/me')
               .then(async res => res.json())
               .then(async data => {
                 if (data.user) {
                   // Save token + user, then ensure we have all fields by fetching /auth/me
                   login(token, data.user);
                   try {
-                    const meRes = await fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } });
+                    const meRes = await api.get('/auth/me');
                     const meData = await meRes.json();
                     if (meRes.ok && meData?.user) {
                       login(token, meData.user);
