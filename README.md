@@ -64,6 +64,7 @@
 | **Validation** | Express Validator | Server-side input validation |
 | **Security** | Helmet, HPP, Rate Limiting | Security middleware |
 
+<<<<<<< HEAD
 ## 📁 Project Structure
 
 ```
@@ -387,4 +388,7 @@ This blog application has evolved from a basic CRUD application to a comprehensi
 ---
 
 **BlogAxis - Built with ❤️ using the MERN Stack - Your Central Hub for Advanced Blogging**
+=======
+
+>>>>>>> 5c87989bfc04063bdd71198fdfec70e91227b2cf
 
