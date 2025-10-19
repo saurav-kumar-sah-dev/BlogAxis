@@ -27,14 +27,32 @@ export default function Header() {
     let timer;
     async function load() {
       try {
-        if (!user) { setUnread(0); setNotifItems([]); return; }
+        // Only fetch notifications if user is authenticated and has a valid token
+        if (!user || !user.id) { 
+          setUnread(0); 
+          setNotifItems([]); 
+          return; 
+        }
+        
         const res = await api.get('/notifications?limit=10');
-        if (!res.ok) return;
+        if (!res.ok) {
+          // If 401, user is not authenticated - clear notifications
+          if (res.status === 401) {
+            setUnread(0);
+            setNotifItems([]);
+            return;
+          }
+          return;
+        }
         const data = await res.json();
         setUnread(data.unreadCount || 0);
         setNotifItems(data.data || []);
-      } catch {}
-      finally {
+      } catch (error) {
+        // Handle network errors or other issues
+        console.log('Notifications fetch error:', error.message);
+        setUnread(0);
+        setNotifItems([]);
+      } finally {
         timer = setTimeout(load, 30000);
       }
     }
