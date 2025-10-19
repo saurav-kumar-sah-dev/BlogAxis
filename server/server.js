@@ -31,18 +31,37 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 app.set('trust proxy', NODE_ENV === 'production' ? 1 : false);
 
 // CORS first
-const allowedOrigins = (process.env.CLIENT_ORIGIN?.split(',') || ['http://localhost:5173', 'http://localhost:5174', 'https://blog-axis.vercel.app']).map(o => o.trim());
+const allowedOrigins = (process.env.CLIENT_ORIGIN?.split(',') || [
+  'http://localhost:5173', 
+  'http://localhost:5174', 
+  'https://blog-axis.vercel.app',
+  'https://blog-axis-8bipgif9r-saurav-kumar-sahs-projects.vercel.app'
+]).map(o => o.trim());
 app.use(cors({
   origin: (origin, cb) => {
     console.log('CORS request from origin:', origin);
     console.log('Allowed origins:', allowedOrigins);
-    if (!origin || allowedOrigins.includes(origin)) {
-      console.log('CORS allowed for origin:', origin);
-      cb(null, true);
-    } else {
-      console.log('CORS blocked origin:', origin);
-      cb(new Error('Not allowed by CORS'));
+    
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      console.log('CORS allowed for origin: no origin');
+      return cb(null, true);
     }
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      console.log('CORS allowed for origin:', origin);
+      return cb(null, true);
+    }
+    
+    // Allow any Vercel preview URL (contains vercel.app)
+    if (origin.includes('vercel.app')) {
+      console.log('CORS allowed for Vercel origin:', origin);
+      return cb(null, true);
+    }
+    
+    console.log('CORS blocked origin:', origin);
+    cb(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
