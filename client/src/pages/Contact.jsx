@@ -58,6 +58,9 @@ export default function Contact() {
         // Show email status if available
         if (result.emailStatus) {
           console.log('Email status:', result.emailStatus);
+          if (result.emailStatus === 'not_configured') {
+            console.log('Note: Email notifications are not configured. Message saved to database.');
+          }
         }
       } else {
         console.error('Contact form failed with status:', response.status);
@@ -115,6 +118,9 @@ export default function Contact() {
               <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                 <p className="text-green-600 dark:text-green-400">
                   ✅ Thank you for your message! We'll get back to you soon.
+                </p>
+                <p className="text-sm text-green-500 dark:text-green-400 mt-2">
+                  Your message has been saved and will be reviewed by our team.
                 </p>
               </div>
             )}

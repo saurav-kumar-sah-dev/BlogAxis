@@ -36,9 +36,10 @@ export const api = {
       console.log('Making POST request to:', url);
     }
     
-    // Add timeout handling
+    // Add timeout handling - shorter timeout for contact form
+    const timeoutDuration = path.includes('/contact/') ? 15000 : 30000; // 15s for contact, 30s for others
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
     
     try {
       const res = await fetch(url, {
