@@ -26,6 +26,10 @@ const app = express();
 const PORT = process.env.PORT || 10000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
+// Behind proxies/load balancers in production (e.g., Render), enable trust proxy
+// This fixes rate-limit warnings regarding X-Forwarded-For and ensures correct IP detection
+app.set('trust proxy', NODE_ENV === 'production' ? 1 : false);
+
 // CORS first
 const allowedOrigins = (process.env.CLIENT_ORIGIN?.split(',') || ['http://localhost:5173', 'http://localhost:5174', 'https://blog-axis.vercel.app']).map(o => o.trim());
 app.use(cors({
@@ -114,11 +118,26 @@ mongoose.connect(process.env.MONGO_URI, {
   process.exit(1); // Exit the process if DB connection fails
 });
 
-// Serve frontend (Express 5-safe regex, not "*")
+// Serve frontend (only if present). In this deployment, frontend is hosted separately (Vercel),
+// so skip serving if the build directory doesn't exist to avoid 500s.
 if (NODE_ENV === 'production') {
+  const fs = require('fs');
   const clientPath = path.join(__dirname, '../frontend/dist');
-  app.use(express.static(clientPath));
-  app.get(/^\/(?!api).*/, (req, res) => res.sendFile(path.join(clientPath, 'index.html')));
+  const indexPath = path.join(clientPath, 'index.html');
+
+  if (fs.existsSync(indexPath)) {
+    app.use(express.static(clientPath));
+    app.get(/^\/(?!api).*/, (req, res) => res.sendFile(indexPath));
+  } else {
+    console.warn(`Frontend build not found at ${indexPath}; skipping static hosting. Frontend is served from Vercel.`);
+    // Provide a helpful root response instead of a 500 when hitting the service root
+    app.get('/', (req, res) => res.json({
+      status: 'ok',
+      service: 'BlogAxis API',
+      docs: '/api/health',
+      frontend: 'https://blog-axis.vercel.app'
+    }));
+  }
 }
 
 // Error handler to avoid silent 500s
