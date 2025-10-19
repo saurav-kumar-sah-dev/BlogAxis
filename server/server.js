@@ -34,8 +34,7 @@ app.set('trust proxy', NODE_ENV === 'production' ? 1 : false);
 const allowedOrigins = (process.env.CLIENT_ORIGIN?.split(',') || [
   'http://localhost:5173', 
   'http://localhost:5174', 
-  'https://blog-axis.vercel.app',
-  'https://blog-axis-8bipgif9r-saurav-kumar-sahs-projects.vercel.app'
+  'https://blog-axis.vercel.app'
 ]).map(o => o.trim());
 app.use(cors({
   origin: (origin, cb) => {
