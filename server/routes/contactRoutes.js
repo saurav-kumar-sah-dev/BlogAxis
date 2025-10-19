@@ -21,6 +21,46 @@ router.post('/test', (req, res) => {
   });
 });
 
+// Test email sending endpoint
+router.post('/test-email', async (req, res) => {
+  try {
+    const { sendContactEmail } = require('../controllers/contactController');
+    
+    const testData = {
+      name: 'Test User',
+      email: 'test@example.com',
+      subject: 'Test Email',
+      message: 'This is a test email to verify email delivery is working.'
+    };
+    
+    console.log('Testing email sending...');
+    const result = await sendContactEmail(testData);
+    
+    res.json({
+      status: 'success',
+      message: 'Test email sent successfully',
+      result: {
+        messageId: result.messageId,
+        accepted: result.accepted,
+        rejected: result.rejected,
+        response: result.response
+      }
+    });
+  } catch (error) {
+    console.error('Test email failed:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Test email failed',
+      error: error.message,
+      details: {
+        code: error.code,
+        command: error.command,
+        response: error.response
+      }
+    });
+  }
+});
+
 // Email configuration check endpoint
 router.get('/email-config', (req, res) => {
   const emailConfig = {

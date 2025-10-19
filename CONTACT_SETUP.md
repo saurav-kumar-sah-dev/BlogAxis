@@ -89,7 +89,7 @@ EMAIL_PORT=587
 ### Common Issues:
 
 1. **"Request timeout" error**:
-   - Fixed: Email sending now happens in background
+   - ✅ Fixed: Email sending now happens in background
    - Contact form responds immediately
    - No more timeout issues
 
@@ -104,6 +104,45 @@ EMAIL_PORT=587
 4. **"Connection timeout"**:
    - Check EMAIL_HOST and EMAIL_PORT
    - Try different email provider
+
+5. **"Email sent but not received"** (NEW ISSUE):
+   - Check spam/junk folder
+   - Verify email address is correct
+   - Check Gmail's "Less secure app access" settings
+   - Try different email provider
+   - Check server logs for delivery details
+
+### Email Delivery Troubleshooting:
+
+#### If emails are sent but not received:
+
+1. **Check Spam/Junk Folder**:
+   - Gmail often filters automated emails
+   - Look for emails from your configured EMAIL_USER
+
+2. **Gmail Specific Issues**:
+   - Enable "Less secure app access" (if using regular password)
+   - Use App Password instead of regular password
+   - Check Gmail's security settings
+
+3. **Test Email Delivery**:
+   ```bash
+   # Test email sending
+   curl -X POST https://blogaxis.onrender.com/api/contact/test-email
+   
+   # Check email configuration
+   curl https://blogaxis.onrender.com/api/contact/email-config
+   ```
+
+4. **Alternative Email Providers**:
+   - Try Outlook/Hotmail instead of Gmail
+   - Use a dedicated email service like SendGrid
+   - Consider using a business email account
+
+5. **Check Server Logs**:
+   - Look for "Email result" in Render logs
+   - Check if messageId is generated
+   - Verify accepted/rejected arrays
 
 ## Database Access
 

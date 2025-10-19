@@ -35,18 +35,39 @@ exports.submitContactForm = async (req, res) => {
     
     // Check if email is configured
     if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      console.log('📧 Email configuration found, attempting to send email...');
+      console.log('Email config:', {
+        host: process.env.EMAIL_HOST,
+        user: process.env.EMAIL_USER,
+        port: process.env.EMAIL_PORT || 587,
+        hasPassword: !!process.env.EMAIL_PASS
+      });
+      
       // Send email in background (don't await)
       sendContactEmail({ name, email, subject, message })
-        .then(() => {
+        .then((result) => {
           console.log('✅ Email notification sent successfully');
+          console.log('Email result:', {
+            messageId: result.messageId,
+            accepted: result.accepted,
+            rejected: result.rejected,
+            response: result.response
+          });
           // Update status in database
           ContactSubmission.findByIdAndUpdate(contactSubmission._id, { 
             status: 'read',
-            adminNotes: 'Email notification sent'
+            adminNotes: `Email sent successfully - Message ID: ${result.messageId}`
           }).catch(err => console.log('Failed to update email status:', err));
         })
         .catch((emailError) => {
           console.log('❌ Email sending failed:', emailError.message);
+          console.log('Email error details:', {
+            code: emailError.code,
+            command: emailError.command,
+            response: emailError.response,
+            errno: emailError.errno,
+            syscall: emailError.syscall
+          });
           // Update status in database
           ContactSubmission.findByIdAndUpdate(contactSubmission._id, { 
             adminNotes: `Email failed: ${emailError.message}`
@@ -56,6 +77,11 @@ exports.submitContactForm = async (req, res) => {
       emailStatus = 'sending';
     } else {
       console.log('❌ Email configuration not found, skipping email notification');
+      console.log('Missing config:', {
+        EMAIL_HOST: !!process.env.EMAIL_HOST,
+        EMAIL_USER: !!process.env.EMAIL_USER,
+        EMAIL_PASS: !!process.env.EMAIL_PASS
+      });
       emailStatus = 'not_configured';
     }
 
@@ -122,8 +148,9 @@ async function sendContactEmail({ name, email, subject, message }) {
     console.log('✅ Email transporter verified successfully');
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"BlogAxis Contact Form" <${process.env.EMAIL_USER}>`,
       to: 'sauravshubham903@gmail.com', // Always send to your email
+      replyTo: email, // Allow replying directly to the sender
       subject: `BlogAxis Contact Form: ${subject}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -132,7 +159,7 @@ async function sendContactEmail({ name, email, subject, message }) {
           </h2>
           <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
             <p><strong>Subject:</strong> ${subject}</p>
             <p><strong>Message:</strong></p>
             <div style="background: white; padding: 15px; border-radius: 4px; border-left: 4px solid #007bff;">
@@ -142,7 +169,8 @@ async function sendContactEmail({ name, email, subject, message }) {
           <hr style="border: none; border-top: 1px solid #eee;">
           <p style="color: #666; font-size: 12px;">
             <em>Submitted at: ${new Date().toLocaleString()}</em><br>
-            <em>From: BlogAxis Contact Form</em>
+            <em>From: BlogAxis Contact Form</em><br>
+            <em>Reply directly to: ${email}</em>
           </p>
         </div>
       `,
@@ -158,7 +186,15 @@ ${message}
 
 Submitted at: ${new Date().toLocaleString()}
 From: BlogAxis Contact Form
+
+Reply directly to: ${email}
       `,
+      // Add headers to help with delivery
+      headers: {
+        'X-Priority': '3',
+        'X-MSMail-Priority': 'Normal',
+        'Importance': 'normal'
+      }
     };
 
     // Send email with timeout
