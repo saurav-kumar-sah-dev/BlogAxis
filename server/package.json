@@ -21,6 +21,7 @@
   "license": "MIT",
   "description": "BlogAxis backend API with advanced features including content moderation and user management",
   "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
     "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
     "cloudinary": "^2.7.0",

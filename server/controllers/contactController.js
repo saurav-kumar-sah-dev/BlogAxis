@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 
 // Create a contact form submission model (optional - for storing contact messages)
 const ContactSubmission = require('../models/ContactSubmission');
@@ -139,8 +140,14 @@ async function sendContactEmail({ name, email, subject, message }) {
     }
   }
   
-  // If all configurations failed, throw the last error
-  throw lastError || new Error('All SMTP configurations failed');
+  // If all SMTP configurations failed, try SendGrid as fallback
+  console.log('All SMTP configurations failed, trying SendGrid API...');
+  try {
+    return await sendWithSendGrid({ name, email, subject, message });
+  } catch (sendGridError) {
+    console.log('❌ SendGrid also failed:', sendGridError.message);
+    throw lastError || new Error('All email methods failed');
+  }
 }
 
 // Helper function to try sending email with specific configuration
@@ -262,5 +269,84 @@ Reply directly to: ${email}
     } catch (closeError) {
       console.log('Warning: Failed to close email transporter:', closeError.message);
     }
+  }
+}
+
+// SendGrid fallback function
+async function sendWithSendGrid({ name, email, subject, message }) {
+  console.log('Attempting to send email via SendGrid API...');
+  
+  // Check if SendGrid API key is configured
+  if (!process.env.SENDGRID_API_KEY) {
+    console.log('❌ SendGrid API key not configured');
+    throw new Error('SendGrid API key not configured');
+  }
+
+  // Set SendGrid API key
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+  const msg = {
+    to: 'sauravshubham903@gmail.com',
+    from: {
+      email: process.env.EMAIL_USER || 'sauravshubham903@gmail.com',
+      name: 'BlogAxis Contact Form'
+    },
+    replyTo: email,
+    subject: `BlogAxis Contact Form: ${subject}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+          New Contact Form Submission
+        </h2>
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+          <p><strong>Subject:</strong> ${subject}</p>
+          <p><strong>Message:</strong></p>
+          <div style="background: white; padding: 15px; border-radius: 4px; border-left: 4px solid #007bff;">
+            ${message.replace(/\n/g, '<br>')}
+          </div>
+        </div>
+        <hr style="border: none; border-top: 1px solid #eee;">
+        <p style="color: #666; font-size: 12px;">
+          <em>Submitted at: ${new Date().toLocaleString()}</em><br>
+          <em>From: BlogAxis Contact Form (via SendGrid)</em><br>
+          <em>Reply directly to: ${email}</em>
+        </p>
+      </div>
+    `,
+    text: `
+New Contact Form Submission
+
+Name: ${name}
+Email: ${email}
+Subject: ${subject}
+
+Message:
+${message}
+
+Submitted at: ${new Date().toLocaleString()}
+From: BlogAxis Contact Form (via SendGrid)
+
+Reply directly to: ${email}
+    `
+  };
+
+  try {
+    console.log('Sending email via SendGrid...');
+    const result = await sgMail.send(msg);
+    console.log('✅ Email sent successfully via SendGrid:', result[0].statusCode);
+    return {
+      messageId: result[0].headers['x-message-id'],
+      accepted: [msg.to],
+      rejected: [],
+      response: `SendGrid: ${result[0].statusCode}`
+    };
+  } catch (error) {
+    console.error('❌ SendGrid email failed:', error.message);
+    if (error.response) {
+      console.error('SendGrid error details:', error.response.body);
+    }
+    throw error;
   }
 }
