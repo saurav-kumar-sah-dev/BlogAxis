@@ -9,7 +9,14 @@
     "test-server": "node test-server.js",
     "minimal-test": "node minimal-test.js"
   },
-  "keywords": ["blog", "api", "nodejs", "express", "mongodb", "react"],
+  "keywords": [
+    "blog",
+    "api",
+    "nodejs",
+    "express",
+    "mongodb",
+    "react"
+  ],
   "author": "BlogAxis Team",
   "license": "MIT",
   "description": "BlogAxis backend API with advanced features including content moderation and user management",
@@ -28,6 +35,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.1",
     "multer": "^2.0.2",
+    "nodemailer": "^6.10.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",

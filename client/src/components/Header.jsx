@@ -18,6 +18,10 @@ export default function Header() {
   const [unread, setUnread] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifItems, setNotifItems] = useState([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const mobileMenuRef = useRef(null);
+  const touchHandledRef = useRef(false);
 
   useEffect(() => {
     let timer;
@@ -55,6 +59,35 @@ export default function Header() {
     return () => clearTimeout(id);
   }, [query]);
 
+  // Close mobile menu and search when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        setMobileMenuOpen(false);
+        setMobileSearchOpen(false);
+      }
+    }
+
+    function handleTouchOutside(event) {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        setMobileMenuOpen(false);
+        setMobileSearchOpen(false);
+      }
+    }
+
+    if (mobileMenuOpen || mobileSearchOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleTouchOutside, { passive: true });
+      document.addEventListener('touchend', handleTouchOutside, { passive: true });
+      
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('touchstart', handleTouchOutside);
+        document.removeEventListener('touchend', handleTouchOutside);
+      };
+    }
+  }, [mobileMenuOpen, mobileSearchOpen]);
+
   function handleKeyDown(e) {
     if (!open) return;
     if (e.key === 'ArrowDown') {
@@ -75,137 +108,133 @@ export default function Header() {
   }
 
   return (
-    <header className="relative overflow-visible w-full">
-      {/* Background gradient */}
+    <header className="relative overflow-visible w-full shadow-2xl z-50">
+      {/* Enhanced Background gradient with better contrast */}
       <div 
-        className="absolute inset-0 opacity-90"
+        className="absolute inset-0 opacity-95"
         style={{
           background: isDark 
-            ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-            : 'linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%)'
+            ? 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)'
+            : 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)'
         }}
       />
       
-      {/* Animated background elements */}
-      <div className="absolute inset-0">
-        <div className="absolute top-0 left-0 w-32 h-32 rounded-full opacity-20 animate-pulse" style={{ background: 'rgba(255,255,255,0.1)' }} />
-        <div className="absolute bottom-0 right-0 w-24 h-24 rounded-full opacity-20 animate-pulse" style={{ background: 'rgba(255,255,255,0.1)' }} />
+      {/* Enhanced animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-10 -left-10 w-40 h-40 rounded-full opacity-10 animate-pulse" style={{ background: 'rgba(255,255,255,0.2)' }} />
+        <div className="absolute -bottom-10 -right-10 w-32 h-32 rounded-full opacity-10 animate-pulse" style={{ background: 'rgba(255,255,255,0.15)' }} />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full opacity-5 animate-ping" style={{ background: 'rgba(255,255,255,0.3)' }} />
       </div>
 
-      <div className="relative z-10 flex items-center justify-between py-6 px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
-          <div className="p-2 rounded-xl bg-white/20 backdrop-blur-sm group-hover:bg-white/30 transition-all duration-300">
-            <span className="text-2xl">✨</span>
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white drop-shadow-lg">BlogAxis</h1>
-            <p className="text-xs text-white/80 hidden sm:block">Your central hub for blogging</p>
-          </div>
-        </Link>
+      {/* Glass morphism overlay */}
+      <div className="absolute inset-0 bg-white/5 backdrop-blur-sm" />
 
-        {/* Search + Navigation */}
-        <nav className="flex items-center gap-2 sm:gap-4 relative w-full md:w-auto">
-          {/* Mobile search */}
-          <div className="flex-1 md:hidden relative">
-            <input
-              ref={inputRef}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onFocus={() => query && setOpen(true)}
-              onBlur={() => setTimeout(() => setOpen(false), 150)}
-              onKeyDown={handleKeyDown}
-              placeholder="Search users by name, username, place..."
-              className="w-full px-3 py-2 rounded-lg bg-white/95 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-300 shadow"
-            />
-            {open && (
-              <div ref={listRef} className="absolute left-0 right-0 mt-1 bg-white rounded-xl shadow-2xl z-50 max-h-72 overflow-auto border border-gray-100">
-                {results.length === 0 ? (
-                  <div className="px-4 py-3 text-sm text-gray-500">No users found</div>
-                ) : (
-                  results.map((u, idx) => (
-                    <button
-                      key={u._id}
-                      onMouseDown={(ev) => ev.preventDefault()}
-                      onClick={() => { setOpen(false); setQuery(''); navigate(`/users/${u._id}`); }}
-                      className={`w-full text-left px-3 py-2 flex items-center gap-3 ${idx === highlighted ? 'bg-indigo-50' : 'hover:bg-gray-50'}`}
-                    >
-                      <img src={u.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"28\" height=\"28\"><rect width=\"28\" height=\"28\" fill=\"#e5e7eb\"/><text x=\"14\" y=\"18\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"11\" fill=\"#6b7280\">U</text></svg>')}`} alt="" className="w-7 h-7 rounded-full object-cover border" />
-                      <div className="min-w-0">
-                        <div className="text-sm text-gray-900 truncate">{u.name}</div>
-                        <div className="text-xs text-gray-500 truncate">
-                          {u.username && <span>@{u.username}</span>}
-                          {u.place && <span className="ml-1">• {u.place}</span>}
-                        </div>
-                      </div>
-                    </button>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Desktop search */}
-          <div className="hidden md:block w-72 relative">
-            <input
-              ref={inputRef}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onFocus={() => query && setOpen(true)}
-              onBlur={() => setTimeout(() => setOpen(false), 150)}
-              onKeyDown={handleKeyDown}
-              placeholder="Search users by name, username, place..."
-              className="w-full px-3 py-2 rounded-lg bg-white/90 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-300 shadow"
-            />
-            {open && (
-              <div ref={listRef} className="absolute left-0 right-0 mt-1 bg-white rounded-xl shadow-2xl z-50 max-h-80 overflow-auto border border-gray-100">
-                {results.length === 0 ? (
-                  <div className="px-4 py-3 text-sm text-gray-500">No users found</div>
-                ) : (
-                  results.map((u, idx) => (
-                    <button
-                      key={u._id}
-                      onMouseDown={(ev) => ev.preventDefault()}
-                      onClick={() => { setOpen(false); setQuery(''); navigate(`/users/${u._id}`); }}
-                      className={`w-full text-left px-3 py-2 flex items-center gap-3 ${idx === highlighted ? 'bg-indigo-50' : 'hover:bg-gray-50'}`}
-                    >
-                      <img src={u.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"28\" height=\"28\"><rect width=\"28\" height=\"28\" fill=\"#e5e7eb\"/><text x=\"14\" y=\"18\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"11\" fill=\"#6b7280\">U</text></svg>')}`} alt="" className="w-7 h-7 rounded-full object-cover border" />
-                      <div className="min-w-0">
-                        <div className="text-sm text-gray-900 truncate">{u.name}</div>
-                        <div className="text-xs text-gray-500 truncate">
-                          {u.username && <span>@{u.username}</span>}
-                          {u.place && <span className="ml-1">• {u.place}</span>}
-                        </div>
-                      </div>
-                    </button>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
-          <Link 
-            to="/" 
-            className="px-3 py-2 rounded-lg bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-300 text-sm font-medium"
-          >
-            🏠 Home
+      <div className="relative z-10">
+        {/* Main Header Row */}
+        <div className="flex items-center justify-between py-3 px-4 sm:px-6 lg:px-8">
+          {/* Enhanced Logo */}
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0">
+            <div className="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-white/20 backdrop-blur-md group-hover:bg-white/30 transition-all duration-300 shadow-lg group-hover:shadow-xl group-hover:scale-105">
+              <span className="text-xl sm:text-2xl filter drop-shadow-sm">✨</span>
+            </div>
+            <div className="group-hover:scale-105 transition-transform duration-300">
+              <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-white drop-shadow-lg tracking-tight">BlogAxis</h1>
+              <p className="text-xs lg:text-sm text-white/90 hidden sm:block font-medium">Your central hub for blogging</p>
+            </div>
           </Link>
-          
-          <button 
-            onClick={toggleTheme}
-            className="p-2 rounded-lg bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-300"
-            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {isDark ? '☀️' : '🌙'}
-          </button>
-          {user && (
-            <div className="relative">
-              <button onClick={()=>setNotifOpen(o=>!o)} className="p-2 rounded-lg bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-300 relative" title="Notifications">
-                🔔
-                {unread > 0 && <span className="absolute -top-1 -right-1 text-[10px] bg-red-500 text-white rounded-full px-1">{unread}</span>}
-              </button>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-2 xl:gap-4">
+            {/* Enhanced Desktop search */}
+            <div className="w-80 xl:w-96 relative">
+              <div className="relative">
+                <input
+                  ref={inputRef}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onFocus={() => query && setOpen(true)}
+                  onBlur={() => setTimeout(() => setOpen(false), 150)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Search users by name, username, place..."
+                  className={`w-full px-4 py-3 pl-12 rounded-2xl backdrop-blur-sm focus:outline-none focus:ring-2 shadow-lg border transition-all duration-300 ${
+                    isDark 
+                      ? 'bg-gray-800/95 text-white placeholder-gray-300 focus:ring-white/50 focus:bg-gray-800 border-gray-600/50' 
+                      : 'bg-white/95 text-gray-800 placeholder-gray-600 focus:ring-white/50 focus:bg-white border-white/20'
+                  }`}
+                />
+                <div className={`absolute left-4 top-1/2 transform -translate-y-1/2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                  🔍
+                </div>
+              </div>
+            {open && (
+              <div ref={listRef} className={`absolute left-0 right-0 mt-2 backdrop-blur-md rounded-2xl shadow-2xl z-50 max-h-72 overflow-auto border transition-all duration-300 ${
+                isDark 
+                  ? 'bg-gray-800/95 border-gray-600/50' 
+                  : 'bg-white/95 border-white/20'
+              }`}>
+                {results.length === 0 ? (
+                  <div className={`px-4 py-4 text-sm text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>No users found</div>
+                ) : (
+                  results.map((u, idx) => (
+                    <button
+                      key={u._id}
+                      onMouseDown={(ev) => ev.preventDefault()}
+                      onClick={() => { setOpen(false); setQuery(''); navigate(`/users/${u._id}`); }}
+                      className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-all duration-200 ${
+                        idx === highlighted 
+                          ? (isDark ? 'bg-blue-900/50 border-l-4 border-blue-400' : 'bg-blue-50 border-l-4 border-blue-500')
+                          : (isDark ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50')
+                      }`}
+                    >
+                      <img src={u.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"32\"><rect width=\"32\" height=\"32\" fill=\"#e5e7eb\"/><text x=\"16\" y=\"20\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"12\" fill=\"#6b7280\">U</text></svg>')}`} alt="" className="w-8 h-8 rounded-full object-cover border-2 border-gray-200" />
+                      <div className="min-w-0">
+                        <div className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>{u.name}</div>
+                        <div className={`text-xs truncate ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {u.username && <span>@{u.username}</span>}
+                          {u.place && <span className="ml-1">• {u.place}</span>}
+                        </div>
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+            </div>
+            
+            <Link 
+              to="/" 
+              className="px-3 py-2 rounded-xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-all duration-300 text-sm font-medium shadow-lg hover:shadow-xl hover:scale-105 border border-white/20"
+            >
+              🏠 Home
+            </Link>
+            
+            <button 
+              onClick={toggleTheme}
+              className="p-2 rounded-xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border border-white/20"
+              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              <span className="text-lg">{isDark ? '☀️' : '🌙'}</span>
+            </button>
+            
+            {user && (
+              <div className="relative">
+                <button onClick={()=>setNotifOpen(o=>!o)} className="p-2 rounded-xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-all duration-300 relative shadow-lg hover:shadow-xl hover:scale-105 border border-white/20" title="Notifications">
+                  <span className="text-lg">🔔</span>
+                  {unread > 0 && <span className="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full px-2 py-1 min-w-[20px] text-center font-bold shadow-lg animate-pulse">{unread}</span>}
+                </button>
               {notifOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white text-gray-800 rounded-xl shadow-2xl z-[1000] max-h-96 overflow-auto">
-                  <div className="p-2 text-sm font-semibold border-b">Notifications</div>
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl text-gray-800 dark:text-gray-200 rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/50 z-[9999] max-h-96 overflow-auto">
+                  <div className="p-3 text-sm font-bold border-b border-gray-200 dark:border-gray-600 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-t-2xl">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🔔</span>
+                      <span>Notifications</span>
+                      {unread > 0 && (
+                        <span className="ml-auto bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse">
+                          {unread} new
+                        </span>
+                      )}
+                    </div>
+                  </div>
                   {notifItems.length === 0 ? (
                     <div className="p-3 text-sm text-gray-500">No notifications</div>
                   ) : notifItems.map(n => {
@@ -291,7 +320,7 @@ export default function Header() {
                     };
 
                     return (
-                      <div key={n._id} className={`p-3 border-b text-sm flex items-start gap-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer ${!n.read ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`} onClick={handleNotificationClick}>
+                      <div key={n._id} className={`p-3 border-b border-gray-100 dark:border-gray-700 text-sm flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-all duration-200 ${!n.read ? 'bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-l-4 border-l-blue-500' : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'}`} onClick={handleNotificationClick}>
                         <div className="text-lg">{getNotificationIcon(n.type)}</div>
                         <div className="flex-1">
                           <div className="font-medium text-gray-900 dark:text-white">{getNotificationText(n)}</div>
@@ -305,94 +334,644 @@ export default function Header() {
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
-                            api.del(`/notifications/${n._id}`).then(() => {
-                              setNotifItems(list => list.filter(x => x._id !== n._id));
-                              // Update unread count if the deleted notification was unread
-                              if (!n.read) {
-                                setUnread(prev => Math.max(0, prev - 1));
+                            console.log('Deleting individual notification:', n._id);
+                            api.del(`/notifications/${n._id}`).then((response) => {
+                              console.log('Individual delete response:', response);
+                              if (response.ok) {
+                                setNotifItems(list => list.filter(x => x._id !== n._id));
+                                // Update unread count if the deleted notification was unread
+                                if (!n.read) {
+                                  setUnread(prev => Math.max(0, prev - 1));
+                                }
+                                console.log('Successfully deleted individual notification');
+                              } else {
+                                console.error('Failed to delete individual notification:', response.status);
                               }
-                            }).catch(() => {});
+                            }).catch((error) => {
+                              console.error('Error deleting individual notification:', error);
+                            });
                           }} 
-                          className="text-xs text-red-600 hover:underline"
+                          className="text-xs text-red-600 hover:text-red-800 hover:bg-red-100 dark:hover:bg-red-900/30 p-1 rounded transition-all duration-200 hover:scale-110"
+                          title="Delete notification"
                         >
                           ✕
                         </button>
                       </div>
                     );
                   })}
-                  <div className="p-2">
+                  <div className="p-3 border-t border-gray-200 dark:border-gray-600">
                     <div className="flex gap-2">
-                      <button onClick={async()=>{ 
-                        try { 
-                          await api.post('/notifications/read-all', {}); 
-                          setUnread(0);
-                          // Update all notifications to read in local state
-                          setNotifItems(prev => prev.map(notif => ({ ...notif, read: true })));
-                        } catch {} 
-                      }} className="flex-1 text-center px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm">Mark all read</button>
-                      <button onClick={async()=>{ try { await api.del('/notifications'); setNotifItems([]); setUnread(0);} catch {} }} className="px-3 py-2 rounded-lg bg-red-100 hover:bg-red-200 text-sm text-red-700">Delete all</button>
+                      <button 
+                        onClick={async()=>{ 
+                          try { 
+                            console.log('Marking all notifications as read...');
+                            const response = await api.post('/notifications/read-all', {}); 
+                            console.log('Mark all read response:', response);
+                            if (response.ok) {
+                              setUnread(0);
+                              // Update all notifications to read in local state
+                              setNotifItems(prev => prev.map(notif => ({ ...notif, read: true })));
+                              console.log('Successfully marked all as read');
+                            } else {
+                              console.error('Failed to mark all as read:', response.status);
+                            }
+                          } catch (error) {
+                            console.error('Error marking all as read:', error);
+                          } 
+                        }} 
+                        className="flex-1 text-center px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-sm font-medium transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg"
+                      >
+                        ✅ Mark all read
+                      </button>
+                      <button 
+                        onClick={async()=>{ 
+                          try { 
+                            console.log('Deleting all notifications...');
+                            const response = await api.del('/notifications'); 
+                            console.log('Delete all response:', response);
+                            if (response.ok) {
+                              setNotifItems([]); 
+                              setUnread(0);
+                              console.log('Successfully deleted all notifications');
+                            } else {
+                              console.error('Failed to delete all notifications:', response.status);
+                            }
+                          } catch (error) {
+                            console.error('Error deleting all notifications:', error);
+                          } 
+                        }} 
+                        className="px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-sm font-medium transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg"
+                      >
+                        🗑️ Delete all
+                      </button>
                     </div>
                   </div>
                 </div>
               )}
             </div>
-          )}
+            )}
 
-          {user ? (
-            <>
-              <Link 
-                to="/compose" 
-                className="px-4 py-2 rounded-lg bg-white text-gray-800 hover:bg-gray-100 transition-all duration-300 text-sm font-semibold shadow-lg"
-              >
-                ✍️ Compose
-              </Link>
-              
-              {/* Account Switcher */}
-              <AccountSwitcher />
-              
-              <Link 
-                to="/profile" 
-                className="flex items-center"
-                title={user.name}
-              >
-                <img
-                  src={user.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg width="36" height="36" xmlns="http://www.w3.org/2000/svg"><rect width="36" height="36" rx="18" fill="#ffffff33"/><rect x="1" y="1" width="34" height="34" rx="17" fill="#ffffff55"/><text x="18" y="23" text-anchor="middle" font-family="Arial" font-size="14" fill="#1f2937">U</text></svg>')}`}
-                  alt={user.name}
-                  className="w-9 h-9 rounded-full object-cover border border-white/50 shadow-md hover:scale-105 transition-transform duration-200"
-                />
-              </Link>
-              {user.role === 'admin' && (
+            {user ? (
+              <>
                 <Link 
-                  to="/admin" 
-                  className="px-3 py-2 rounded-lg bg-yellow-300/90 text-gray-800 hover:bg-yellow-300 transition-all duration-300 text-sm font-semibold shadow"
+                  to="/compose" 
+                  className="px-3 py-2 rounded-xl bg-white text-gray-800 hover:bg-gray-100 transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-105 border border-white/20"
                 >
-                  🛡️ Admin
+                  ✍️ Compose
                 </Link>
+                
+                {/* Account Switcher */}
+                <AccountSwitcher />
+                
+                <Link 
+                  to="/profile" 
+                  className="flex items-center group"
+                  title={user.name}
+                >
+                  <div className="relative">
+                    <img
+                      src={user.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg width="36" height="36" xmlns="http://www.w3.org/2000/svg"><rect width="36" height="36" rx="18" fill="#ffffff33"/><rect x="1" y="1" width="34" height="34" rx="17" fill="#ffffff55"/><text x="18" y="23" text-anchor="middle" font-family="Arial" font-size="14" fill="#1f2937">U</text></svg>')}`}
+                      alt={user.name}
+                      className="w-9 h-9 rounded-full object-cover border-2 border-white/50 shadow-lg group-hover:scale-110 transition-all duration-300"
+                    />
+                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                  </div>
+                </Link>
+                {user.role === 'admin' && (
+                  <Link 
+                    to="/admin" 
+                    className="px-3 py-2 rounded-xl bg-yellow-300/90 text-gray-800 hover:bg-yellow-300 transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-105 border border-yellow-200"
+                  >
+                    🛡️ Admin
+                  </Link>
+                )}
+                <button 
+                  onClick={() => { logout(); navigate('/'); }} 
+                  className="px-3 py-2 rounded-xl bg-red-500/80 backdrop-blur-md text-white hover:bg-red-600/80 transition-all duration-300 text-sm font-medium shadow-lg hover:shadow-xl hover:scale-105 border border-red-400/50"
+                >
+                  🚪 Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link 
+                  to="/login" 
+                  className="px-3 py-2 rounded-xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-all duration-300 text-sm font-medium shadow-lg hover:shadow-xl hover:scale-105 border border-white/20"
+                >
+                  🔑 Login
+                </Link>
+                <Link 
+                  to="/register" 
+                  className="px-3 py-2 rounded-xl bg-white text-gray-800 hover:bg-gray-100 transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-105 border border-white/20"
+                >
+                  📝 Register
+                </Link>
+              </>
+            )}
+          </nav>
+
+          {/* Mobile Controls */}
+          <div className="flex items-center gap-2 lg:hidden">
+            {/* Mobile Search Toggle */}
+            <button 
+              onTouchStart={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                touchHandledRef.current = false;
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Mobile search toggle touched, current state:', mobileSearchOpen);
+                
+                if (touchHandledRef.current) return;
+                touchHandledRef.current = true;
+                
+                setMobileSearchOpen(!mobileSearchOpen);
+                setMobileMenuOpen(false);
+                
+                // Reset the flag after a short delay
+                setTimeout(() => {
+                  touchHandledRef.current = false;
+                }, 300);
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // If touch was already handled, ignore this click
+                if (touchHandledRef.current) {
+                  console.log('Mobile search toggle click ignored (touch already handled)');
+                  return;
+                }
+                
+                console.log('Mobile search toggle clicked, current state:', mobileSearchOpen);
+                setMobileSearchOpen(!mobileSearchOpen);
+                setMobileMenuOpen(false);
+              }}
+              className="p-3 rounded-xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 active:bg-white/30 transition-all duration-300 shadow-lg border border-white/20 touch-manipulation select-none"
+              title={mobileSearchOpen ? "Close Search" : "Open Search"}
+              style={{ 
+                WebkitTapHighlightColor: 'transparent',
+                WebkitTouchCallout: 'none',
+                WebkitUserSelect: 'none',
+                userSelect: 'none'
+              }}
+            >
+              <span className="text-xl pointer-events-none">🔍</span>
+            </button>
+            
+            {/* Mobile Menu Toggle */}
+            <button 
+              onTouchStart={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                touchHandledRef.current = false;
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Mobile menu toggle touched, current state:', mobileMenuOpen);
+                
+                if (touchHandledRef.current) return;
+                touchHandledRef.current = true;
+                
+                if (mobileMenuOpen) {
+                  // If menu is open, close it and go to home
+                  setMobileMenuOpen(false);
+                  setMobileSearchOpen(false);
+                  setTimeout(() => navigate('/'), 100); // Small delay for smooth transition
+                } else {
+                  // If menu is closed, just open it
+                  setMobileMenuOpen(true);
+                  setMobileSearchOpen(false);
+                }
+                
+                // Reset the flag after a short delay
+                setTimeout(() => {
+                  touchHandledRef.current = false;
+                }, 300);
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // If touch was already handled, ignore this click
+                if (touchHandledRef.current) {
+                  console.log('Mobile menu toggle click ignored (touch already handled)');
+                  return;
+                }
+                
+                console.log('Mobile menu toggle clicked, current state:', mobileMenuOpen);
+                
+                if (mobileMenuOpen) {
+                  // If menu is open, close it and go to home
+                  setMobileMenuOpen(false);
+                  setMobileSearchOpen(false);
+                  setTimeout(() => navigate('/'), 100); // Small delay for smooth transition
+                } else {
+                  // If menu is closed, just open it
+                  setMobileMenuOpen(true);
+                  setMobileSearchOpen(false);
+                }
+              }}
+              className="p-3 rounded-xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 active:bg-white/30 transition-all duration-300 shadow-lg border border-white/20 touch-manipulation select-none"
+              title={mobileMenuOpen ? "Close Menu & Go Home" : "Open Menu"}
+              style={{ 
+                WebkitTapHighlightColor: 'transparent',
+                WebkitTouchCallout: 'none',
+                WebkitUserSelect: 'none',
+                userSelect: 'none'
+              }}
+            >
+              <span className="text-xl font-bold pointer-events-none">{mobileMenuOpen ? '✕' : '☰'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Search Bar */}
+        {mobileSearchOpen && (
+          <div className="lg:hidden px-4 pb-4" ref={mobileMenuRef}>
+            <div className="relative">
+              <input
+                ref={inputRef}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onFocus={() => query && setOpen(true)}
+                onBlur={() => setTimeout(() => setOpen(false), 150)}
+                onKeyDown={handleKeyDown}
+                placeholder="Search users..."
+                className={`w-full px-4 py-4 pl-14 rounded-3xl backdrop-blur-xl focus:outline-none focus:ring-4 shadow-2xl border-2 transition-all duration-300 text-lg ${
+                  isDark 
+                    ? 'bg-gradient-to-r from-gray-800/95 to-gray-800/90 text-white placeholder-gray-300 focus:ring-white/50 focus:bg-gray-800 border-gray-600/50' 
+                    : 'bg-gradient-to-r from-white/95 to-white/90 text-gray-800 placeholder-gray-600 focus:ring-white/50 focus:bg-white border-white/30'
+                }`}
+              />
+              <div className={`absolute left-5 top-1/2 transform -translate-y-1/2 text-xl ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                🔍
+              </div>
+            </div>
+            {open && (
+              <div ref={listRef} className={`absolute left-4 right-4 mt-3 backdrop-blur-xl rounded-3xl shadow-2xl z-50 max-h-72 overflow-auto border-2 transition-all duration-300 ${
+                isDark 
+                  ? 'bg-gradient-to-br from-gray-800/98 to-gray-800/95 border-gray-600/50' 
+                  : 'bg-gradient-to-br from-white/98 to-white/95 border-white/30'
+              }`}>
+                {results.length === 0 ? (
+                  <div className={`px-4 py-4 text-sm text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>No users found</div>
+                ) : (
+                  results.map((u, idx) => (
+                    <button
+                      key={u._id}
+                      onMouseDown={(ev) => ev.preventDefault()}
+                      onClick={() => { setOpen(false); setQuery(''); navigate(`/users/${u._id}`); }}
+                      className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-all duration-200 ${idx === highlighted ? 'bg-blue-50 border-l-4 border-blue-500' : 'hover:bg-gray-50'}`}
+                    >
+                      <img src={u.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"32\"><rect width=\"32\" height=\"32\" fill=\"#e5e7eb\"/><text x=\"16\" y=\"20\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"12\" fill=\"#6b7280\">U</text></svg>')}`} alt="" className="w-8 h-8 rounded-full object-cover border-2 border-gray-200" />
+                      <div className="min-w-0">
+                        <div className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>{u.name}</div>
+                        <div className={`text-xs truncate ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {u.username && <span>@{u.username}</span>}
+                          {u.place && <span className="ml-1">• {u.place}</span>}
+                        </div>
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden px-4 pb-4" ref={mobileMenuRef}>
+            <div className="bg-gradient-to-br from-white/15 via-white/10 to-white/5 backdrop-blur-xl rounded-3xl p-6 space-y-4 border border-white/30 shadow-2xl">
+              {/* Mobile Navigation Links */}
+              <div className="flex flex-wrap gap-3">
+                <Link 
+                  to="/" 
+                  onClick={() => { setMobileMenuOpen(false); setMobileSearchOpen(false); }}
+                  className="px-4 py-3 rounded-2xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-md text-white hover:from-blue-500/30 hover:to-purple-500/30 active:scale-95 transition-all duration-300 text-sm font-semibold shadow-lg border border-white/30 hover:shadow-xl touch-manipulation select-none"
+                  style={{ 
+                    WebkitTapHighlightColor: 'transparent',
+                    WebkitTouchCallout: 'none',
+                    WebkitUserSelect: 'none',
+                    userSelect: 'none'
+                  }}
+                >
+                  <span className="flex items-center gap-2 pointer-events-none">
+                    <span className="text-lg">🏠</span>
+                    <span>Home</span>
+                  </span>
+                </Link>
+                
+                <button 
+                  onClick={toggleTheme}
+                  className="px-4 py-3 rounded-2xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-md text-white hover:from-yellow-500/30 hover:to-orange-500/30 active:scale-95 transition-all duration-300 text-sm font-semibold shadow-lg border border-white/30 hover:shadow-xl touch-manipulation select-none"
+                  style={{ 
+                    WebkitTapHighlightColor: 'transparent',
+                    WebkitTouchCallout: 'none',
+                    WebkitUserSelect: 'none',
+                    userSelect: 'none'
+                  }}
+                >
+                  <span className="flex items-center gap-2 pointer-events-none">
+                    <span className="text-lg">{isDark ? '☀️' : '🌙'}</span>
+                    <span>{isDark ? 'Light' : 'Dark'}</span>
+                  </span>
+                </button>
+              </div>
+
+              {/* User Actions */}
+              {user ? (
+                <div className="space-y-2">
+                  <Link 
+                    to="/compose" 
+                    onClick={() => { setMobileMenuOpen(false); setMobileSearchOpen(false); }}
+                    className="w-full px-4 py-3 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 active:scale-95 transition-all duration-300 text-sm font-bold shadow-lg border border-white/30 hover:shadow-xl text-center block"
+                  >
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="text-lg">✍️</span>
+                      <span>Compose</span>
+                    </span>
+                  </Link>
+                  
+                  {/* Mobile Notifications */}
+                  <div className="w-full">
+                    <button 
+                      onClick={() => setNotifOpen(!notifOpen)}
+                      className="w-full px-4 py-3 rounded-2xl bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-md text-white hover:from-purple-500/30 hover:to-pink-500/30 active:scale-95 transition-all duration-300 text-sm font-semibold shadow-lg border border-white/30 hover:shadow-xl text-center flex items-center justify-center gap-2"
+                    >
+                      <span className="text-lg">🔔</span>
+                      <span>Notifications</span>
+                      {unread > 0 && (
+                        <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full px-2 py-1 text-xs font-bold min-w-[20px] text-center shadow-lg animate-pulse">
+                          {unread}
+                        </span>
+                      )}
+                    </button>
+                    
+                    {/* Mobile Notifications Dropdown */}
+                    {notifOpen && (
+                      <div className="mt-2 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/50 max-h-64 overflow-auto">
+                        <div className="p-3 text-sm font-bold border-b border-gray-200 dark:border-gray-600 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-t-2xl">
+                          <div className="flex items-center gap-2 text-gray-800 dark:text-gray-200">
+                            <span className="text-lg">🔔</span>
+                            <span>Notifications</span>
+                            {unread > 0 && (
+                              <span className="ml-auto bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse">
+                                {unread} new
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {notifItems.length === 0 ? (
+                          <div className="p-3 text-sm text-gray-500 text-center">No notifications</div>
+                        ) : (
+                          notifItems.map(n => {
+                            const getNotificationIcon = (type) => {
+                              const icons = {
+                                follow: '👥',
+                                like_post: '👍',
+                                dislike_post: '👎',
+                                comment: '💬',
+                                reply: '↩️',
+                                new_report: '🚩',
+                                warning: '⚠️',
+                                content_hidden: '🙈',
+                                content_unhidden: '👁️',
+                                content_deleted: '🗑️',
+                                account_suspended: '⏸️',
+                                account_unsuspended: '▶️',
+                                account_banned: '🚫',
+                                account_deleted: '💀'
+                              };
+                              return icons[type] || '🔔';
+                            };
+
+                            const getNotificationText = (n) => {
+                              switch (n.type) {
+                                case 'follow':
+                                  return `${n.fromUser?.name || 'Someone'} started following you`;
+                                case 'like_post':
+                                  return `${n.fromUser?.name || 'Someone'} liked your post "${n.post?.title || 'Untitled'}"`;
+                                case 'dislike_post':
+                                  return `${n.fromUser?.name || 'Someone'} disliked your post "${n.post?.title || 'Untitled'}"`;
+                                case 'comment':
+                                  return `${n.fromUser?.name || 'Someone'} commented on your post "${n.post?.title || 'Untitled'}"`;
+                                case 'reply':
+                                  return `${n.fromUser?.name || 'Someone'} replied to your comment`;
+                                case 'new_report':
+                                  return `New report received for review`;
+                                case 'warning':
+                                  return `Warning: ${n.details || 'You have received a warning'}`;
+                                case 'content_hidden':
+                                  return `Your post "${n.post?.title || 'content'}" has been hidden`;
+                                case 'content_unhidden':
+                                  return `Your post "${n.post?.title || 'content'}" has been made visible`;
+                                case 'content_deleted':
+                                  return `Your ${n.comment ? 'comment' : 'post'} has been deleted`;
+                                case 'account_suspended':
+                                  return `Your account has been suspended`;
+                                case 'account_unsuspended':
+                                  return `Your account has been unsuspended`;
+                                case 'account_banned':
+                                  return `Your account has been banned`;
+                                case 'account_deleted':
+                                  return `Your account has been deleted`;
+                                default:
+                                  return `${n.type.replace('_', ' ')} notification`;
+                              }
+                            };
+
+                            const handleNotificationClick = async () => {
+                              if (!n.read) {
+                                try {
+                                  await api.put(`/notifications/${n._id}/read`);
+                                  setNotifItems(prev => prev.map(notif => 
+                                    notif._id === n._id ? { ...notif, read: true } : notif
+                                  ));
+                                  setUnread(prev => Math.max(0, prev - 1));
+                                } catch (error) {
+                                  console.error('Error marking notification as read:', error);
+                                }
+                              }
+                              
+                              setNotifOpen(false);
+                              setMobileMenuOpen(false);
+                              setMobileSearchOpen(false);
+                              
+                              if (n.post) {
+                                navigate(`/posts/${n.post._id || n.post}`);
+                              } else if (n.fromUser && n.type === 'follow') {
+                                navigate(`/users/${n.fromUser._id || n.fromUser}`);
+                              } else if (n.type === 'new_report') {
+                                navigate('/moderation');
+                              }
+                            };
+
+                            return (
+                              <div key={n._id} className={`p-3 border-b border-gray-100 dark:border-gray-700 text-sm flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-all duration-200 ${!n.read ? 'bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-l-4 border-l-blue-500' : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'}`} onClick={handleNotificationClick}>
+                                <div className="text-lg">{getNotificationIcon(n.type)}</div>
+                                <div className="flex-1">
+                                  <div className="font-medium text-gray-900 dark:text-white">{getNotificationText(n)}</div>
+                                  {n.details && n.type !== 'warning' && (
+                                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{n.details}</div>
+                                  )}
+                                  <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                    {new Date(n.createdAt).toLocaleString()}
+                                  </div>
+                                </div>
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    console.log('Mobile: Deleting individual notification:', n._id);
+                                    api.del(`/notifications/${n._id}`).then((response) => {
+                                      console.log('Mobile: Individual delete response:', response);
+                                      if (response.ok) {
+                                        setNotifItems(list => list.filter(x => x._id !== n._id));
+                                        if (!n.read) {
+                                          setUnread(prev => Math.max(0, prev - 1));
+                                        }
+                                        console.log('Mobile: Successfully deleted individual notification');
+                                      } else {
+                                        console.error('Mobile: Failed to delete individual notification:', response.status);
+                                      }
+                                    }).catch((error) => {
+                                      console.error('Mobile: Error deleting individual notification:', error);
+                                    });
+                                  }} 
+                                  className="text-xs text-red-600 hover:text-red-800 hover:bg-red-100 dark:hover:bg-red-900/30 p-1 rounded transition-all duration-200 hover:scale-110"
+                                  title="Delete notification"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            );
+                          })
+                        )}
+                        <div className="p-3 border-t border-gray-200 dark:border-gray-600">
+                          <div className="flex gap-2">
+                            <button 
+                              onClick={async()=>{ 
+                                try { 
+                                  console.log('Mobile: Marking all notifications as read...');
+                                  const response = await api.post('/notifications/read-all', {}); 
+                                  console.log('Mobile: Mark all read response:', response);
+                                  if (response.ok) {
+                                    setUnread(0);
+                                    setNotifItems(prev => prev.map(notif => ({ ...notif, read: true })));
+                                    console.log('Mobile: Successfully marked all as read');
+                                  } else {
+                                    console.error('Mobile: Failed to mark all as read:', response.status);
+                                  }
+                                } catch (error) {
+                                  console.error('Mobile: Error marking all as read:', error);
+                                } 
+                              }} 
+                              className="flex-1 text-center px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-sm font-medium transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg"
+                            >
+                              ✅ Mark all read
+                            </button>
+                            <button 
+                              onClick={async()=>{ 
+                                try { 
+                                  console.log('Mobile: Deleting all notifications...');
+                                  const response = await api.del('/notifications'); 
+                                  console.log('Mobile: Delete all response:', response);
+                                  if (response.ok) {
+                                    setNotifItems([]); 
+                                    setUnread(0);
+                                    console.log('Mobile: Successfully deleted all notifications');
+                                  } else {
+                                    console.error('Mobile: Failed to delete all notifications:', response.status);
+                                  }
+                                } catch (error) {
+                                  console.error('Mobile: Error deleting all notifications:', error);
+                                } 
+                              }} 
+                              className="px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-sm font-medium transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg"
+                            >
+                              🗑️ Delete all
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Mobile Account Switcher */}
+                  <div className="w-full">
+                    <AccountSwitcher 
+                      isMobile={true} 
+                      onMobileMenuClose={() => { setMobileMenuOpen(false); setMobileSearchOpen(false); }} 
+                    />
+                  </div>
+                  
+                  <div className="flex gap-3">
+                    <Link 
+                      to="/profile" 
+                      onClick={() => { setMobileMenuOpen(false); setMobileSearchOpen(false); }}
+                      className="flex-1 px-4 py-3 rounded-2xl bg-gradient-to-r from-blue-500/20 to-cyan-500/20 backdrop-blur-md text-white hover:from-blue-500/30 hover:to-cyan-500/30 active:scale-95 transition-all duration-300 text-sm font-semibold shadow-lg border border-white/30 hover:shadow-xl text-center"
+                    >
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="text-lg">👤</span>
+                        <span>Profile</span>
+                      </span>
+                    </Link>
+                    
+                    {user.role === 'admin' && (
+                      <Link 
+                        to="/admin" 
+                        onClick={() => { setMobileMenuOpen(false); setMobileSearchOpen(false); }}
+                        className="px-4 py-3 rounded-2xl bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-800 hover:from-yellow-500 hover:to-orange-500 active:scale-95 transition-all duration-300 text-sm font-bold shadow-lg border border-yellow-300 hover:shadow-xl"
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="text-lg">🛡️</span>
+                          <span>Admin</span>
+                        </span>
+                      </Link>
+                    )}
+                  </div>
+                  
+                  <button 
+                    onClick={() => { logout(); navigate('/'); setMobileMenuOpen(false); setMobileSearchOpen(false); }} 
+                    className="w-full px-4 py-3 rounded-2xl bg-gradient-to-r from-red-500 to-pink-500 text-white hover:from-red-600 hover:to-pink-600 active:scale-95 transition-all duration-300 text-sm font-bold shadow-lg border border-red-400/50 hover:shadow-xl"
+                  >
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="text-lg">🚪</span>
+                      <span>Logout</span>
+                    </span>
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <Link 
+                    to="/login" 
+                    onClick={() => { setMobileMenuOpen(false); setMobileSearchOpen(false); }}
+                    className="w-full px-4 py-3 rounded-2xl bg-gradient-to-r from-blue-500/20 to-indigo-500/20 backdrop-blur-md text-white hover:from-blue-500/30 hover:to-indigo-500/30 active:scale-95 transition-all duration-300 text-sm font-semibold shadow-lg border border-white/30 hover:shadow-xl text-center block"
+                  >
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="text-lg">🔑</span>
+                      <span>Login</span>
+                    </span>
+                  </Link>
+                  <Link 
+                    to="/register" 
+                    onClick={() => { setMobileMenuOpen(false); setMobileSearchOpen(false); }}
+                    className="w-full px-4 py-3 rounded-2xl bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600 active:scale-95 transition-all duration-300 text-sm font-bold shadow-lg border border-white/30 hover:shadow-xl text-center block"
+                  >
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="text-lg">📝</span>
+                      <span>Register</span>
+                    </span>
+                  </Link>
+                </div>
               )}
-              <button 
-                onClick={() => { logout(); navigate('/'); }} 
-                className="px-3 py-2 rounded-lg bg-red-500/80 backdrop-blur-sm text-white hover:bg-red-600/80 transition-all duration-300 text-sm font-medium"
-              >
-                🚪 Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link 
-                to="/login" 
-                className="px-3 py-2 rounded-lg bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-300 text-sm font-medium"
-              >
-                🔑 Login
-              </Link>
-              <Link 
-                to="/register" 
-                className="px-4 py-2 rounded-lg bg-white text-gray-800 hover:bg-gray-100 transition-all duration-300 text-sm font-semibold shadow-lg"
-              >
-                📝 Register
-              </Link>
-            </>
-          )}
-        </nav>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );

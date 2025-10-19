@@ -20,13 +20,24 @@ export function AuthProvider({ children }) {
     setToken(t);
     setUser(u);
     
-    // Add to accounts if not already present
+    // Update or add to accounts
     const newAccount = { token: t, user: u, addedAt: new Date().toISOString() };
     const existingAccounts = JSON.parse(localStorage.getItem('accounts') || '[]');
-    const accountExists = existingAccounts.some(acc => acc.user.id === u.id);
+    const accountIndex = existingAccounts.findIndex(acc => acc.user.id === u.id);
     
-    if (!accountExists) {
+    if (accountIndex === -1) {
+      // Account doesn't exist, add it
       const updatedAccounts = [...existingAccounts, newAccount];
+      localStorage.setItem('accounts', JSON.stringify(updatedAccounts));
+      setAccounts(updatedAccounts);
+    } else {
+      // Account exists, update it with new user data (including avatar)
+      const updatedAccounts = [...existingAccounts];
+      updatedAccounts[accountIndex] = { 
+        ...updatedAccounts[accountIndex], 
+        user: u, // Update user data with new avatar
+        token: t // Update token in case it changed
+      };
       localStorage.setItem('accounts', JSON.stringify(updatedAccounts));
       setAccounts(updatedAccounts);
     }

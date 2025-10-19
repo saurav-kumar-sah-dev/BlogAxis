@@ -389,17 +389,25 @@ async function toggleInArray(doc, field, userId) {
 
 exports.likePost = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id).select('likes dislikes');
+    const post = await Post.findById(req.params.id).select('likes dislikes user');
     if (!post) return res.status(404).json({ error: 'Post not found' });
+    
+    // Check if user already liked the post
+    const wasLiked = (post.likes || []).some(id => String(id) === String(req.user.id));
+    
     // Add/remove like, and ensure dislike removed if existed
     await toggleInArray(post, 'likes', req.user.id);
     post.dislikes = (post.dislikes || []).filter(id => String(id) !== String(req.user.id));
     await post.save();
+    
+    // Create like notification only when liking (not unliking) and not for own posts
     try {
-      if (String(post.user) !== String(req.user.id)) {
+      const isNowLiked = (post.likes || []).some(id => String(id) === String(req.user.id));
+      if (!wasLiked && isNowLiked && String(post.user) !== String(req.user.id)) {
         await Notification.create({ toUser: post.user, fromUser: req.user.id, type: 'like_post', post: post._id });
       }
     } catch {}
+    
     res.json({ likes: post.likes.length, dislikes: post.dislikes.length, liked: post.likes.some(id => String(id) === String(req.user.id)) });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -408,12 +416,25 @@ exports.likePost = async (req, res) => {
 
 exports.dislikePost = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id).select('likes dislikes');
+    const post = await Post.findById(req.params.id).select('likes dislikes user');
     if (!post) return res.status(404).json({ error: 'Post not found' });
+    
+    // Check if user already disliked the post
+    const wasDisliked = (post.dislikes || []).some(id => String(id) === String(req.user.id));
+    
     // Add/remove dislike, and ensure like removed if existed
     await toggleInArray(post, 'dislikes', req.user.id);
     post.likes = (post.likes || []).filter(id => String(id) !== String(req.user.id));
     await post.save();
+    
+    // Create dislike notification only when disliking (not undisliking) and not for own posts
+    try {
+      const isNowDisliked = (post.dislikes || []).some(id => String(id) === String(req.user.id));
+      if (!wasDisliked && isNowDisliked && String(post.user) !== String(req.user.id)) {
+        await Notification.create({ toUser: post.user, fromUser: req.user.id, type: 'dislike_post', post: post._id });
+      }
+    } catch {}
+    
     res.json({ likes: post.likes.length, dislikes: post.dislikes.length, disliked: post.dislikes.some(id => String(id) === String(req.user.id)) });
   } catch (e) {
     res.status(500).json({ error: e.message });

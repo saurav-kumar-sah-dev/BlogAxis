@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 
 export default function Footer() {
@@ -5,88 +6,190 @@ export default function Footer() {
 
   return (
     <footer className="relative overflow-hidden w-full">
-      {/* Background gradient - match header */}
+      {/* Enhanced Background with multiple gradients */}
       <div 
-        className="absolute inset-0 opacity-90"
+        className="absolute inset-0"
         style={{
           background: isDark 
-            ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-            : 'linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%)'
+            ? 'linear-gradient(135deg, #1e3a8a 0%, #3730a3 25%, #7c3aed 50%, #c026d3 75%, #db2777 100%)'
+            : 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 25%, #ec4899 50%, #f59e0b 75%, #10b981 100%)'
         }}
       />
       
-      {/* Decorative elements */}
+      {/* Animated decorative elements */}
       <div className="absolute inset-0">
-        <div className="absolute top-0 left-0 w-20 h-20 rounded-full opacity-20" style={{ background: 'rgba(255,255,255,0.15)' }} />
-        <div className="absolute bottom-0 right-0 w-16 h-16 rounded-full opacity-20" style={{ background: 'rgba(255,255,255,0.15)' }} />
+        {/* Floating orbs */}
+        <div className="absolute top-4 left-4 w-16 h-16 rounded-full opacity-30 animate-pulse" style={{ background: 'rgba(255,255,255,0.2)' }} />
+        <div className="absolute top-8 right-8 w-12 h-12 rounded-full opacity-25 animate-bounce" style={{ background: 'rgba(255,255,255,0.15)' }} />
+        <div className="absolute bottom-8 left-8 w-20 h-20 rounded-full opacity-20 animate-pulse" style={{ background: 'rgba(255,255,255,0.1)' }} />
+        <div className="absolute bottom-4 right-4 w-14 h-14 rounded-full opacity-30 animate-bounce" style={{ background: 'rgba(255,255,255,0.2)' }} />
+        
+        {/* Gradient overlay for depth */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
       </div>
 
-      <div className="relative z-10 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
+      <div className="relative z-10 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           {/* Main footer content */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-10">
             {/* Brand section */}
-            <div className="text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-2 mb-3">
-                <span className="text-2xl">✨</span>
-                <h3 className="text-lg font-bold" style={{ color: isDark ? '#f7fafc' : '#2d3748' }}>
-                  My Blog
+            <div className="lg:col-span-2 text-center lg:text-left">
+              <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
+                <div className="relative">
+                  <span className="text-3xl animate-pulse">✨</span>
+                  <div className="absolute inset-0 text-3xl animate-ping opacity-20">✨</div>
+                </div>
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+                  BlogAxis
                 </h3>
               </div>
-              <p className="text-sm opacity-80" style={{ color: isDark ? '#cbd5e0' : '#4a5568' }}>
-                Share your stories, connect with readers, and build your community.
+              <p className="text-base leading-relaxed mb-6 text-white/90 max-w-md mx-auto lg:mx-0">
+                Share your stories, connect with readers, and build your community. 
+                <br className="hidden sm:block" />
+                Built with ❤️ by{' '}
+                <a 
+                  href="https://github.com/saurav-kumar-sah-dev" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-blue-200 hover:text-white transition-colors duration-300 font-semibold hover:underline"
+                >
+                  Saurav Kumar Sah
+                </a>
               </p>
+              
+              {/* Tech stack */}
+              <div className="flex flex-wrap justify-center lg:justify-start gap-2">
+                <span className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-xs font-medium text-white/80 border border-white/20">
+                  ⚛️ React
+                </span>
+                <span className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-xs font-medium text-white/80 border border-white/20">
+                  🟢 Node.js
+                </span>
+                <span className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-xs font-medium text-white/80 border border-white/20">
+                  🍃 MongoDB
+                </span>
+                <span className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-xs font-medium text-white/80 border border-white/20">
+                  🎨 Tailwind
+                </span>
+              </div>
             </div>
 
             {/* Quick links */}
-            <div className="text-center">
-              <h4 className="font-semibold mb-3" style={{ color: isDark ? '#f7fafc' : '#2d3748' }}>
-                🔗 Quick Links
+            <div className="text-center lg:text-left">
+              <h4 className="text-lg font-bold mb-4 text-white flex items-center justify-center lg:justify-start gap-2">
+                <span className="text-xl">🔗</span>
+                Quick Links
               </h4>
-              <div className="space-y-2">
-                <a href="#about" className="block text-sm hover:opacity-80 transition-opacity" style={{ color: isDark ? '#cbd5e0' : '#4a5568' }}>
-                  📖 About Us
-                </a>
-                <a href="#contact" className="block text-sm hover:opacity-80 transition-opacity" style={{ color: isDark ? '#cbd5e0' : '#4a5568' }}>
-                  📧 Contact
-                </a>
-                <a href="#privacy" className="block text-sm hover:opacity-80 transition-opacity" style={{ color: isDark ? '#cbd5e0' : '#4a5568' }}>
-                  🔒 Privacy Policy
-                </a>
+              <div className="space-y-3">
+                <Link 
+                  to="/about" 
+                  className="block text-sm text-white/80 hover:text-white hover:translate-x-1 transition-all duration-300 group"
+                >
+                  <span className="group-hover:text-blue-200 transition-colors">📖</span> About Us
+                </Link>
+                <Link 
+                  to="/contact" 
+                  className="block text-sm text-white/80 hover:text-white hover:translate-x-1 transition-all duration-300 group"
+                >
+                  <span className="group-hover:text-green-200 transition-colors">📧</span> Contact
+                </Link>
+                <Link 
+                  to="/terms" 
+                  className="block text-sm text-white/80 hover:text-white hover:translate-x-1 transition-all duration-300 group"
+                >
+                  <span className="group-hover:text-yellow-200 transition-colors">📋</span> Terms & Conditions
+                </Link>
+                <Link 
+                  to="/privacy" 
+                  className="block text-sm text-white/80 hover:text-white hover:translate-x-1 transition-all duration-300 group"
+                >
+                  <span className="group-hover:text-purple-200 transition-colors">🔒</span> Privacy Policy
+                </Link>
               </div>
             </div>
 
             {/* Social links */}
-            <div className="text-center md:text-right">
-              <h4 className="font-semibold mb-3" style={{ color: isDark ? '#f7fafc' : '#2d3748' }}>
-                🌐 Connect
+            <div className="text-center lg:text-left">
+              <h4 className="text-lg font-bold mb-4 text-white flex items-center justify-center lg:justify-start gap-2">
+                <span className="text-xl">🌐</span>
+                Connect
               </h4>
-              <div className="flex justify-center md:justify-end gap-3">
-                <a href="#" className="p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300">
-                  <span className="text-lg">📘</span>
+              <div className="flex justify-center lg:justify-start gap-3 flex-wrap">
+                <a 
+                  href="https://github.com/saurav-kumar-sah-dev" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="group p-3 rounded-2xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 border border-white/20 hover:border-white/40 hover:scale-110 hover:shadow-lg"
+                  title="GitHub"
+                >
+                  <span className="text-xl group-hover:scale-110 transition-transform duration-300">📘</span>
                 </a>
-                <a href="#" className="p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300">
-                  <span className="text-lg">🐦</span>
+                <a 
+                  href="https://www.linkedin.com/in/sauravkumarsah-dev/" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="group p-3 rounded-2xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 border border-white/20 hover:border-white/40 hover:scale-110 hover:shadow-lg"
+                  title="LinkedIn"
+                >
+                  <span className="text-xl group-hover:scale-110 transition-transform duration-300">💼</span>
                 </a>
-                <a href="#" className="p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300">
-                  <span className="text-lg">📷</span>
+                <a 
+                  href="mailto:sauravshubham903@gmail.com" 
+                  className="group p-3 rounded-2xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 border border-white/20 hover:border-white/40 hover:scale-110 hover:shadow-lg"
+                  title="Email"
+                >
+                  <span className="text-xl group-hover:scale-110 transition-transform duration-300">📧</span>
                 </a>
-                <a href="#" className="p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300">
-                  <span className="text-lg">💼</span>
+                <a 
+                  href="https://saurav-portfolio-dun.vercel.app/" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="group p-3 rounded-2xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 border border-white/20 hover:border-white/40 hover:scale-110 hover:shadow-lg"
+                  title="Portfolio"
+                >
+                  <span className="text-xl group-hover:scale-110 transition-transform duration-300">🌐</span>
                 </a>
+              </div>
+              
+              {/* Contact info */}
+              <div className="mt-4 text-sm text-white/70">
+                <p className="mb-1">📧 sauravshubham903@gmail.com</p>
+                <p className="text-xs text-white/60">Available for opportunities</p>
               </div>
             </div>
           </div>
 
-          {/* Bottom bar */}
-          <div className="border-t pt-6" style={{ borderColor: isDark ? '#4a5568' : '#e2e8f0' }}>
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <p className="text-sm opacity-80" style={{ color: isDark ? '#cbd5e0' : '#4a5568' }}>
-                © {new Date().getFullYear()} My Blog. Made with ❤️ for storytellers.
-              </p>
-              <div className="flex items-center gap-2 text-sm opacity-80" style={{ color: isDark ? '#cbd5e0' : '#4a5568' }}>
-                <span>🚀</span>
-                <span>Powered by React & Node.js</span>
+          {/* Enhanced bottom bar */}
+          <div className="border-t border-white/20 pt-8">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+              <div className="text-center lg:text-left">
+                <p className="text-sm text-white/80 mb-2">
+                  © {new Date().getFullYear()} BlogAxis. Made with ❤️ by{' '}
+                  <a 
+                    href="https://github.com/saurav-kumar-sah-dev" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-blue-200 hover:text-white transition-colors duration-300 font-semibold hover:underline"
+                  >
+                    Saurav Kumar Sah
+                  </a>{' '}
+                  for storytellers.
+                </p>
+                <p className="text-xs text-white/60">
+                  Final Year B.Tech CSE | MERN Stack Developer
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 text-sm text-white/80">
+                  <span className="text-lg animate-pulse">🚀</span>
+                  <span>Powered by MERN Stack</span>
+                </div>
+                <div className="w-1 h-1 bg-white/40 rounded-full"></div>
+                <div className="flex items-center gap-2 text-sm text-white/80">
+                  <span className="text-lg">⚡</span>
+                  <span>Lightning Fast</span>
+                </div>
               </div>
             </div>
           </div>

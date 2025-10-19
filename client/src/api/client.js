@@ -47,6 +47,10 @@ export const api = {
       body: isFormData ? body : JSON.stringify(body),
     }),
 
-  del: (path) =>
-    fetch(`${cleanBase}/api${path}`, { method: 'DELETE', headers: { ...authHeader() } }),
+  del: (path, body) =>
+    fetch(`${cleanBase}/api${path}`, { 
+      method: 'DELETE', 
+      headers: { 'Content-Type': 'application/json', ...authHeader() },
+      body: body ? JSON.stringify(body) : undefined
+    }),
 };

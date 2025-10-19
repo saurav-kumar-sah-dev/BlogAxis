@@ -18,6 +18,7 @@ const mediaRoutes = require('./routes/mediaRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const accountRoutes = require('./routes/accountRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 const { searchUsers } = require('./controllers/userController');
 const sanitizeRequest = require('./middleware/sanitize');
 
@@ -95,6 +96,7 @@ app.use('/api/media', mediaRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/contact', contactRoutes);
 
 // DB
 if (!process.env.MONGO_URI) {

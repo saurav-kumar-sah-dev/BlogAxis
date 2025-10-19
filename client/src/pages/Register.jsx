@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,30 +12,96 @@ const schema = z.object({
   firstName: z.string().min(1, 'First name required'),
   lastName: z.string().min(1, 'Last name required'),
   email: z.string().email('Invalid email'),
-  password: z.string().min(6, 'Min 6 characters'),
-  confirmPassword: z.string().min(6, 'Min 6 characters'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
+      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'),
+  confirmPassword: z.string().min(8, 'Min 8 characters'),
   dateOfBirth: z.string().optional(),
+  acceptTerms: z.boolean().refine(val => val === true, {
+    message: "You must accept the terms and conditions to create an account",
+  }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
 });
 
+// Password strength indicator component
+function PasswordStrengthIndicator({ password }) {
+  const getStrength = (password) => {
+    if (!password) return { score: 0, label: '', color: '' };
+    
+    let score = 0;
+    const checks = {
+      length: password.length >= 8,
+      lowercase: /[a-z]/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      number: /\d/.test(password),
+      special: /[@$!%*?&]/.test(password)
+    };
+    
+    score = Object.values(checks).filter(Boolean).length;
+    
+    if (score <= 2) return { score, label: 'Weak', color: 'text-red-500' };
+    if (score <= 3) return { score, label: 'Fair', color: 'text-yellow-500' };
+    if (score <= 4) return { score, label: 'Good', color: 'text-blue-500' };
+    return { score, label: 'Strong', color: 'text-green-500' };
+  };
+
+  const strength = getStrength(password);
+  
+  return (
+    <div className="mt-2">
+      <div className="flex items-center gap-2 mb-1">
+        <div className="flex gap-1">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div
+              key={i}
+              className={`h-1 w-8 rounded ${
+                i <= strength.score
+                  ? strength.score <= 2
+                    ? 'bg-red-500'
+                    : strength.score <= 3
+                    ? 'bg-yellow-500'
+                    : strength.score <= 4
+                    ? 'bg-blue-500'
+                    : 'bg-green-500'
+                  : 'bg-gray-200 dark:bg-gray-600'
+              }`}
+            />
+          ))}
+        </div>
+        <span className={`text-xs font-medium ${strength.color}`}>
+          {strength.label}
+        </span>
+      </div>
+      <div className="text-xs text-gray-500 dark:text-gray-400">
+        Password must contain: uppercase, lowercase, number, and special character (@$!%*?&)
+      </div>
+    </div>
+  );
+}
+
 export default function Register() {
   const { login } = useAuth();
   const { isDark } = useTheme();
   const navigate = useNavigate();
+  const [password, setPassword] = useState('');
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors }, watch } = useForm({
     defaultValues: {
       firstName: '',
       lastName: '',
       email: '',
       password: '',
       confirmPassword: '',
-      dateOfBirth: ''
+      dateOfBirth: '',
+      acceptTerms: false
     },
     resolver: zodResolver(schema),
   });
+
+  const watchedPassword = watch('password');
 
   const onSubmit = async (vals) => {
     try {
@@ -212,8 +279,13 @@ export default function Register() {
                     className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                     placeholder="Password"
                     {...register('password')}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      register('password').onChange(e);
+                    }}
                   />
                 </div>
+                <PasswordStrengthIndicator password={watchedPassword} />
                 {errors.password && (
                   <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
                     <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -251,6 +323,39 @@ export default function Register() {
                   </p>
                 )}
               </div>
+            </div>
+
+            {/* Terms and Conditions */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="acceptTerms"
+                  {...register('acceptTerms')}
+                  className="mt-1 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                />
+                <div className="flex-1">
+                  <label htmlFor="acceptTerms" className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer block">
+                    ✅ I agree to the{' '}
+                    <Link to="/terms" className="text-blue-600 dark:text-blue-400 hover:underline" target="_blank">
+                      Terms and Conditions
+                    </Link>
+                    {' '}and Privacy Policy
+                  </label>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                    By creating an account, you agree to our terms of service and privacy policy. 
+                    You must be at least 13 years old to create an account.
+                  </div>
+                </div>
+              </div>
+              {errors.acceptTerms && (
+                <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
+                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.acceptTerms.message}
+                </p>
+              )}
             </div>
 
             {/* Register Button */}

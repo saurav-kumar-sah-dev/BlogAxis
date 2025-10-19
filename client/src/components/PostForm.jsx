@@ -37,135 +37,320 @@ export default function PostForm({ initial, onSubmit, submitLabel }) {
   }, [initial, setValue]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-4">
-      <div className="flex flex-wrap gap-2">
-        {[
-          { key: 'text', label: 'Text 📝' },
-          { key: 'image', label: 'Image 🖼️' },
-          { key: 'video', label: 'Video 🎬' },
-          { key: 'document', label: 'Document 📄' },
-          { key: 'article', label: 'Article ✍️' },
-        ].map(tab => (
-          <button
-            key={tab.key}
-            type="button"
-            onClick={() => { setActive(tab.key); setValue('type', tab.key); }}
-            className={`px-3 py-1.5 rounded-full text-sm border ${active === tab.key ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600'}`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-      <input 
-        className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" 
-        placeholder="Post title" 
-        {...register('title')} 
-      />
-      {errors.title && <p className="text-red-600 dark:text-red-400 text-sm">{errors.title.message}</p>}
-      <textarea 
-        className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 min-h-[120px] bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" 
-        placeholder="Write something..." 
-        {...register('body')} 
-      />
-      {errors.body && <p className="text-red-600 dark:text-red-400 text-sm">{errors.body.message}</p>}
-      {type === 'image' && (
-        <div className="space-y-2">
-          <label className="block text-sm text-gray-700 dark:text-gray-300">Upload image</label>
-          <input type="file" accept="image/*" className="text-gray-700 dark:text-gray-300" {...register('image')} />
-        </div>
-      )}
-
-      {type === 'video' && (
-        <div className="space-y-3">
-          <div>
-            <label className="block text-sm text-gray-700 dark:text-gray-300">Upload video (max 2m30s)</label>
-            <input type="file" accept="video/*" className="text-gray-700 dark:text-gray-300" {...register('video')} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400">Start (seconds)</label>
-              <input type="number" min="0" max="150" className="w-full border rounded p-2 bg-white dark:bg-gray-700" {...register('videoStart', { valueAsNumber: true })} />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <span className="text-2xl">✍️</span>
             </div>
-            <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400">End (seconds)</label>
-              <input type="number" min="0" max="150" className="w-full border rounded p-2 bg-white dark:bg-gray-700" {...register('videoEnd', { valueAsNumber: true })} />
-            </div>
+            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Create New Post
+            </h1>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">If the video is longer, it will be trimmed to the selected range (max 150s).</p>
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Share your thoughts, stories, and creativity with the world. Choose your content type and let your voice be heard.
+          </p>
         </div>
-      )}
 
-      {type === 'document' && (
-        <div className="space-y-3">
-          <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-blue-400 dark:hover:border-blue-500 transition-colors">
-            <div className="flex flex-col items-center space-y-3">
-              <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
-                <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload Document</label>
-                <input 
-                  type="file" 
-                  accept=".pdf,.doc,.docx,.txt,.rtf,.odt,.ppt,.pptx,.xls,.xlsx,.csv,.zip,.rar"
-                  className="hidden" 
-                  id="document-upload"
-                  {...register('document')} 
-                />
-                <label 
-                  htmlFor="document-upload" 
-                  className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+        <form onSubmit={handleSubmit(onSubmit)} className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-6 sm:p-8 space-y-8">
+          {/* Content Type Selector */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <span className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white text-sm">📝</span>
+              Content Type
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              {[
+                { key: 'text', label: 'Text', icon: '📝', desc: 'Simple text post' },
+                { key: 'image', label: 'Image', icon: '🖼️', desc: 'Photo or image' },
+                { key: 'video', label: 'Video', icon: '🎬', desc: 'Video content' },
+                { key: 'document', label: 'Document', icon: '📄', desc: 'File upload' },
+                { key: 'article', label: 'Article', icon: '✍️', desc: 'Long form content' },
+              ].map(tab => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => { setActive(tab.key); setValue('type', tab.key); }}
+                  className={`group relative p-4 rounded-2xl border-2 transition-all duration-200 ease-out hover:scale-[1.02] ${
+                    active === tab.key 
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white border-blue-500 shadow-lg' 
+                      : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md'
+                  }`}
                 >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
-                  Choose File
-                </label>
+                  <div className="text-center">
+                    <div className="text-2xl mb-2">{tab.icon}</div>
+                    <div className="font-semibold text-sm">{tab.label}</div>
+                    <div className={`text-xs mt-1 ${active === tab.key ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'}`}>
+                      {tab.desc}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Title and Content */}
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="block text-lg font-semibold text-gray-900 dark:text-white">
+                Post Title
+              </label>
+              <input 
+                className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-2xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-lg" 
+                placeholder="Give your post a compelling title..." 
+                {...register('title')} 
+              />
+              {errors.title && (
+                <p className="text-red-600 dark:text-red-400 text-sm flex items-center gap-1">
+                  <span>⚠️</span>
+                  {errors.title.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-lg font-semibold text-gray-900 dark:text-white">
+                Content
+              </label>
+              <textarea 
+                className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-2xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 min-h-[150px] resize-none" 
+                placeholder="Share your thoughts, stories, or ideas..." 
+                {...register('body')} 
+              />
+              {errors.body && (
+                <p className="text-red-600 dark:text-red-400 text-sm flex items-center gap-1">
+                  <span>⚠️</span>
+                  {errors.body.message}
+                </p>
+              )}
+            </div>
+          </div>
+          {/* Media Upload Sections */}
+          {type === 'image' && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <span className="w-6 h-6 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center text-white text-xs">🖼️</span>
+                Image Upload
+              </h3>
+              <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center hover:border-blue-400 dark:hover:border-blue-500 transition-colors duration-200">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="w-16 h-16 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl flex items-center justify-center">
+                    <span className="text-3xl">📸</span>
+                  </div>
+                  <div>
+                    <label htmlFor="image-upload" className="cursor-pointer">
+                      <span className="text-lg font-semibold text-gray-900 dark:text-white">Upload Image</span>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Click to browse or drag and drop</p>
+                    </label>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      id="image-upload"
+                      className="hidden" 
+                      {...register('image')} 
+                    />
+                  </div>
+                  <div className="text-xs text-gray-400 dark:text-gray-500">
+                    Supported formats: JPG, PNG, GIF, WebP (Max 10MB)
+                  </div>
+                </div>
               </div>
             </div>
-            <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-              Supported formats: PDF, DOC, DOCX, TXT, RTF, ODT, PPT, PPTX, XLS, XLSX, CSV, ZIP, RAR
-            </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500">
-              Maximum file size: 50MB
-            </p>
+          )}
+
+          {type === 'video' && (
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <span className="w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-white text-xs">🎬</span>
+                Video Upload
+              </h3>
+              <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center hover:border-purple-400 dark:hover:border-purple-500 transition-colors duration-200">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="w-16 h-16 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl flex items-center justify-center">
+                    <span className="text-3xl">🎥</span>
+                  </div>
+                  <div>
+                    <label htmlFor="video-upload" className="cursor-pointer">
+                      <span className="text-lg font-semibold text-gray-900 dark:text-white">Upload Video</span>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Click to browse or drag and drop</p>
+                    </label>
+                    <input 
+                      type="file" 
+                      accept="video/*" 
+                      id="video-upload"
+                      className="hidden" 
+                      {...register('video')} 
+                    />
+                  </div>
+                  <div className="text-xs text-gray-400 dark:text-gray-500">
+                    Supported formats: MP4, MOV, AVI, WebM (Max 2m30s)
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-2xl p-6 border border-purple-200 dark:border-purple-800">
+                <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span className="text-purple-600">⏱️</span>
+                  Video Trimming (Optional)
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Start Time (seconds)</label>
+                    <input 
+                      type="number" 
+                      min="0" 
+                      max="150" 
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200" 
+                      placeholder="0"
+                      {...register('videoStart', { valueAsNumber: true })} 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">End Time (seconds)</label>
+                    <input 
+                      type="number" 
+                      min="0" 
+                      max="150" 
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200" 
+                      placeholder="150"
+                      {...register('videoEnd', { valueAsNumber: true })} 
+                    />
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-3 flex items-center gap-2">
+                  <span>💡</span>
+                  If your video is longer than 2m30s, it will be automatically trimmed to the selected range.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {type === 'document' && (
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <span className="w-6 h-6 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white text-xs">📄</span>
+                Document Upload
+              </h3>
+              <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center hover:border-orange-400 dark:hover:border-orange-500 transition-colors duration-200">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="w-16 h-16 bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl flex items-center justify-center">
+                    <span className="text-3xl">📁</span>
+                  </div>
+                  <div>
+                    <label htmlFor="document-upload" className="cursor-pointer">
+                      <span className="text-lg font-semibold text-gray-900 dark:text-white">Upload Document</span>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Click to browse or drag and drop</p>
+                    </label>
+                    <input 
+                      type="file" 
+                      accept=".pdf,.doc,.docx,.txt,.rtf,.odt,.ppt,.pptx,.xls,.xlsx,.csv,.zip,.rar"
+                      id="document-upload"
+                      className="hidden" 
+                      {...register('document')} 
+                    />
+                  </div>
+                  <div className="text-xs text-gray-400 dark:text-gray-500">
+                    Supported formats: PDF, DOC, DOCX, TXT, RTF, ODT, PPT, PPTX, XLS, XLSX, CSV, ZIP, RAR
+                  </div>
+                  <div className="text-xs text-gray-400 dark:text-gray-500">
+                    Maximum file size: 50MB
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+
+          {type === 'article' && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <span className="w-6 h-6 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center text-white text-xs">✍️</span>
+                Article Content
+              </h3>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Write your article</label>
+                <textarea 
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-2xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 min-h-[300px] resize-none" 
+                  placeholder="Write your detailed article here. You can include multiple paragraphs, sections, and detailed content..." 
+                  {...register('articleContent')} 
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Additional Options */}
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center text-white text-xs">🏷️</span>
+              Tags & Categories
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tags</label>
+                <input 
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-2xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" 
+                  placeholder="e.g. travel, food, lifestyle" 
+                  {...register('tags')} 
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400">Separate tags with commas</p>
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Categories</label>
+                <input 
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-2xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" 
+                  placeholder="e.g. Lifestyle, Tutorials, News" 
+                  {...register('categories')} 
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400">Separate categories with commas</p>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
 
+          {/* Publishing Options */}
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg flex items-center justify-center text-white text-xs">⚙️</span>
+              Publishing Options
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                <select 
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-2xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200" 
+                  {...register('status')}
+                >
+                  <option value="published">📢 Published</option>
+                  <option value="draft">📝 Draft</option>
+                  <option value="scheduled">⏰ Scheduled</option>
+                </select>
+              </div>
+              <div className="sm:col-span-2 space-y-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Schedule Publication</label>
+                <input 
+                  type="datetime-local" 
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-2xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200" 
+                  {...register('scheduledAt')} 
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400">Leave empty for immediate publication</p>
+              </div>
+            </div>
+          </div>
 
-      {type === 'article' && (
-        <div className="space-y-2">
-          <label className="block text-sm text-gray-700 dark:text-gray-300">Article content</label>
-          <textarea className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 min-h-[200px] bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Write your article..." {...register('articleContent')} />
-        </div>
-      )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm text-gray-700 dark:text-gray-300">Tags (comma-separated)</label>
-          <input className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="e.g. travel, food" {...register('tags')} />
-        </div>
-        <div>
-          <label className="block text-sm text-gray-700 dark:text-gray-300">Categories (comma-separated)</label>
-          <input className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="e.g. Lifestyle, Tutorials" {...register('categories')} />
-        </div>
+          {/* Submit Button */}
+          <div className="flex justify-center pt-6">
+            <button 
+              type="submit" 
+              className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-2xl hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 ease-out hover:scale-[1.02] shadow-lg hover:shadow-xl"
+            >
+              <span className="flex items-center gap-2">
+                <span>🚀</span>
+                {submitLabel || 'Publish Post'}
+              </span>
+            </button>
+          </div>
+        </form>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
-        <div>
-          <label className="block text-sm text-gray-700 dark:text-gray-300">Status</label>
-          <select className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" {...register('status')}>
-            <option value="published">Published</option>
-            <option value="draft">Draft</option>
-            <option value="scheduled">Scheduled</option>
-          </select>
-        </div>
-        <div className="sm:col-span-2">
-          <label className="block text-sm text-gray-700 dark:text-gray-300">Scheduled at</label>
-          <input type="datetime-local" className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" {...register('scheduledAt')} />
-        </div>
-      </div>
-      <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">{submitLabel}</button>
-    </form>
+    </div>
   );
 }

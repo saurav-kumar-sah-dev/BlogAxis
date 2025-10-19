@@ -7,7 +7,7 @@ const sign = (id, role) => jwt.sign({ id, role }, process.env.JWT_SECRET, { expi
 
 exports.register = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, confirmPassword, dateOfBirth } = req.body;
+    const { firstName, lastName, email, password, confirmPassword, dateOfBirth, acceptTerms } = req.body;
     
     // Validation
     if (password !== confirmPassword) {
@@ -31,7 +31,8 @@ exports.register = async (req, res) => {
       email, 
       password, 
       username,
-      dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined
+      dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+      acceptTerms: acceptTerms === 'true' || acceptTerms === true
     });
     
     const token = sign(user._id, user.role);
@@ -50,6 +51,7 @@ exports.register = async (req, res) => {
         info: user.info,
         role: user.role,
         suspended: user.suspended,
+        acceptTerms: user.acceptTerms,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt
       } 
@@ -90,6 +92,7 @@ exports.login = async (req, res) => {
         info: user.info,
         role: user.role,
         suspended: user.suspended,
+        acceptTerms: user.acceptTerms,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt
       } 
@@ -142,10 +145,123 @@ exports.googleCallback = (req, res, next) => {
       return res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/login?error=oauth_failed`);
     }
     
+    // Check if user has accepted terms
+    if (!user.acceptTerms) {
+      // Generate a temporary token for terms acceptance
+      const tempToken = sign(user._id, user.role);
+      return res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/auth/callback?token=${tempToken}&terms_required=true`);
+    }
+    
     // Generate JWT token
     const token = sign(user._id, user.role);
     
     // Redirect to frontend with token
     res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/auth/callback?token=${token}`);
   })(req, res, next);
+};
+
+exports.updatePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    
+    // Validation
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ error: 'New passwords do not match' });
+    }
+    
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ error: 'New password must be different from current password' });
+    }
+    
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    // Check if user has a password (not Google OAuth user)
+    if (!user.password) {
+      return res.status(400).json({ error: 'Password cannot be changed for Google OAuth accounts' });
+    }
+    
+    // Verify current password
+    if (!(await user.comparePassword(currentPassword))) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+    
+    // Update password
+    user.password = newPassword;
+    await user.save();
+    
+    res.json({ message: 'Password updated successfully' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+};
+
+exports.deleteAccount = async (req, res) => {
+  try {
+    const { password, confirmText } = req.body;
+    
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    // For Google OAuth users, skip password verification
+    if (user.password) {
+      // Verify password for local accounts
+      if (!(await user.comparePassword(password))) {
+        return res.status(401).json({ error: 'Incorrect password' });
+      }
+    }
+    
+    // Additional confirmation check
+    if (confirmText !== 'DELETE') {
+      return res.status(400).json({ error: 'Please type DELETE to confirm account deletion' });
+    }
+    
+    // Delete the user (this will trigger cascade delete for posts and images)
+    await User.findByIdAndDelete(req.user.id);
+    
+    res.json({ message: 'Account deleted successfully' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+};
+
+exports.acceptTerms = async (req, res) => {
+  try {
+    const { acceptTerms } = req.body;
+    
+    if (acceptTerms !== true && acceptTerms !== 'true') {
+      return res.status(400).json({ error: 'You must accept the terms and conditions' });
+    }
+    
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    // Update user's terms acceptance
+    user.acceptTerms = true;
+    await user.save();
+    
+    res.json({ 
+      message: 'Terms and conditions accepted successfully',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        dateOfBirth: user.dateOfBirth,
+        place: user.place,
+        info: user.info,
+        role: user.role,
+        suspended: user.suspended,
+        acceptTerms: user.acceptTerms,
+        isGoogleUser: user.isGoogleUser,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 };

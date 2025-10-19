@@ -52,7 +52,7 @@ exports.getUserPublic = async (req, res) => {
       return res.status(400).json({ error: 'Invalid id' });
     }
     const user = await User.findById(req.params.id)
-      .select('name username bio avatarUrl createdAt updatedAt firstName lastName place info dateOfBirth followers following')
+      .select('name username bio avatarUrl createdAt updatedAt firstName lastName place info dateOfBirth followers following isGoogleUser acceptTerms')
       .lean();
     if (!user) return res.status(404).json({ error: 'User not found' });
     const authUserId = req.user?.id || req.user?._id;
@@ -73,7 +73,7 @@ exports.getUserPublic = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id)
-      .select('name email username bio avatarUrl createdAt updatedAt firstName lastName place info dateOfBirth followers following')
+      .select('name email username bio avatarUrl createdAt updatedAt firstName lastName place info dateOfBirth followers following isGoogleUser acceptTerms')
       .lean();
     const followersCount = Array.isArray(user.followers) ? user.followers.length : 0;
     const followingCount = Array.isArray(user.following) ? user.following.length : 0;
@@ -133,6 +133,7 @@ exports.updateMe = async (req, res) => {
       avatarUrl: user.avatarUrl,
       firstName: user.firstName,
       lastName: user.lastName,
+      isGoogleUser: user.isGoogleUser,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

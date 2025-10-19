@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useEffect, useState } from 'react';
+import { useTheme } from '../context/ThemeContext';
+import { useEffect, useState, Fragment } from 'react';
 import { api } from '../api/client';
 import { useFollowState } from '../hooks/useFollowState';
 import ReportButton from './ReportButton';
 
 export default function PostCard({ post, onDelete }) {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const ownerId = post && typeof post.user === 'object' ? post.user?._id : post.user;
   const isOwner = user && String(ownerId) === user.id;
   const [likes, setLikes] = useState(post.likesCount || 0);
@@ -204,46 +206,59 @@ export default function PostCard({ post, onDelete }) {
 
 
   return (
-    <article className="group bg-white dark:bg-gray-800 rounded-xl shadow hover:shadow-lg transition-shadow overflow-hidden flex flex-col">
-      {/* Media */}
+    <Fragment>
+    <article className="group bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-200 ease-out overflow-hidden flex flex-col border border-white/20 dark:border-gray-700/50 hover:scale-[1.02] hover:-translate-y-1 will-change-transform">
+      {/* Enhanced Media */}
       {post.type === 'image' && post.mediaUrl && (
-        <Link to={`/posts/${post._id}`} className="relative block">
-          <img src={post.mediaUrl} alt="" className="w-full object-cover max-h-[60vh] sm:h-56" />
+        <Link to={`/posts/${post._id}`} className="relative block group/media">
+          <div className="relative overflow-hidden rounded-t-3xl">
+            <img src={post.mediaUrl} alt="" className="w-full object-cover max-h-[60vh] sm:h-56 group-hover/media:scale-102 transition-transform duration-500 ease-out" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover/media:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl px-3 py-1 shadow-lg">
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">📸 Image</span>
+            </div>
+          </div>
         </Link>
       )}
       {post.type === 'video' && post.mediaUrl && (
-        <Link to={`/posts/${post._id}`} className="relative block">
-          <video src={post.mediaUrl} className="w-full max-h-[60vh] sm:max-h-80" controls preload="metadata" />
-          {typeof post.videoDurationSec === 'number' && (
-            <div className="absolute bottom-2 right-2 text-xs bg-black/60 text-white px-1.5 py-0.5 rounded">
-              {Math.floor(post.videoDurationSec / 60)}:{String(post.videoDurationSec % 60).padStart(2, '0')}
+        <Link to={`/posts/${post._id}`} className="relative block group/media">
+          <div className="relative overflow-hidden rounded-t-3xl">
+            <video src={post.mediaUrl} className="w-full max-h-[60vh] sm:max-h-80 group-hover/media:scale-102 transition-transform duration-500 ease-out" controls preload="metadata" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover/media:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl px-3 py-1 shadow-lg">
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">🎥 Video</span>
             </div>
-          )}
+            {typeof post.videoDurationSec === 'number' && (
+              <div className="absolute bottom-4 right-4 bg-black/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-2xl text-sm font-semibold shadow-lg">
+                ⏱️ {Math.floor(post.videoDurationSec / 60)}:{String(post.videoDurationSec % 60).padStart(2, '0')}
+              </div>
+            )}
+          </div>
         </Link>
       )}
       {post.type === 'document' && post.mediaUrl && (
-        <Link to={`/posts/${post._id}`} className="block">
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 hover:shadow-lg transition-all duration-300 group">
+        <Link to={`/posts/${post._id}`} className="block group/document">
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-t-3xl p-6 hover:shadow-xl transition-all duration-200 ease-out group-hover/document:scale-[1.02]">
             <div className="flex items-center space-x-4">
               <div className="flex-shrink-0">
-                <div className="w-16 h-16 bg-white dark:bg-gray-800 rounded-xl shadow-md flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <div className="w-16 h-16 bg-white dark:bg-gray-800 rounded-2xl shadow-lg flex items-center justify-center group-hover/document:scale-105 group-hover/document:rotate-3 transition-all duration-200 ease-out">
                   <span className="text-3xl">{getDocumentIcon(post.docMimeType || post.mediaMimeType)}</span>
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate group-hover/document:text-blue-600 dark:group-hover/document:text-blue-400 transition-colors">
                   {getDocumentFilename()}
                 </h3>
                 <div className="flex items-center space-x-4 mt-1">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {formatFileSize(post.docSize)}
+                  <span className="text-sm text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-gray-800/50 px-2 py-1 rounded-lg">
+                    📏 {formatFileSize(post.docSize)}
                   </span>
-                  <span className="text-sm text-blue-600 dark:text-blue-400 font-medium">
-                    Click to view
+                  <span className="text-sm text-blue-600 dark:text-blue-400 font-medium bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-lg">
+                    👆 Click to view
                   </span>
                 </div>
                 <div className="mt-2 flex items-center space-x-2">
-                  <div className="flex items-center space-x-1 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center space-x-1 text-xs text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-gray-800/50 px-2 py-1 rounded-lg">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -252,8 +267,8 @@ export default function PostCard({ post, onDelete }) {
                 </div>
               </div>
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-blue-800 transition-colors">
-                  <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-2xl flex items-center justify-center group-hover/document:bg-blue-200 dark:group-hover/document:bg-blue-800 group-hover/document:scale-110 transition-all duration-200 ease-out">
+                  <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
@@ -267,26 +282,30 @@ export default function PostCard({ post, onDelete }) {
           <div className="prose prose-sm sm:prose lg:prose-lg dark:prose-invert max-w-none whitespace-pre-wrap">{post.articleContent || post.body}</div>
         </div>
       )}
-      <div className="p-4 sm:p-5 flex-1 flex flex-col">
-        {/* User info header */}
-        <div className="flex items-center gap-3 mb-3">
+      <div className="p-6 sm:p-8 flex-1 flex flex-col">
+        {/* Enhanced User info header */}
+        <div className="flex items-center gap-4 mb-4">
           <Link 
             to={userId ? `/users/${userId}` : '#'} 
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-3 hover:opacity-80 transition-all duration-200 ease-out group/user"
           >
-            <img
-              src={userAvatar || `data:image/svg+xml;base64,${btoa(`
-                <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="40" height="40" fill="#e5e7eb"/>
-                  <text x="20" y="25" text-anchor="middle" font-family="Arial" font-size="16" fill="#6b7280">U</text>
-                </svg>
-              `)}`}
-              alt={userName}
-              className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-600"
-            />
+            <div className="relative">
+              <img
+                src={userAvatar || `data:image/svg+xml;base64,${btoa(`
+                  <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="40" fill="#e5e7eb"/>
+                    <text x="20" y="25" text-anchor="middle" font-family="Arial" font-size="16" fill="#6b7280">U</text>
+                  </svg>
+                `)}`}
+                alt={userName}
+                className="w-10 h-10 rounded-2xl object-cover border-2 border-white/30 dark:border-gray-600/30 shadow-lg group-hover/user:scale-105 transition-transform duration-300"
+              />
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full shadow-lg"></div>
+            </div>
             <div>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{userName}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover/user:text-blue-600 dark:group-hover/user:text-blue-400 transition-colors">{userName}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                <span>📅</span>
                 {new Date(post.createdAt).toLocaleDateString()}
               </p>
             </div>
@@ -295,20 +314,43 @@ export default function PostCard({ post, onDelete }) {
             <button
               onClick={handleToggleFollow}
               disabled={followLoading}
-              className={`ml-auto px-3 py-1 rounded-lg text-xs font-medium transition-colors ${isFollowing ? 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600' : 'bg-indigo-600 text-white hover:bg-indigo-700'} ${followLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`ml-auto px-4 py-2 rounded-2xl text-xs font-semibold transition-all duration-200 ease-out shadow-lg hover:shadow-xl hover:scale-[1.02] ${isFollowing ? 'bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 text-gray-800 dark:text-gray-100 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-600 dark:hover:to-gray-500' : 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600'} ${followLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              {followLoading ? '⏳' : (isFollowing ? 'Unfollow' : 'Follow')}
+              {followLoading ? (
+                <span className="flex items-center gap-1">
+                  <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></div>
+                  Loading...
+                </span>
+              ) : (
+                <span className="flex items-center gap-1">
+                  {isFollowing ? '✅' : '➕'} {isFollowing ? 'Following' : 'Follow'}
+                </span>
+              )}
             </button>
           )}
         </div>
 
-        <div className="flex justify-between items-start gap-3">
-          <Link to={`/posts/${post._id}`} className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 hover:underline">{post.title}</Link>
-          <div className="flex gap-3 shrink-0">
+        <div className="flex justify-between items-start gap-4 mb-4">
+          <Link to={`/posts/${post._id}`} className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white line-clamp-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 group/title">
+            <span className="group-hover/title:bg-gradient-to-r group-hover/title:from-blue-600 group-hover/title:to-purple-600 group-hover/title:bg-clip-text group-hover/title:text-transparent">
+              {post.title}
+            </span>
+          </Link>
+          <div className="flex gap-2 shrink-0">
             {isOwner && (
               <>
-                <Link className="text-blue-600 dark:text-blue-400 hover:underline text-sm" to={`/edit/${post._id}`}>Edit</Link>
-                <button className="text-red-600 dark:text-red-400 hover:underline text-sm" onClick={() => onDelete(post._id)}>Delete</button>
+                <Link 
+                  className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-semibold rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 ease-out shadow-md hover:shadow-lg hover:scale-[1.02]" 
+                  to={`/edit/${post._id}`}
+                >
+                  ✏️ Edit
+                </Link>
+                <button 
+                  className="px-3 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-semibold rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 ease-out shadow-md hover:shadow-lg hover:scale-[1.02]" 
+                  onClick={() => onDelete(post._id)}
+                >
+                  🗑️ Delete
+                </button>
               </>
             )}
             {!isOwner && user && (
@@ -316,79 +358,212 @@ export default function PostCard({ post, onDelete }) {
                 targetType="post" 
                 targetId={post._id} 
                 targetTitle={post.title}
-                className="text-sm"
+                className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-semibold rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 ease-out shadow-md hover:shadow-lg hover:scale-[1.02]"
               />
             )}
           </div>
         </div>
         {post.type !== 'article' && (
-          <p className="mt-2 text-sm sm:text-base text-gray-700 dark:text-gray-300 whitespace-pre-line line-clamp-3">{post.body}</p>
+          <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 whitespace-pre-line line-clamp-3 leading-relaxed mb-4">{post.body}</p>
         )}
 
-        {/* Actions */}
-        <div className="mt-3 flex items-center gap-3">
-          <button onClick={toggleLike} className={`px-3 py-1 rounded-lg text-xs sm:text-sm ${liked ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100'}`}>
-            👍 {likes}
-          </button>
-          <button onClick={toggleDislike} className={`px-3 py-1 rounded-lg text-xs sm:text-sm ${disliked ? 'bg-red-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100'}`}>
-            👎 {dislikes}
-          </button>
-          <Link to={`/posts/${post._id}`} className="ml-auto px-3 py-1 rounded-lg text-xs sm:text-sm bg-blue-600 text-white hover:bg-blue-700">
-            Read more
-          </Link>
-          <button onClick={openComments} className="px-3 py-1 rounded-lg text-xs sm:text-sm bg-indigo-600 text-white hover:bg-indigo-700">
-            💬 Comments ({commentCount})
-          </button>
+        {/* Enhanced Actions */}
+        <div className="mt-auto pt-4 border-t border-gray-200/50 dark:border-gray-700/50">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={toggleLike} 
+                className={`px-4 py-2 rounded-2xl text-sm font-semibold transition-all duration-200 ease-out shadow-md hover:shadow-lg hover:scale-[1.02] ${liked ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white' : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-800 dark:text-gray-100 hover:from-green-100 hover:to-emerald-100 dark:hover:from-green-900/20 dark:hover:to-emerald-900/20'}`}
+              >
+                <span className="flex items-center gap-1">
+                  👍 {likes}
+                </span>
+              </button>
+              <button 
+                onClick={toggleDislike} 
+                className={`px-4 py-2 rounded-2xl text-sm font-semibold transition-all duration-200 ease-out shadow-md hover:shadow-lg hover:scale-[1.02] ${disliked ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white' : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-800 dark:text-gray-100 hover:from-red-100 hover:to-pink-100 dark:hover:from-red-900/20 dark:hover:to-pink-900/20'}`}
+              >
+                <span className="flex items-center gap-1">
+                  👎 {dislikes}
+                </span>
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Link 
+                to={`/posts/${post._id}`} 
+                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-semibold rounded-2xl hover:from-blue-600 hover:to-indigo-600 transition-all duration-200 ease-out shadow-md hover:shadow-lg hover:scale-[1.02]"
+              >
+                <span className="flex items-center gap-1">
+                  📖 Read more
+                </span>
+              </Link>
+              <button 
+                onClick={openComments} 
+                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-semibold rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all duration-200 ease-out shadow-md hover:shadow-lg hover:scale-[1.02]"
+              >
+                <span className="flex items-center gap-1">
+                  💬 {commentCount}
+                </span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+    </article>
 
-      {/* Comments Modal */}
-      {commentOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setCommentOpen(false)} />
-          <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl mx-4 p-4 sm:p-6 max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Comments</h4>
-              <button onClick={() => setCommentOpen(false)} className="text-gray-500 hover:text-gray-700">✖</button>
-            </div>
-            {user && (
-              <div className="mb-4 flex gap-2">
-                <input value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Write a comment..." className="flex-1 border rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
-                <button onClick={() => submitComment(null)} className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">Post</button>
+    {/* Enhanced Comments Modal */}
+    {commentOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        {/* Enhanced backdrop with blur */}
+        <div 
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+          onClick={() => setCommentOpen(false)} 
+        />
+        
+        {/* Enhanced modal container */}
+        <div className="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden border border-white/20 dark:border-gray-700/50">
+          {/* Enhanced header */}
+          <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-500/20 dark:to-purple-500/20 p-6 border-b border-gray-200/50 dark:border-gray-700/50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <span className="text-white text-lg">💬</span>
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold text-gray-900 dark:text-white">Comments</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{commentCount} {commentCount === 1 ? 'comment' : 'comments'}</p>
+                </div>
               </div>
-            )}
+              <button 
+                onClick={() => setCommentOpen(false)} 
+                className="p-2 rounded-2xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-all duration-200 ease-out hover:scale-110"
+              >
+                <span className="text-xl">✕</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Enhanced comment input */}
+          {user && (
+            <div className="p-6 bg-gradient-to-r from-gray-50/50 to-blue-50/50 dark:from-gray-800/50 dark:to-blue-900/20 border-b border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex gap-3">
+                <div className="flex-shrink-0">
+                  <img
+                    src={user.avatarUrl || `data:image/svg+xml;base64,${btoa(`
+                      <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="40" height="40" fill="#e5e7eb"/>
+                        <text x="20" y="25" text-anchor="middle" font-family="Arial" font-size="16" fill="#6b7280">U</text>
+                      </svg>
+                    `)}`}
+                    alt={user.name}
+                    className="w-10 h-10 rounded-2xl object-cover border-2 border-white/30 dark:border-gray-600/30 shadow-lg"
+                  />
+                </div>
+                <div className="flex-1">
+                  <input 
+                    value={newComment} 
+                    onChange={e => setNewComment(e.target.value)} 
+                    placeholder="Write a comment..." 
+                    className="w-full px-4 py-3 rounded-2xl border-2 border-gray-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-out shadow-lg hover:shadow-xl" 
+                  />
+                </div>
+                <button 
+                  onClick={() => submitComment(null)} 
+                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-200 ease-out shadow-lg hover:shadow-xl hover:scale-[1.02]"
+                >
+                  <span className="flex items-center gap-2">
+                    <span>📝</span>
+                    <span>Post</span>
+                  </span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Enhanced comments list */}
+          <div className="max-h-96 overflow-y-auto p-6">
             {commentLoading ? (
-              <div className="p-4 text-gray-600 dark:text-gray-300">Loading...</div>
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="relative mb-4">
+                  <div className="w-12 h-12 border-4 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"></div>
+                  <div className="absolute inset-0 w-12 h-12 border-4 border-transparent border-t-purple-600 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300 font-medium">Loading comments...</p>
+              </div>
             ) : comments.length === 0 ? (
-              <div className="p-4 text-gray-600 dark:text-gray-300">No comments yet</div>
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">💭</div>
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">No comments yet</h3>
+                <p className="text-gray-600 dark:text-gray-400">Be the first to share your thoughts!</p>
+              </div>
             ) : (
               <div className="space-y-4">
-                {comments.map(c => (
-                  <div key={c._id} className="flex items-start gap-3">
-                    <Link to={`/users/${c.user?._id || c.user}`} className="shrink-0">
-                      <img src={c.user?.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"28\" height=\"28\"><rect width=\"28\" height=\"28\" fill=\"#e5e7eb\"/><text x=\"14\" y=\"18\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"11\" fill=\"#6b7280\">U</text></svg>')}`} alt="" className="w-8 h-8 rounded-full object-cover border" />
-                    </Link>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <div className="min-w-0">
-                          <Link to={`/users/${c.user?._id || c.user}`} className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{c.user?.name || 'User'}</Link>
-                          {c.user?.username && <div className="text-xs text-gray-500 truncate">@{c.user.username}</div>}
-                        </div>
+              {comments.map(c => (
+                <div key={c._id} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-4 border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-200 ease-out">
+                  <div className="flex items-start gap-3">
+                  <Link to={`/users/${c.user?._id || c.user}`} className="shrink-0 group/avatar">
+                    <img src={c.user?.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"32\"><rect width=\"32\" height=\"32\" fill=\"#e5e7eb\"/><text x=\"16\" y=\"20\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"12\" fill=\"#6b7280\">U</text></svg>')}`} alt="" className="w-10 h-10 rounded-2xl object-cover border-2 border-white/30 dark:border-gray-600/30 shadow-lg group-hover/avatar:scale-105 transition-transform duration-300" />
+                  </Link>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="min-w-0">
+                        <Link to={`/users/${c.user?._id || c.user}`} className="text-sm font-semibold text-gray-900 dark:text-white truncate hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                          {c.user?.name || 'User'}
+                        </Link>
+                        {c.user?.username && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400 truncate flex items-center gap-1">
+                            <span>@</span>
+                            <span>{c.user.username}</span>
+                          </div>
+                        )}
                       </div>
-                      <p className="mt-1 text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{c.body}</p>
-                      <div className="mt-2 flex items-center gap-2">
-                        <button onClick={() => toggleCommentLike(c._id, 'like')} className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-xs" title="Like this comment">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {new Date(c.createdAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed mb-3">{c.body}</p>
+                    
+                    {/* Enhanced action buttons */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button 
+                        onClick={() => toggleCommentLike(c._id, 'like')} 
+                        className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 text-green-700 dark:text-green-300 text-xs font-medium hover:from-green-200 hover:to-emerald-200 dark:hover:from-green-900/30 dark:hover:to-emerald-900/30 transition-all duration-200 ease-out hover:scale-[1.02]" 
+                        title="Like this comment"
+                      >
+                        <span className="flex items-center gap-1">
                           👍 {(c.likes || []).length || 0}
-                        </button>
-                        <button onClick={() => toggleCommentLike(c._id, 'dislike')} className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-xs" title="Dislike this comment">
+                        </span>
+                      </button>
+                      <button 
+                        onClick={() => toggleCommentLike(c._id, 'dislike')} 
+                        className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-100 to-pink-100 dark:from-red-900/20 dark:to-pink-900/20 text-red-700 dark:text-red-300 text-xs font-medium hover:from-red-200 hover:to-pink-200 dark:hover:from-red-900/30 dark:hover:to-pink-900/30 transition-all duration-200 ease-out hover:scale-[1.02]" 
+                        title="Dislike this comment"
+                      >
+                        <span className="flex items-center gap-1">
                           👎 {(c.dislikes || []).length || 0}
+                        </span>
+                      </button>
+                      {user && (
+                        <button 
+                          onClick={() => { setReplyingTo(c._id); }} 
+                          className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 text-xs font-medium hover:from-blue-200 hover:to-indigo-200 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 transition-all duration-200 ease-out hover:scale-[1.02]" 
+                          title="Reply"
+                        >
+                          💬 Reply
                         </button>
-                        {user && <button onClick={() => { setReplyingTo(c._id); }} className="ml-2 text-xs text-indigo-600 hover:underline" title="Reply">Reply</button>}
-                        {/* Edit/Delete for own comment */}
-                        {user && String(c.user?._id || c.user) === String(user.id) && (
-                          <>
-                            <button onClick={() => { setReplyingTo(null); setNewComment(c.body); }} className="ml-2 text-xs text-gray-600 hover:underline" title="Edit">Edit</button>
-                            <button onClick={async () => {
+                      )}
+                      {/* Edit/Delete for own comment */}
+                      {user && String(c.user?._id || c.user) === String(user.id) && (
+                        <>
+                          <button 
+                            onClick={() => { setReplyingTo(null); setNewComment(c.body); }} 
+                            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300 text-xs font-medium hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 transition-all duration-200 ease-out hover:scale-[1.02]" 
+                            title="Edit"
+                          >
+                            ✏️ Edit
+                          </button>
+                          <button 
+                            onClick={async () => {
                               if (!confirm('Delete this comment?')) return;
                               try {
                                 const res = await api.del(`/posts/${post._id}/comments/${c._id}`);
@@ -396,79 +571,140 @@ export default function PostCard({ post, onDelete }) {
                                 setComments(prev => prev.filter(x => x._id !== c._id));
                                 setCommentCount(cnt => Math.max(0, cnt - 1));
                               } catch {}
-                            }} className="ml-2 text-xs text-red-600 hover:underline" title="Delete">Delete</button>
-                          </>
-                        )}
-                        <button onClick={() => { const open = !repliesOpen[c._id]; setRepliesOpen(prev => ({ ...prev, [c._id]: open })); if (open && !replies[c._id]) loadReplies(c._id); }} className="ml-auto text-xs text-gray-600 dark:text-gray-300 hover:underline" title="Toggle replies">
-                          View replies
-                        </button>
-                      </div>
-                      {replyingTo === c._id && (
-                        <div className="mt-2 flex gap-2">
-                          <input value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Write a reply..." className="flex-1 border rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
-                          <button onClick={() => submitComment(c._id)} className="px-3 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 text-sm">Reply</button>
-                          <button onClick={() => { setReplyingTo(null); setNewComment(''); }} className="px-2 py-2 rounded-lg text-sm">Cancel</button>
-                        </div>
+                            }} 
+                            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-100 to-pink-100 dark:from-red-900/20 dark:to-pink-900/20 text-red-700 dark:text-red-300 text-xs font-medium hover:from-red-200 hover:to-pink-200 dark:hover:from-red-900/30 dark:hover:to-pink-900/30 transition-all duration-200 ease-out hover:scale-[1.02]" 
+                            title="Delete"
+                          >
+                            🗑️ Delete
+                          </button>
+                        </>
                       )}
-                      {repliesOpen[c._id] && (
-                        <div className="mt-3 pl-6 border-l border-gray-200 dark:border-gray-700 space-y-3">
-                          {(replies[c._id] || []).map(r => (
-                            <div key={r._id} className="flex items-start gap-3">
+                      <button 
+                        onClick={() => { const open = !repliesOpen[c._id]; setRepliesOpen(prev => ({ ...prev, [c._id]: open })); if (open && !replies[c._id]) loadReplies(c._id); }} 
+                        className="ml-auto px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 text-purple-700 dark:text-purple-300 text-xs font-medium hover:from-purple-200 hover:to-pink-200 dark:hover:from-purple-900/30 dark:hover:to-pink-900/30 transition-all duration-200 ease-out hover:scale-[1.02]" 
+                        title="Toggle replies"
+                      >
+                        <span className="flex items-center gap-1">
+                          💬 View replies
+                        </span>
+                      </button>
+                    </div>
+                    {replyingTo === c._id && (
+                      <div className="mt-4 p-4 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-2xl border border-blue-200/50 dark:border-blue-700/50">
+                        <div className="flex gap-3">
+                          <input 
+                            value={newComment} 
+                            onChange={e => setNewComment(e.target.value)} 
+                            placeholder="Write a reply..." 
+                            className="flex-1 px-4 py-2 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-out" 
+                          />
+                          <button 
+                            onClick={() => submitComment(c._id)} 
+                            className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-semibold hover:from-blue-600 hover:to-indigo-600 transition-all duration-200 ease-out hover:scale-[1.02]"
+                          >
+                            📝 Reply
+                          </button>
+                          <button 
+                            onClick={() => { setReplyingTo(null); setNewComment(''); }} 
+                            className="px-4 py-2 rounded-xl bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300 text-sm font-semibold hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 transition-all duration-200 ease-out hover:scale-[1.02]"
+                          >
+                            ✕ Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    {repliesOpen[c._id] && (
+                      <div className="mt-4 pl-6 border-l-2 border-gradient-to-b from-blue-200 to-purple-200 dark:from-blue-700 dark:to-purple-700 space-y-3">
+                        {(replies[c._id] || []).map(r => (
+                          <div key={r._id} className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-3 border border-gray-200/30 dark:border-gray-700/30 shadow-md">
+                            <div className="flex items-start gap-3">
                               <Link to={`/users/${r.user?._id || r.user}`} className="shrink-0">
-                                <img src={r.user?.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"28\" height=\"28\"><rect width=\"28\" height=\"28\" fill=\"#e5e7eb\"/><text x=\"14\" y=\"18\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"11\" fill=\"#6b7280\">U</text></svg>')}`} alt="" className="w-7 h-7 rounded-full object-cover border" />
+                                <img src={r.user?.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\"><rect width=\"24\" height=\"24\" fill=\"#e5e7eb\"/><text x=\"12\" y=\"16\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"10\" fill=\"#6b7280\">U</text></svg>')}`} alt="" className="w-8 h-8 rounded-xl object-cover border border-white/30 dark:border-gray-600/30 shadow-md" />
                               </Link>
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between mb-1">
                                   <div className="min-w-0">
-                                    <Link to={`/users/${r.user?._id || r.user}`} className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">{r.user?.name || 'User'}</Link>
-                                    {r.user?.username && <div className="text-[11px] text-gray-500 truncate">@{r.user.username}</div>}
+                                    <Link to={`/users/${r.user?._id || r.user}`} className="text-xs font-semibold text-gray-900 dark:text-white truncate hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                      {r.user?.name || 'User'}
+                                    </Link>
+                                    {r.user?.username && (
+                                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                        @{r.user.username}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                                    {new Date(r.createdAt).toLocaleDateString()}
                                   </div>
                                 </div>
-                                <p className="mt-1 text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{r.body}</p>
-                                <div className="mt-1 flex items-center gap-2">
-                                  <button onClick={() => toggleCommentLike(r._id, 'like')} className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-xs" title="Like this comment">
+                                <p className="text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed mb-2">{r.body}</p>
+                                <div className="flex items-center gap-2">
+                                  <button 
+                                    onClick={() => toggleCommentLike(r._id, 'like')} 
+                                    className="px-2 py-1 rounded-lg bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 text-green-700 dark:text-green-300 text-xs hover:from-green-200 hover:to-emerald-200 dark:hover:from-green-900/30 dark:hover:to-emerald-900/30 transition-all duration-200 ease-out hover:scale-[1.02]" 
+                                    title="Like this reply"
+                                  >
                                     👍 {(r.likes || []).length || 0}
                                   </button>
-                                  <button onClick={() => toggleCommentLike(r._id, 'dislike')} className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-xs" title="Dislike this comment">
+                                  <button 
+                                    onClick={() => toggleCommentLike(r._id, 'dislike')} 
+                                    className="px-2 py-1 rounded-lg bg-gradient-to-r from-red-100 to-pink-100 dark:from-red-900/20 dark:to-pink-900/20 text-red-700 dark:text-red-300 text-xs hover:from-red-200 hover:to-pink-200 dark:hover:from-red-900/30 dark:hover:to-pink-900/30 transition-all duration-200 ease-out hover:scale-[1.02]" 
+                                    title="Dislike this reply"
+                                  >
                                     👎 {(r.dislikes || []).length || 0}
                                   </button>
                                   {user && String(r.user?._id || r.user) === String(user.id) && (
                                     <>
-                                      <button onClick={async () => {
-                                        const text = prompt('Edit reply:', r.body);
-                                        if (text == null) return;
-                                        try {
-                                          const res = await api.put(`/posts/${post._id}/comments/${r._id}`, { body: text });
-                                          const updated = await res.json();
-                                          if (!res.ok) throw new Error();
-                                          setReplies(prev => ({ ...prev, [c._id]: (prev[c._id] || []).map(x => x._id === r._id ? updated : x) }));
-                                        } catch {}
-                                      }} className="ml-2 text-xs text-gray-600 hover:underline" title="Edit">Edit</button>
-                                      <button onClick={async () => {
-                                        if (!confirm('Delete this reply?')) return;
-                                        try {
-                                          const res = await api.del(`/posts/${post._id}/comments/${r._id}`);
-                                          if (!res.ok) throw new Error();
-                                          setReplies(prev => ({ ...prev, [c._id]: (prev[c._id] || []).filter(x => x._id !== r._id) }));
-                                          setCommentCount(cnt => Math.max(0, cnt - 1));
-                                        } catch {}
-                                      }} className="ml-2 text-xs text-red-600 hover:underline" title="Delete">Delete</button>
+                                      <button 
+                                        onClick={async () => {
+                                          const text = prompt('Edit reply:', r.body);
+                                          if (text == null) return;
+                                          try {
+                                            const res = await api.put(`/posts/${post._id}/comments/${r._id}`, { body: text });
+                                            const updated = await res.json();
+                                            if (!res.ok) throw new Error();
+                                            setReplies(prev => ({ ...prev, [c._id]: (prev[c._id] || []).map(x => x._id === r._id ? updated : x) }));
+                                          } catch {}
+                                        }} 
+                                        className="px-2 py-1 rounded-lg bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300 text-xs hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 transition-all duration-200 ease-out hover:scale-[1.02]" 
+                                        title="Edit"
+                                      >
+                                        ✏️ Edit
+                                      </button>
+                                      <button 
+                                        onClick={async () => {
+                                          if (!confirm('Delete this reply?')) return;
+                                          try {
+                                            const res = await api.del(`/posts/${post._id}/comments/${r._id}`);
+                                            if (!res.ok) throw new Error();
+                                            setReplies(prev => ({ ...prev, [c._id]: (prev[c._id] || []).filter(x => x._id !== r._id) }));
+                                            setCommentCount(cnt => Math.max(0, cnt - 1));
+                                          } catch {}
+                                        }} 
+                                        className="px-2 py-1 rounded-lg bg-gradient-to-r from-red-100 to-pink-100 dark:from-red-900/20 dark:to-pink-900/20 text-red-700 dark:text-red-300 text-xs hover:from-red-200 hover:to-pink-200 dark:hover:from-red-900/30 dark:hover:to-pink-900/30 transition-all duration-200 ease-out hover:scale-[1.02]" 
+                                        title="Delete"
+                                      >
+                                        🗑️ Delete
+                                      </button>
                                     </>
                                   )}
                                 </div>
                               </div>
                             </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                ))}
+                  </div>
+                </div>
+              ))}
               </div>
             )}
           </div>
         </div>
-      )}
-    </article>
+      </div>
+    )}
+    </Fragment>
   );
 }

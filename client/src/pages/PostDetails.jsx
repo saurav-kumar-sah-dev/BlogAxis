@@ -255,110 +255,195 @@ export default function PostDetails() {
   const userAvatar = postUser?.avatarUrl;
 
   return (
-    <div className="py-6 space-y-5">
-      <div className="flex items-center gap-3">
-        <Link to="/" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">← Back</Link>
-        <div className="ml-auto flex gap-3">
-          <button onClick={() => toggleLike('like')} className={`px-3 py-1 rounded ${liked ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>👍 {likesCount}</button>
-          <button onClick={() => toggleLike('dislike')} className={`px-3 py-1 rounded ${disliked ? 'bg-red-600 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>👎 {dislikesCount}</button>
-          {isOwner && (
-            <>
-              <Link to={`/edit/${post._id}`} className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700">Edit</Link>
-              <button onClick={handleDelete} className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700">Delete</button>
-            </>
-          )}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Navigation */}
+        <div className="mb-8">
+          <Link 
+            to="/" 
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 dark:border-gray-700/50 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 ease-out hover:scale-[1.02]"
+          >
+            <span>←</span>
+            <span>Back to Posts</span>
+          </Link>
         </div>
-      </div>
 
-      <header className="flex items-center gap-3">
-        <img
-          src={userAvatar || `data:image/svg+xml;base64,${btoa(`
-            <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
-              <rect width="40" height="40" fill="#e5e7eb"/>
-              <text x="20" y="25" text-anchor="middle" font-family="Arial" font-size="16" fill="#6b7280">U</text>
-            </svg>
-          `)}`}
-          alt={userName}
-          className="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-600"
-        />
-        <div>
-          <div className="text-sm font-medium text-gray-900 dark:text-white">{userName}</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">{new Date(post.createdAt).toLocaleString()}</div>
-        </div>
-      </header>
-
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{post.title}</h1>
-
-      {/* Media/body */}
-      {post.type === 'image' && post.mediaUrl && (
-        <div>
-          <img src={post.mediaUrl} alt="" className="w-full object-contain max-h-[70vh] rounded" />
-        </div>
-      )}
-      {post.type === 'video' && post.mediaUrl && (
-        <div>
-          <video src={post.mediaUrl} className="w-full max-h-[70vh] rounded" controls preload="metadata" />
-        </div>
-      )}
-      {post.type === 'document' && post.mediaUrl && (
-        <div className="w-full">
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-8 mb-6">
-            <div className="flex items-center space-x-6">
-              <div className="flex-shrink-0">
-                <div className="w-20 h-20 bg-white dark:bg-gray-800 rounded-2xl shadow-lg flex items-center justify-center">
-                  <span className="text-4xl">{getDocumentIcon(post.docMimeType || post.mediaMimeType)}</span>
-                </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  {getDocumentFilename()}
-                </h3>
-                <div className="flex items-center space-x-6 text-sm text-gray-600 dark:text-gray-400">
-                  {formatFileSize(post.docSize) && (
-                    <span className="flex items-center space-x-1">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        {/* Main Post Card */}
+        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 overflow-hidden">
+          {/* Post Header */}
+          <div className="p-6 sm:p-8 border-b border-gray-200/50 dark:border-gray-700/50">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <Link to={`/users/${postUser?._id || post.user}`} className="group">
+                  <img
+                    src={userAvatar || `data:image/svg+xml;base64,${btoa(`
+                      <svg width="48" height="48" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="48" height="48" fill="#e5e7eb"/>
+                        <text x="24" y="30" text-anchor="middle" font-family="Arial" font-size="18" fill="#6b7280">U</text>
                       </svg>
-                      <span>{formatFileSize(post.docSize)}</span>
-                    </span>
-                  )}
-                  <span className="flex items-center space-x-1">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>Document</span>
-                  </span>
+                    `)}`}
+                    alt={userName}
+                    className="w-12 h-12 rounded-2xl object-cover border-2 border-white/30 dark:border-gray-600/30 shadow-lg group-hover:scale-105 transition-transform duration-200"
+                  />
+                </Link>
+                <div>
+                  <Link 
+                    to={`/users/${postUser?._id || post.user}`} 
+                    className="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  >
+                    {userName}
+                  </Link>
+                  <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                    <span>📅</span>
+                    {new Date(post.createdAt).toLocaleDateString('en-US', { 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </div>
                 </div>
               </div>
-              <div className="flex-shrink-0 space-x-3">
-                <a
-                  href={post.mediaUrl.startsWith('/api/documents/') 
-                    ? post.mediaUrl 
-                    : `/api/media/preview/${post.docPublicId || post.mediaPublicId || ''}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => toggleLike('like')} 
+                  className={`px-4 py-2 rounded-2xl text-sm font-semibold transition-all duration-200 ease-out hover:scale-[1.02] shadow-md hover:shadow-lg ${
+                    liked 
+                      ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white' 
+                      : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-800 dark:text-gray-100 hover:from-green-100 hover:to-emerald-100 dark:hover:from-green-900/20 dark:hover:to-emerald-900/20'
+                  }`}
                 >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                  Open
-                </a>
-                <a
-                  href={post.mediaUrl.startsWith('/api/documents/') 
-                    ? `${post.mediaUrl}?download=true` 
-                    : `/api/media/raw/${post.docPublicId || post.mediaPublicId || ''}`}
-                  download={getDocumentFilename()}
-                  className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                  <span className="flex items-center gap-1">
+                    👍 {likesCount}
+                  </span>
+                </button>
+                <button 
+                  onClick={() => toggleLike('dislike')} 
+                  className={`px-4 py-2 rounded-2xl text-sm font-semibold transition-all duration-200 ease-out hover:scale-[1.02] shadow-md hover:shadow-lg ${
+                    disliked 
+                      ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white' 
+                      : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-800 dark:text-gray-100 hover:from-red-100 hover:to-pink-100 dark:hover:from-red-900/20 dark:hover:to-pink-900/20'
+                  }`}
                 >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Download
-                </a>
+                  <span className="flex items-center gap-1">
+                    👎 {dislikesCount}
+                  </span>
+                </button>
+                {isOwner && (
+                  <>
+                    <Link 
+                      to={`/edit/${post._id}`} 
+                      className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 ease-out hover:scale-[1.02] shadow-md hover:shadow-lg"
+                    >
+                      ✏️ Edit
+                    </Link>
+                    <button 
+                      onClick={handleDelete} 
+                      className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-semibold rounded-2xl hover:from-red-600 hover:to-red-700 transition-all duration-200 ease-out hover:scale-[1.02] shadow-md hover:shadow-lg"
+                    >
+                      🗑️ Delete
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
+
+          {/* Post Title */}
+          <div className="p-6 sm:p-8">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white leading-tight mb-4">
+              {post.title}
+            </h1>
+          </div>
+
+          {/* Media Content */}
+          {post.type === 'image' && post.mediaUrl && (
+            <div className="relative">
+              <img 
+                src={post.mediaUrl} 
+                alt={post.title} 
+                className="w-full object-contain max-h-[80vh] rounded-2xl mx-auto block shadow-lg" 
+              />
+              <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl px-3 py-1 shadow-lg">
+                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">📸 Image</span>
+              </div>
+            </div>
+          )}
+          {post.type === 'video' && post.mediaUrl && (
+            <div className="relative">
+              <video 
+                src={post.mediaUrl} 
+                className="w-full max-h-[80vh] rounded-2xl mx-auto block shadow-lg" 
+                controls 
+                preload="metadata" 
+              />
+              <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl px-3 py-1 shadow-lg">
+                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">🎥 Video</span>
+              </div>
+            </div>
+          )}
+          {post.type === 'document' && post.mediaUrl && (
+            <div className="p-6 sm:p-8">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-3xl p-8 shadow-lg">
+                <div className="flex flex-col sm:flex-row items-center space-y-6 sm:space-y-0 sm:space-x-6">
+                  <div className="flex-shrink-0">
+                    <div className="w-24 h-24 bg-white dark:bg-gray-800 rounded-3xl shadow-lg flex items-center justify-center">
+                      <span className="text-5xl">{getDocumentIcon(post.docMimeType || post.mediaMimeType)}</span>
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0 text-center sm:text-left">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
+                      {getDocumentFilename()}
+                    </h3>
+                    <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start space-y-2 sm:space-y-0 sm:space-x-6 text-sm text-gray-600 dark:text-gray-400">
+                      {formatFileSize(post.docSize) && (
+                        <span className="flex items-center space-x-2 bg-white/50 dark:bg-gray-800/50 px-3 py-1 rounded-xl">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                          <span>{formatFileSize(post.docSize)}</span>
+                        </span>
+                      )}
+                      <span className="flex items-center space-x-2 bg-white/50 dark:bg-gray-800/50 px-3 py-1 rounded-xl">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Document</span>
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+                    <a
+                      href={post.mediaUrl.startsWith('/api/documents/') 
+                        ? post.mediaUrl 
+                        : `/api/media/preview/${post.docPublicId || post.mediaPublicId || ''}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 ease-out hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      Open
+                    </a>
+                    <a
+                      href={post.mediaUrl.startsWith('/api/documents/') 
+                        ? `${post.mediaUrl}?download=true` 
+                        : `/api/media/raw/${post.docPublicId || post.mediaPublicId || ''}`}
+                      download={getDocumentFilename()}
+                      className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-2xl hover:from-gray-700 hover:to-gray-800 transition-all duration-200 ease-out hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Download
+                    </a>
+                  </div>
+                </div>
+              </div>
           
           {/* Document Preview */}
           {post.docMimeType?.includes('pdf') && (post.docPublicId || post.mediaPublicId) && (
@@ -383,89 +468,233 @@ export default function PostDetails() {
           )}
         </div>
       )}
-      {post.type === 'article' ? (
-        <div className="prose dark:prose-invert max-w-none whitespace-pre-wrap">{post.articleContent || post.body}</div>
-      ) : (
-        <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{post.body}</p>
-      )}
-
-      {/* Comments */}
-      <section className="mt-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Comments</h2>
-        {user && (
-          <div className="mb-4 flex gap-2">
-            <input value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Write a comment..." className="flex-1 border rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
-            <button onClick={submitComment} className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">Post</button>
+          {/* Text Content */}
+          <div className="p-6 sm:p-8">
+            {post.type === 'article' ? (
+              <div className="prose prose-lg dark:prose-invert max-w-none whitespace-pre-wrap leading-relaxed text-gray-800 dark:text-gray-200">
+                {post.articleContent || post.body}
+              </div>
+            ) : (
+              <div className="text-lg leading-relaxed text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+                {post.body}
+              </div>
+            )}
           </div>
-        )}
-        {commentsLoading ? (
-          <div className="text-gray-600 dark:text-gray-300">Loading comments...</div>
-        ) : comments.length === 0 ? (
-          <div className="text-gray-600 dark:text-gray-300">No comments yet</div>
-        ) : (
-          <div className="space-y-4">
-            {comments.map(c => (
-              <div key={c._id} className="flex items-start gap-3">
-                <Link to={`/users/${c.user?._id || c.user}`} className="shrink-0">
-                  <img src={c.user?.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"28\" height=\"28\"><rect width=\"28\" height=\"28\" fill=\"#e5e7eb\"/><text x=\"14\" y=\"18\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"11\" fill=\"#6b7280\">U</text></svg>')}`} alt="" className="w-8 h-8 rounded-full object-cover border" />
-                </Link>
-                <div className="flex-1 min-w-0">
-                  <div className="min-w-0">
-                    <Link to={`/users/${c.user?._id || c.user}`} className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{c.user?.name || 'User'}</Link>
-                  </div>
-                  <p className="mt-1 text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{c.body}</p>
-                  <div className="mt-2 flex items-center gap-2">
-                    <button onClick={() => toggleCommentReaction(c._id, 'like')} className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-xs" title="Like this comment">
-                      👍 {(c.likes || []).length || 0}
-                    </button>
-                    <button onClick={() => toggleCommentReaction(c._id, 'dislike')} className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-xs" title="Dislike this comment">
-                      👎 {(c.dislikes || []).length || 0}
-                    </button>
-                    {user && (
-                      <button onClick={() => { setReplyingTo(c._id); }} className="ml-1 text-xs text-indigo-600 hover:underline" title="Reply">Reply</button>
-                    )}
-                    <button onClick={() => { const open = !repliesOpen[c._id]; setRepliesOpen(prev => ({ ...prev, [c._id]: open })); if (open && !replies[c._id]) loadReplies(c._id); }} className="ml-auto text-xs text-gray-600 dark:text-gray-300 hover:underline" title="Toggle replies">
-                      View replies
-                    </button>
-                  </div>
-                  {replyingTo === c._id && (
-                    <div className="mt-2 flex gap-2">
-                      <input value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Write a reply..." className="flex-1 border rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
-                      <button onClick={() => submitReply(c._id)} className="px-3 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 text-sm">Reply</button>
-                      <button onClick={() => { setReplyingTo(null); setNewComment(''); }} className="px-2 py-2 rounded-lg text-sm">Cancel</button>
-                    </div>
-                  )}
-                  {repliesOpen[c._id] && (
-                    <div className="mt-3 pl-6 border-l border-gray-200 dark:border-gray-700 space-y-3">
-                      {(replies[c._id] || []).map(r => (
-                        <div key={r._id} className="flex items-start gap-3">
-                          <Link to={`/users/${r.user?._id || r.user}`} className="shrink-0">
-                            <img src={r.user?.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"28\" height=\"28\"><rect width=\"28\" height=\"28\" fill=\"#e5e7eb\"/><text x=\"14\" y=\"18\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"11\" fill=\"#6b7280\">U</text></svg>')}`} alt="" className="w-7 h-7 rounded-full object-cover border" />
-                          </Link>
-                          <div className="flex-1 min-w-0">
-                            <div className="min-w-0">
-                              <Link to={`/users/${r.user?._id || r.user}`} className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">{r.user?.name || 'User'}</Link>
-                            </div>
-                            <p className="mt-1 text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{r.body}</p>
-                            <div className="mt-1 flex items-center gap-2">
-                              <button onClick={() => toggleCommentReaction(r._id, 'like')} className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-xs" title="Like this reply">
-                                👍 {(r.likes || []).length || 0}
-                              </button>
-                              <button onClick={() => toggleCommentReaction(r._id, 'dislike')} className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-xs" title="Dislike this reply">
-                                👎 {(r.dislikes || []).length || 0}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+        </div>
+
+        {/* Comments Section */}
+        <div className="mt-12">
+          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 overflow-hidden">
+            {/* Comments Header */}
+            <div className="p-6 sm:p-8 border-b border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <span className="text-white text-lg">💬</span>
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Comments</h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{comments.length} {comments.length === 1 ? 'comment' : 'comments'}</p>
                 </div>
               </div>
-            ))}
+            </div>
+
+            {/* Comment Input */}
+            {user && (
+              <div className="p-6 sm:p-8 bg-gradient-to-r from-gray-50/50 to-blue-50/50 dark:from-gray-800/50 dark:to-blue-900/20 border-b border-gray-200/50 dark:border-gray-700/50">
+                <div className="flex gap-3">
+                  <div className="flex-shrink-0">
+                    <img
+                      src={user.avatarUrl || `data:image/svg+xml;base64,${btoa(`
+                        <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+                          <rect width="40" height="40" fill="#e5e7eb"/>
+                          <text x="20" y="25" text-anchor="middle" font-family="Arial" font-size="16" fill="#6b7280">U</text>
+                        </svg>
+                      `)}`}
+                      alt={user.name}
+                      className="w-10 h-10 rounded-2xl object-cover border-2 border-white/30 dark:border-gray-600/30 shadow-lg"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <input 
+                      value={newComment} 
+                      onChange={e => setNewComment(e.target.value)} 
+                      placeholder="Share your thoughts..." 
+                      className="w-full px-4 py-3 rounded-2xl border-2 border-gray-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-lg hover:shadow-xl" 
+                    />
+                  </div>
+                  <button 
+                    onClick={submitComment} 
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-200 ease-out hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>📝</span>
+                      <span>Post</span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+            )}
+            {/* Comments List */}
+            <div className="p-6 sm:p-8">
+              {commentsLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                    <span className="text-gray-600 dark:text-gray-300">Loading comments...</span>
+                  </div>
+                </div>
+              ) : comments.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4">💬</div>
+                  <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">No comments yet</h3>
+                  <p className="text-gray-600 dark:text-gray-400">Be the first to share your thoughts!</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {comments.map(c => (
+                    <div key={c._id} className="bg-gradient-to-r from-gray-50/50 to-blue-50/50 dark:from-gray-800/50 dark:to-blue-900/20 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50">
+                      <div className="flex items-start gap-4">
+                        <Link to={`/users/${c.user?._id || c.user}`} className="shrink-0 group">
+                          <img 
+                            src={c.user?.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"40\"><rect width=\"40\" height=\"40\" fill=\"#e5e7eb\"/><text x=\"20\" y=\"25\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"16\" fill=\"#6b7280\">U</text></svg>')}`} 
+                            alt="" 
+                            className="w-10 h-10 rounded-2xl object-cover border-2 border-white/30 dark:border-gray-600/30 shadow-lg group-hover:scale-105 transition-transform duration-200" 
+                          />
+                        </Link>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Link 
+                              to={`/users/${c.user?._id || c.user}`} 
+                              className="font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            >
+                              {c.user?.name || 'User'}
+                            </Link>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {new Date(c.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed mb-3">
+                            {c.body}
+                          </p>
+                          <div className="flex items-center gap-3">
+                            <button 
+                              onClick={() => toggleCommentReaction(c._id, 'like')} 
+                              className="px-3 py-1 rounded-xl bg-white/80 dark:bg-gray-700/80 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-green-100 dark:hover:bg-green-900/20 hover:text-green-600 dark:hover:text-green-400 transition-all duration-200" 
+                              title="Like this comment"
+                            >
+                              👍 {(c.likes || []).length || 0}
+                            </button>
+                            <button 
+                              onClick={() => toggleCommentReaction(c._id, 'dislike')} 
+                              className="px-3 py-1 rounded-xl bg-white/80 dark:bg-gray-700/80 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-red-100 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200" 
+                              title="Dislike this comment"
+                            >
+                              👎 {(c.dislikes || []).length || 0}
+                            </button>
+                            {user && (
+                              <button 
+                                onClick={() => { setReplyingTo(c._id); }} 
+                                className="px-3 py-1 rounded-xl bg-white/80 dark:bg-gray-700/80 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-all duration-200" 
+                                title="Reply"
+                              >
+                                💬 Reply
+                              </button>
+                            )}
+                            <button 
+                              onClick={() => { const open = !repliesOpen[c._id]; setRepliesOpen(prev => ({ ...prev, [c._id]: open })); if (open && !replies[c._id]) loadReplies(c._id); }} 
+                              className="ml-auto px-3 py-1 rounded-xl bg-white/80 dark:bg-gray-700/80 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600/20 transition-all duration-200" 
+                              title="Toggle replies"
+                            >
+                              {repliesOpen[c._id] ? '🔼 Hide' : '🔽 View'} replies
+                            </button>
+                          </div>
+                          
+                          {/* Reply Input */}
+                          {replyingTo === c._id && (
+                            <div className="mt-4 p-4 bg-white/80 dark:bg-gray-800/80 rounded-2xl border border-gray-200 dark:border-gray-600">
+                              <div className="flex gap-3">
+                                <input 
+                                  value={newComment} 
+                                  onChange={e => setNewComment(e.target.value)} 
+                                  placeholder="Write a reply..." 
+                                  className="flex-1 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" 
+                                />
+                                <button 
+                                  onClick={() => submitReply(c._id)} 
+                                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-200"
+                                >
+                                  Reply
+                                </button>
+                                <button 
+                                  onClick={() => { setReplyingTo(null); setNewComment(''); }} 
+                                  className="px-4 py-2 rounded-xl bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500 transition-all duration-200"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Replies */}
+                          {repliesOpen[c._id] && (
+                            <div className="mt-4 pl-6 border-l-2 border-blue-200 dark:border-blue-800 space-y-4">
+                              {(replies[c._id] || []).map(r => (
+                                <div key={r._id} className="bg-white/60 dark:bg-gray-800/60 rounded-2xl p-4 border border-gray-200/50 dark:border-gray-700/50">
+                                  <div className="flex items-start gap-3">
+                                    <Link to={`/users/${r.user?._id || r.user}`} className="shrink-0 group">
+                                      <img 
+                                        src={r.user?.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"32\"><rect width=\"32\" height=\"32\" fill=\"#e5e7eb\"/><text x=\"16\" y=\"20\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"12\" fill=\"#6b7280\">U</text></svg>')}`} 
+                                        alt="" 
+                                        className="w-8 h-8 rounded-xl object-cover border border-white/30 dark:border-gray-600/30 shadow-md group-hover:scale-105 transition-transform duration-200" 
+                                      />
+                                    </Link>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <Link 
+                                          to={`/users/${r.user?._id || r.user}`} 
+                                          className="text-sm font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                        >
+                                          {r.user?.name || 'User'}
+                                        </Link>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                                          {new Date(r.createdAt).toLocaleDateString()}
+                                        </span>
+                                      </div>
+                                      <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed mb-2">
+                                        {r.body}
+                                      </p>
+                                      <div className="flex items-center gap-2">
+                                        <button 
+                                          onClick={() => toggleCommentReaction(r._id, 'like')} 
+                                          className="px-2 py-1 rounded-lg bg-white/80 dark:bg-gray-700/80 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-green-100 dark:hover:bg-green-900/20 hover:text-green-600 dark:hover:text-green-400 transition-all duration-200" 
+                                          title="Like this reply"
+                                        >
+                                          👍 {(r.likes || []).length || 0}
+                                        </button>
+                                        <button 
+                                          onClick={() => toggleCommentReaction(r._id, 'dislike')} 
+                                          className="px-2 py-1 rounded-lg bg-white/80 dark:bg-gray-700/80 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-red-100 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200" 
+                                          title="Dislike this reply"
+                                        >
+                                          👎 {(r.dislikes || []).length || 0}
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </section>
+        </div>
+      </div>
     </div>
   );
 }

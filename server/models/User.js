@@ -26,6 +26,9 @@ const userSchema = new mongoose.Schema({
   googleId: { type: String, sparse: true },
   isGoogleUser: { type: Boolean, default: false },
   
+  // Terms and conditions
+  acceptTerms: { type: Boolean, default: false },
+  
   // Social graph
   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
