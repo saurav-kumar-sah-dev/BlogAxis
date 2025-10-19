@@ -117,23 +117,60 @@ async function sendContactEmail({ name, email, subject, message }) {
     throw new Error('Email configuration not found');
   }
 
-  // Create transporter with timeout settings
+  // Try multiple SMTP configurations for better compatibility
+  const smtpConfigs = [
+    { port: 465, secure: true, name: 'SSL (port 465)' },
+    { port: 587, secure: false, name: 'TLS (port 587)' },
+    { port: 25, secure: false, name: 'Standard (port 25)' }
+  ];
+
+  let lastError = null;
+  
+  for (const config of smtpConfigs) {
+    try {
+      console.log(`Trying ${config.name} configuration...`);
+      const result = await trySendEmail({ name, email, subject, message }, config);
+      console.log(`✅ Email sent successfully using ${config.name}`);
+      return result;
+    } catch (error) {
+      console.log(`❌ ${config.name} failed:`, error.message);
+      lastError = error;
+      continue; // Try next configuration
+    }
+  }
+  
+  // If all configurations failed, throw the last error
+  throw lastError || new Error('All SMTP configurations failed');
+}
+
+// Helper function to try sending email with specific configuration
+async function trySendEmail({ name, email, subject, message }, config) {
+  console.log(`Using email configuration: port ${config.port}, secure: ${config.secure}`);
+  
   const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT || 587,
-    secure: false, // true for 465, false for other ports
+    port: config.port,
+    secure: config.secure, // true for 465 (SSL), false for 587 (TLS)
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-    // Add timeout settings
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 5000,    // 5 seconds
-    socketTimeout: 10000,     // 10 seconds
+    // Increased timeout settings for Render
+    connectionTimeout: 20000, // 20 seconds
+    greetingTimeout: 15000,   // 15 seconds
+    socketTimeout: 20000,     // 20 seconds
     // Retry settings
     pool: true,
     maxConnections: 1,
     maxMessages: 1,
+    // TLS settings for better compatibility
+    tls: {
+      rejectUnauthorized: false, // Allow self-signed certificates
+      ciphers: 'SSLv3'
+    },
+    // Additional options for Render compatibility
+    ignoreTLS: false,
+    requireTLS: !config.secure, // Require TLS only for non-SSL ports
   });
 
   try {
