@@ -288,7 +288,7 @@ async function sendWithSendGrid({ name, email, subject, message }) {
   const msg = {
     to: 'sauravshubham903@gmail.com',
     from: {
-      email: 'noreply@sendgrid.com', // Use SendGrid's default verified sender
+      email: 'sauravshubham903@gmail.com', // Use your verified Gmail address
       name: 'BlogAxis Contact Form'
     },
     replyTo: email,
