@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
+import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
+import AdminFilters from '../components/admin/AdminFilters';
+import AdminPagination from '../components/admin/AdminPagination';
 
 export default function AuditTrail() {
+  const { isDark } = useTheme();
+  const navigate = useNavigate();
   const [audits, setAudits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -84,183 +89,251 @@ export default function AuditTrail() {
     return colors[action] || 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
   };
 
+  const filterConfig = [
+    {
+      key: 'action',
+      label: 'Action',
+      type: 'select',
+      value: filters.action,
+      options: [
+        { value: 'report_reviewed', label: 'Report Reviewed' },
+        { value: 'post_hidden', label: 'Post Hidden' },
+        { value: 'post_unhidden', label: 'Post Unhidden' },
+        { value: 'post_deleted', label: 'Post Deleted' },
+        { value: 'user_warned', label: 'User Warned' },
+        { value: 'user_suspended', label: 'User Suspended' },
+        { value: 'user_unsuspended', label: 'User Unsuspended' },
+        { value: 'user_banned', label: 'User Banned' },
+        { value: 'user_deleted', label: 'User Deleted' },
+        { value: 'comment_deleted', label: 'Comment Deleted' },
+        { value: 'content_approved', label: 'Content Approved' },
+        { value: 'report_dismissed', label: 'Report Dismissed' }
+      ]
+    },
+    {
+      key: 'targetType',
+      label: 'Target Type',
+      type: 'select',
+      value: filters.targetType,
+      options: [
+        { value: 'post', label: 'Posts' },
+        { value: 'user', label: 'Users' },
+        { value: 'comment', label: 'Comments' },
+        { value: 'report', label: 'Reports' }
+      ]
+    },
+    {
+      key: 'admin',
+      label: 'Admin',
+      type: 'search',
+      value: filters.admin,
+      placeholder: 'Search by admin name...'
+    }
+  ];
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
+
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6">
-        <div className="text-center text-gray-500 dark:text-gray-400">Loading audit trail...</div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="relative z-10 py-8 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col items-center justify-center py-16">
+              <div className="relative mb-6">
+                <div className="w-16 h-16 border-4 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"></div>
+                <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-purple-600 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+              </div>
+              <div className="text-center">
+                <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">Loading Audit Trail</h3>
+                <p className="text-gray-500 dark:text-gray-400">Please wait while we fetch the audit logs...</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Audit Trail</h1>
-        <p className="text-gray-600 dark:text-gray-400">Track all moderation actions and admin activities</p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      {/* Enhanced Background with animated elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-32 h-32 rounded-full opacity-10 animate-pulse" style={{ background: isDark ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)' }} />
+        <div className="absolute top-40 right-20 w-24 h-24 rounded-full opacity-15 animate-bounce" style={{ background: isDark ? 'rgba(139, 92, 246, 0.3)' : 'rgba(139, 92, 246, 0.2)' }} />
+        <div className="absolute bottom-40 left-20 w-28 h-28 rounded-full opacity-10 animate-pulse" style={{ background: isDark ? 'rgba(236, 72, 153, 0.3)' : 'rgba(236, 72, 153, 0.2)' }} />
+        <div className="absolute bottom-20 right-10 w-20 h-20 rounded-full opacity-15 animate-bounce" style={{ background: isDark ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)' }} />
       </div>
 
-      {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Filters</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Action</label>
-            <select
-              value={filters.action}
-              onChange={(e) => setFilters({ ...filters, action: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+      <div className="relative z-10 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Back to Admin Button */}
+          <div className="mb-6">
+            <button
+              onClick={() => navigate('/admin')}
+              className="group flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-200 ease-out hover:scale-[1.02] shadow-lg hover:shadow-xl"
             >
-              <option value="">All Actions</option>
-              <option value="report_reviewed">Report Reviewed</option>
-              <option value="post_hidden">Post Hidden</option>
-              <option value="post_unhidden">Post Unhidden</option>
-              <option value="post_deleted">Post Deleted</option>
-              <option value="user_warned">User Warned</option>
-              <option value="user_suspended">User Suspended</option>
-              <option value="user_unsuspended">User Unsuspended</option>
-              <option value="user_banned">User Banned</option>
-              <option value="user_deleted">User Deleted</option>
-              <option value="comment_deleted">Comment Deleted</option>
-              <option value="content_approved">Content Approved</option>
-              <option value="report_dismissed">Report Dismissed</option>
-            </select>
+              <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span>Back to Admin Dashboard</span>
+            </button>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Target Type</label>
-            <select
-              value={filters.targetType}
-              onChange={(e) => setFilters({ ...filters, targetType: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            >
-              <option value="">All Types</option>
-              <option value="post">Posts</option>
-              <option value="user">Users</option>
-              <option value="comment">Comments</option>
-              <option value="report">Reports</option>
-            </select>
+          {/* Enhanced Header Section */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-3 mb-6">
+              <div className="relative">
+                <span className="text-4xl sm:text-5xl animate-pulse">📋</span>
+                <div className="absolute inset-0 text-4xl sm:text-5xl animate-ping opacity-20">📋</div>
+              </div>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Audit Trail
+              </h1>
+              <div className="relative">
+                <span className="text-4xl sm:text-5xl animate-pulse">📋</span>
+                <div className="absolute inset-0 text-4xl sm:text-5xl animate-ping opacity-20">📋</div>
+              </div>
+            </div>
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              Track all moderation actions and admin activities with comprehensive audit logging and transparency.
+            </p>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Admin</label>
-            <input
-              type="text"
-              value={filters.admin}
-              onChange={(e) => setFilters({ ...filters, admin: e.target.value })}
-              placeholder="Search by admin name..."
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            />
-          </div>
-        </div>
-      </div>
+          {/* Filters */}
+          <AdminFilters
+            filters={filterConfig}
+            onFilterChange={handleFilterChange}
+            title="Audit Filters"
+          />
 
-      {/* Audit Trail */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Audit Log</h3>
-        </div>
-
-        <div className="divide-y divide-gray-200 dark:divide-gray-700">
-          {audits.map((audit) => (
-            <div key={audit._id} className="p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                    <span className="text-lg">{getActionIcon(audit.action)}</span>
-                  </div>
+          {/* Audit Trail */}
+          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 overflow-hidden">
+            <div className="p-6 sm:p-8 border-b border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center">
+                  <span className="text-white text-lg">📋</span>
                 </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getActionColor(audit.action)}`}>
-                      {audit.action.replace('_', ' ').toUpperCase()}
-                    </span>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {new Date(audit.createdAt).toLocaleString()}
-                    </span>
-                  </div>
-
-                  <div className="text-sm text-gray-900 dark:text-white mb-1">
-                    <Link 
-                      to={`/users/${audit.admin?._id}`} 
-                      className="font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-                    >
-                      {audit.admin?.name || 'Unknown Admin'}
-                    </Link> performed action on{' '}
-                    <span className="font-semibold">{audit.targetType}</span>
-                    {audit.targetType === 'post' && (
-                      <Link 
-                        to={`/posts/${audit.targetId}`} 
-                        className="ml-1 text-blue-600 dark:text-blue-400 hover:underline"
-                      >
-                        (View Post)
-                      </Link>
-                    )}
-                    {audit.targetType === 'user' && (
-                      <Link 
-                        to={`/users/${audit.targetId}`} 
-                        className="ml-1 text-blue-600 dark:text-blue-400 hover:underline"
-                      >
-                        (View User)
-                      </Link>
-                    )}
-                    {audit.targetType === 'report' && (
-                      <Link 
-                        to={`/moderation`} 
-                        className="ml-1 text-blue-600 dark:text-blue-400 hover:underline"
-                      >
-                        (View Reports)
-                      </Link>
-                    )}
-                  </div>
-
-                  {audit.reason && (
-                    <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                      <strong>Reason:</strong> {audit.reason}
-                    </div>
-                  )}
-
-                  {audit.details && (
-                    <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                      <strong>Details:</strong> {audit.details}
-                    </div>
-                  )}
-
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    Target ID: {audit.targetId} • IP: {audit.ipAddress}
-                  </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">Audit Log</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Complete history of admin actions and changes</p>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
 
-        {/* Pagination */}
-        {pagination.pages > 1 && (
-          <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-700 dark:text-gray-300">
-                Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} audits
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
-                  disabled={pagination.page === 1}
-                  className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
-                  disabled={pagination.page === pagination.pages}
-                  className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
-              </div>
+            <div className="divide-y divide-gray-200/50 dark:divide-gray-700/50">
+              {audits.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-6">📊</div>
+                  <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">No Audit Records Found</h3>
+                  <p className="text-gray-600 dark:text-gray-400">No audit records match your current filters.</p>
+                </div>
+              ) : (
+                audits.map((audit) => (
+                  <div key={audit._id} className="p-4 sm:p-6 hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors duration-200">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
+                        <div className="w-12 h-12 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded-2xl flex items-center justify-center shadow-lg">
+                          <span className="text-xl">{getActionIcon(audit.action)}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getActionColor(audit.action)} self-start`}>
+                            {audit.action.replace('_', ' ').toUpperCase()}
+                          </span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            {new Date(audit.createdAt).toLocaleString()}
+                          </span>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="text-sm text-gray-900 dark:text-white">
+                            <Link 
+                              to={`/users/${audit.admin?._id}`} 
+                              className="font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                            >
+                              {audit.admin?.name || 'Unknown Admin'}
+                            </Link>
+                            <span className="mx-1">performed action on</span>
+                            <span className="font-semibold text-gray-700 dark:text-gray-300">{audit.targetType}</span>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            {audit.targetType === 'post' && (
+                              <Link 
+                                to={`/posts/${audit.targetId}`} 
+                                className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 text-xs rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/30 transition-colors duration-200"
+                              >
+                                <span>📝</span>
+                                <span>View Post</span>
+                              </Link>
+                            )}
+                            {audit.targetType === 'user' && (
+                              <Link 
+                                to={`/users/${audit.targetId}`} 
+                                className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 text-xs rounded-lg hover:bg-green-200 dark:hover:bg-green-900/30 transition-colors duration-200"
+                              >
+                                <span>👤</span>
+                                <span>View User</span>
+                              </Link>
+                            )}
+                            {audit.targetType === 'report' && (
+                              <Link 
+                                to={`/moderation`} 
+                                className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300 text-xs rounded-lg hover:bg-red-200 dark:hover:bg-red-900/30 transition-colors duration-200"
+                              >
+                                <span>🚩</span>
+                                <span>View Reports</span>
+                              </Link>
+                            )}
+                          </div>
+
+                          {audit.reason && (
+                            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
+                              <div className="text-sm text-gray-600 dark:text-gray-400">
+                                <span className="font-medium">Reason:</span> {audit.reason}
+                              </div>
+                            </div>
+                          )}
+
+                          {audit.details && (
+                            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
+                              <div className="text-sm text-gray-600 dark:text-gray-400">
+                                <span className="font-medium">Details:</span> {audit.details}
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200/50 dark:border-gray-700/50">
+                            <span>Target ID: {audit.targetId}</span>
+                            <span>IP: {audit.ipAddress}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
+
+            {/* Pagination */}
+            {pagination.pages > 1 && (
+              <div className="p-4 sm:p-6 border-t border-gray-200/50 dark:border-gray-700/50">
+                <AdminPagination
+                  page={pagination.page}
+                  total={pagination.total}
+                  limit={pagination.limit}
+                  onPrev={() => setPagination({ ...pagination, page: pagination.page - 1 })}
+                  onNext={() => setPagination({ ...pagination, page: pagination.page + 1 })}
+                />
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
