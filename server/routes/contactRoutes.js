@@ -67,13 +67,26 @@ router.get('/email-config', (req, res) => {
     EMAIL_HOST: process.env.EMAIL_HOST ? 'SET' : 'NOT SET',
     EMAIL_USER: process.env.EMAIL_USER ? 'SET' : 'NOT SET',
     EMAIL_PASS: process.env.EMAIL_PASS ? 'SET' : 'NOT SET',
-    EMAIL_PORT: process.env.EMAIL_PORT || '587 (default)'
+    EMAIL_PORT: process.env.EMAIL_PORT || '587 (default)',
+    NODE_ENV: process.env.NODE_ENV || 'development',
+    // Show partial values for debugging (not full passwords)
+    EMAIL_HOST_VALUE: process.env.EMAIL_HOST || 'NOT SET',
+    EMAIL_USER_VALUE: process.env.EMAIL_USER || 'NOT SET',
+    EMAIL_PASS_LENGTH: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0,
+    EMAIL_PORT_VALUE: process.env.EMAIL_PORT || '587'
   };
   
+  const isConfigured = process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS;
+  
   res.json({
-    status: 'ok',
-    message: 'Email configuration status',
+    status: isConfigured ? 'configured' : 'not_configured',
+    message: isConfigured ? 'Email configuration is set' : 'Email configuration is missing',
     config: emailConfig,
+    deployment: {
+      environment: process.env.NODE_ENV || 'development',
+      platform: 'Render',
+      timestamp: new Date().toISOString()
+    },
     instructions: {
       setup: 'To enable email notifications, set these environment variables in your deployment:',
       variables: [
@@ -86,6 +99,12 @@ router.get('/email-config', (req, res) => {
         '1. Enable 2-factor authentication on your Gmail account',
         '2. Generate an "App Password" for your application',
         '3. Use the app password in EMAIL_PASS'
+      ],
+      renderSetup: [
+        '1. Go to Render Dashboard → Your API Service',
+        '2. Click "Environment" tab',
+        '3. Add the email variables above',
+        '4. Click "Save Changes" (auto-redeploys)'
       ]
     }
   });
