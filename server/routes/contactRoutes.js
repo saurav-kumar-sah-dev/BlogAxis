@@ -5,6 +5,11 @@ const { submitContactForm } = require('../controllers/contactController');
 
 const router = express.Router();
 
+// Health check for contact routes
+router.get('/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Contact routes are working' });
+});
+
 // Contact form submission
 router.post('/submit',
   [

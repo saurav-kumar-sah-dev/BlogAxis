@@ -5,7 +5,17 @@ const ContactSubmission = require('../models/ContactSubmission');
 
 exports.submitContactForm = async (req, res) => {
   try {
+    console.log('Contact form submission received:', req.body);
     const { name, email, subject, message } = req.body;
+
+    // Basic validation
+    if (!name || !email || !subject || !message) {
+      console.log('Validation failed: missing required fields');
+      return res.status(400).json({ 
+        success: false, 
+        error: 'All fields are required' 
+      });
+    }
 
     // Store the contact submission in database (optional)
     const contactSubmission = new ContactSubmission({
@@ -18,6 +28,7 @@ exports.submitContactForm = async (req, res) => {
     });
 
     await contactSubmission.save();
+    console.log('Contact submission saved to database:', contactSubmission._id);
 
     // Send email notification (optional - requires email configuration)
     try {

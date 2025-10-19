@@ -12,6 +12,7 @@ export default function Contact() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleChange = (e) => {
     setFormData({
@@ -24,22 +25,44 @@ export default function Contact() {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('');
+    setErrorMessage('');
+    
+    // Basic client-side validation
+    if (!formData.name.trim() || !formData.email.trim() || !formData.subject.trim() || !formData.message.trim()) {
+      setSubmitStatus('error');
+      setErrorMessage('Please fill in all required fields.');
+      setIsSubmitting(false);
+      return;
+    }
+    
+    if (formData.message.trim().length < 10) {
+      setSubmitStatus('error');
+      setErrorMessage('Message must be at least 10 characters long.');
+      setIsSubmitting(false);
+      return;
+    }
     
     try {
+      console.log('Submitting contact form with data:', formData);
       const response = await api.post('/contact/submit', formData);
+      
+      console.log('Contact form response status:', response.status);
       
       if (response.ok) {
         const result = await response.json();
+        console.log('Contact form success:', result);
         setSubmitStatus('success');
         setFormData({ name: '', email: '', subject: '', message: '' });
       } else {
         const error = await response.json();
-        setSubmitStatus('error');
         console.error('Contact form error:', error);
+        setSubmitStatus('error');
+        setErrorMessage(error.error || 'Failed to send message. Please try again.');
       }
     } catch (error) {
       console.error('Contact form submission error:', error);
       setSubmitStatus('error');
+      setErrorMessage('Network error. Please check your connection and try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -76,7 +99,7 @@ export default function Contact() {
             {submitStatus === 'error' && (
               <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                 <p className="text-red-600 dark:text-red-400">
-                  ❌ Failed to send your message. Please try again later or contact us directly.
+                  ❌ {errorMessage || 'Failed to send your message. Please try again later or contact us directly.'}
                 </p>
               </div>
             )}

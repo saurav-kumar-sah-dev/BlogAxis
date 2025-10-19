@@ -1,5 +1,6 @@
 // src/api/client.js
-const BASE = (import.meta.env && import.meta.env.VITE_API_BASE_URL) || '/api';
+const BASE = (import.meta.env && import.meta.env.VITE_API_BASE_URL) || 
+  (import.meta.env.PROD ? 'https://blogaxis.onrender.com' : '/api');
 
 // Remove trailing /api if it exists to prevent double /api/api paths
 const cleanBase = BASE.endsWith('/api') ? BASE.slice(0, -4) : BASE;
