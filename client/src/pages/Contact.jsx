@@ -47,22 +47,45 @@ export default function Contact() {
       const response = await api.post('/contact/submit', formData);
       
       console.log('Contact form response status:', response.status);
+      console.log('Contact form response headers:', response.headers);
       
       if (response.ok) {
         const result = await response.json();
         console.log('Contact form success:', result);
         setSubmitStatus('success');
         setFormData({ name: '', email: '', subject: '', message: '' });
+        
+        // Show email status if available
+        if (result.emailStatus) {
+          console.log('Email status:', result.emailStatus);
+        }
       } else {
-        const error = await response.json();
-        console.error('Contact form error:', error);
+        console.error('Contact form failed with status:', response.status);
+        let errorMessage = 'Failed to send message. Please try again.';
+        
+        try {
+          const error = await response.json();
+          console.error('Contact form error response:', error);
+          errorMessage = error.error || errorMessage;
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError);
+          errorMessage = `Server error (${response.status}). Please try again.`;
+        }
+        
         setSubmitStatus('error');
-        setErrorMessage(error.error || 'Failed to send message. Please try again.');
+        setErrorMessage(errorMessage);
       }
     } catch (error) {
       console.error('Contact form submission error:', error);
       setSubmitStatus('error');
-      setErrorMessage('Network error. Please check your connection and try again.');
+      
+      if (error.message.includes('timeout')) {
+        setErrorMessage('Request timed out. Please check your connection and try again.');
+      } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        setErrorMessage('Network error. Please check your connection and try again.');
+      } else {
+        setErrorMessage(error.message || 'Network error. Please check your connection and try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }

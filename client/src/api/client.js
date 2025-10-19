@@ -30,14 +30,40 @@ export const api = {
     return res;
   },
 
-  post: (path, body, isFormData = false) =>
-    fetch(`${cleanBase}/api${path}`, {
-      method: 'POST',
-      headers: isFormData
-        ? { ...authHeader() } // browser sets Content-Type + boundary for FormData
-        : { 'Content-Type': 'application/json', ...authHeader() },
-      body: isFormData ? body : JSON.stringify(body),
-    }),
+  post: async (path, body, isFormData = false) => {
+    const url = `${cleanBase}/api${path}`;
+    if (import.meta.env.PROD) {
+      console.log('Making POST request to:', url);
+    }
+    
+    // Add timeout handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: isFormData
+          ? { ...authHeader() } // browser sets Content-Type + boundary for FormData
+          : { 'Content-Type': 'application/json', ...authHeader() },
+        body: isFormData ? body : JSON.stringify(body),
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      if (import.meta.env.PROD) {
+        console.log('Response status:', res.status, 'for URL:', url);
+      }
+      return res;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        console.error('Request timeout for URL:', url);
+        throw new Error('Request timeout. Please try again.');
+      }
+      throw error;
+    }
+  },
 
   put: (path, body, isFormData = false) =>
     fetch(`${cleanBase}/api${path}`, {

@@ -10,6 +10,17 @@ router.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Contact routes are working' });
 });
 
+// Test endpoint for contact form submission
+router.post('/test', (req, res) => {
+  console.log('Test contact endpoint hit with data:', req.body);
+  res.json({ 
+    status: 'ok', 
+    message: 'Test endpoint working',
+    receivedData: req.body,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Email configuration check endpoint
 router.get('/email-config', (req, res) => {
   const emailConfig = {
