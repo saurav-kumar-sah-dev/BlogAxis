@@ -576,12 +576,12 @@ export default function Profile() {
           {/* Enhanced Profile Information */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {profile.name && (
-              <div className="rounded-2xl p-4 sm:p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/20 dark:to-gray-600/20 border border-gray-200/50 dark:border-gray-600/50">
+              <div className="rounded-2xl p-4 sm:p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 border border-indigo-200/50 dark:border-indigo-700/50">
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-2xl">📝</span>
-                  <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Name</span>
+                  <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">Name</span>
                 </div>
-                <div className="font-bold text-lg sm:text-xl text-gray-800 dark:text-gray-200">{profile.name}</div>
+                <div className="font-bold text-lg sm:text-xl text-indigo-700 dark:text-indigo-300">{profile.name}</div>
               </div>
             )}
 
