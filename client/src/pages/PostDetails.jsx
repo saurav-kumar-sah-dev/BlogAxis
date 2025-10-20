@@ -1,11 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 
 export default function PostDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
 
   const [post, setPost] = useState(null);
@@ -30,6 +31,18 @@ export default function PostDetails() {
   // Image navigation states
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [shouldFocusComments, setShouldFocusComments] = useState(false);
+
+  function requireAuth(redirectPath) {
+    if (user) return true;
+    navigate('/login', { replace: false, state: { from: location, next: redirectPath || location?.pathname } });
+    return false;
+  }
+
+  function authNavigate(ev, targetPath) {
+    if (user) return;
+    ev.preventDefault();
+    navigate('/login', { replace: false, state: { from: location, next: targetPath } });
+  }
 
   // Image navigation functions
   const nextImage = () => {
@@ -230,7 +243,8 @@ export default function PostDetails() {
   }
 
   async function toggleLike(type) { // type: 'like' | 'dislike'
-    if (!post || !user) return;
+    if (!post) return;
+    if (!requireAuth(`/posts/${id}`)) return;
     try {
       const res = await api.post(`/posts/${post._id}/${type}`, {});
       const data = await res.json();
@@ -243,7 +257,7 @@ export default function PostDetails() {
   }
 
   async function submitComment() {
-    if (!user) return;
+    if (!requireAuth(`/posts/${id}#comments`)) return;
     const body = (newComment || '').trim();
     if (!body) return;
     setIsSubmittingComment(true);
@@ -270,7 +284,7 @@ export default function PostDetails() {
   }
 
   async function toggleCommentReaction(commentId, type) { // 'like' | 'dislike'
-    if (!user) return;
+    if (!requireAuth(`/posts/${id}#comments`)) return;
     try {
       const res = await api.post(`/posts/${id}/comments/${commentId}/reaction`, { type });
       const counts = await res.json();
@@ -286,7 +300,7 @@ export default function PostDetails() {
   }
 
   async function submitReply(parentId) {
-    if (!user) return;
+    if (!requireAuth(`/posts/${id}#comments`)) return;
     const body = (newComment || '').trim();
     if (!body) return;
     setIsSubmittingReply(true);
