@@ -108,7 +108,6 @@ export default function Profile() {
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deleteError, setDeleteError] = useState('');
-  const [acceptTerms, setAcceptTerms] = useState(false);
   
   // Loading states
   const [isSaving, setIsSaving] = useState(false);
@@ -357,12 +356,6 @@ export default function Profile() {
     setDeleteError('');
     setIsDeletingAccount(true);
     
-    if (!acceptTerms) {
-      setDeleteError('You must accept the terms and conditions to delete your account');
-      setIsDeletingAccount(false);
-      return;
-    }
-    
     if (deleteConfirmText !== 'DELETE') {
       setDeleteError('Please type DELETE to confirm account deletion');
       setIsDeletingAccount(false);
@@ -372,8 +365,7 @@ export default function Profile() {
     try {
       const res = await api.del('/auth/account', {
         password: deletePassword,
-        confirmText: deleteConfirmText,
-        acceptTerms: acceptTerms.toString()
+        confirmText: deleteConfirmText
       });
       const data = await res.json();
       
@@ -1091,23 +1083,16 @@ export default function Profile() {
                   />
                 </div>
                 
-                <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-2 border-yellow-300 dark:border-yellow-600 rounded-2xl p-6">
+                <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border-2 border-red-300 dark:border-red-600 rounded-2xl p-6">
                   <div className="flex items-start gap-4">
-                    <input
-                      type="checkbox"
-                      id="acceptTerms"
-                      checked={acceptTerms}
-                      onChange={e => setAcceptTerms(e.target.checked)}
-                      className="mt-1 h-6 w-6 text-red-600 focus:ring-red-500 border-gray-300 rounded-lg"
-                      required
-                    />
+                    <span className="text-3xl">⚠️</span>
                     <div className="flex-1">
-                      <label htmlFor="acceptTerms" className="text-base font-semibold text-gray-800 dark:text-gray-200 cursor-pointer block">
-                        ✅ I understand and accept the consequences of account deletion
-                      </label>
-                      <div className="text-sm text-gray-700 dark:text-gray-300 mt-3">
-                        <strong className="text-yellow-700 dark:text-yellow-300">By checking this box, I acknowledge that:</strong>
-                        <ul className="list-disc list-inside mt-3 space-y-2 text-gray-600 dark:text-gray-400">
+                      <h4 className="text-lg font-bold text-red-800 dark:text-red-200 mb-3">
+                        Final Warning
+                      </h4>
+                      <div className="text-sm text-red-700 dark:text-red-300">
+                        <strong className="text-red-800 dark:text-red-200">By proceeding, you acknowledge that:</strong>
+                        <ul className="list-disc list-inside mt-3 space-y-2 text-red-600 dark:text-red-400">
                           <li>My account and all associated data will be permanently deleted</li>
                           <li>This action cannot be undone or reversed</li>
                           <li>All my posts, comments, and profile information will be removed</li>
@@ -1123,11 +1108,11 @@ export default function Profile() {
                   <button 
                     type="submit" 
                     className={`flex-1 px-8 py-4 text-white rounded-2xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center gap-3 ${
-                      isDeletingAccount || !acceptTerms || deleteConfirmText !== 'DELETE' || (!profile.isGoogleUser && !deletePassword)
+                      isDeletingAccount || deleteConfirmText !== 'DELETE' || (!profile.isGoogleUser && !deletePassword)
                         ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
                         : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 hover:shadow-xl hover:scale-105'
                     }`}
-                    disabled={isDeletingAccount || !acceptTerms || deleteConfirmText !== 'DELETE' || (!profile.isGoogleUser && !deletePassword)}
+                    disabled={isDeletingAccount || deleteConfirmText !== 'DELETE' || (!profile.isGoogleUser && !deletePassword)}
                   >
                     {isDeletingAccount ? (
                       <>

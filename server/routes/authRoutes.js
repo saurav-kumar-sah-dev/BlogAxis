@@ -55,9 +55,7 @@ router.put('/password',
 router.delete('/account',
   auth,
   [
-    body('password').isLength({ min: 1 }).withMessage('Password is required for account deletion'),
     body('confirmText').equals('DELETE').withMessage('Please type DELETE to confirm account deletion'),
-    body('acceptTerms').equals('true').withMessage('You must accept the terms and conditions to delete your account'),
   ],
   handleValidation,
   deleteAccount
