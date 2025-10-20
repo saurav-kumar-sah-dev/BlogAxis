@@ -16,6 +16,7 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Contact from './pages/Contact';
 import About from './pages/About';
+import MyPosts from './pages/MyPosts';
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/compose" element={<ProtectedRoute><Compose /></ProtectedRoute>} />
           <Route path="/edit/:id" element={<ProtectedRoute><Edit /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/my-posts" element={<ProtectedRoute><MyPosts /></ProtectedRoute>} />
           <Route path="/users/:id" element={<Profile />} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
           <Route path="/moderation" element={<AdminRoute><Moderation /></AdminRoute>} />

@@ -449,6 +449,13 @@ export default function Header() {
                   ✍️ Compose
                 </Link>
                 
+                <Link 
+                  to="/my-posts" 
+                  className="px-3 py-2 rounded-xl bg-white text-gray-800 hover:bg-gray-100 transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-105 border border-white/20"
+                >
+                  📚 My Posts
+                </Link>
+                
                 {/* Account Switcher */}
                 <AccountSwitcher />
                 
@@ -732,6 +739,17 @@ export default function Header() {
                     <span className="flex items-center justify-center gap-2">
                       <span className="text-lg">✍️</span>
                       <span>Compose</span>
+                    </span>
+                  </Link>
+                  
+                  <Link 
+                    to="/my-posts" 
+                    onClick={() => { setMobileMenuOpen(false); setMobileSearchOpen(false); }}
+                    className="w-full px-4 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-blue-600 hover:to-indigo-600 active:scale-95 transition-all duration-300 text-sm font-bold shadow-lg border border-white/30 hover:shadow-xl text-center block"
+                  >
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="text-lg">📚</span>
+                      <span>My Posts</span>
                     </span>
                   </Link>
                   

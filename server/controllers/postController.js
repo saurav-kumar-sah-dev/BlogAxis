@@ -560,3 +560,52 @@ exports.updateComment = async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 };
+
+// Get user's own posts including drafts
+exports.getMyPosts = async (req, res) => {
+  try {
+    const page = Number(req.query.page || 1);
+    const limit = Number(req.query.limit || 10);
+    const status = req.query.status; // 'draft', 'published', 'scheduled', or undefined for all
+    const search = req.query.search || '';
+
+    // Build query for user's own posts
+    let query = { user: req.user.id };
+
+    // Filter by status if provided
+    if (status) {
+      query.status = status;
+    }
+
+    // Add search functionality
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { body: { $regex: search, $options: 'i' } },
+        { tags: { $regex: search, $options: 'i' } },
+        { categories: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const [posts, total] = await Promise.all([
+      Post.find(query)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .populate({ path: 'user', select: 'name username avatarUrl' })
+        .lean(),
+      Post.countDocuments(query)
+    ]);
+
+    res.json({
+      data: posts,
+      page,
+      limit,
+      total,
+      hasPrev: page > 1,
+      hasNext: page * limit < total,
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+};

@@ -4,7 +4,7 @@ const { body, param, query } = require('express-validator');
 const auth = require('../middleware/auth');
 const optionalAuth = require('../middleware/optionalAuth');
 const { handleValidation } = require('../middleware/validate');
-const { createPost, getPosts, getPostById, updatePost, deletePost, likePost, dislikePost, listComments, addComment, toggleCommentReaction, deleteComment, updateComment, getPopularPosts } = require('../controllers/postController');
+const { createPost, getPosts, getPostById, updatePost, deletePost, likePost, dislikePost, listComments, addComment, toggleCommentReaction, deleteComment, updateComment, getPopularPosts, getMyPosts } = require('../controllers/postController');
 
 const router = express.Router();
 
@@ -38,6 +38,20 @@ router.get('/',
 
 router.get('/popular', optionalAuth, getPopularPosts);
 
+// Get user's own posts including drafts (PROTECTED - needs auth)
+router.get('/my',
+  auth,
+  [
+    query('page').optional().isInt({ min: 1 }).toInt(),
+    query('limit').optional().isInt({ min: 1, max: 50 }).toInt(),
+    query('status').optional().isIn(['draft', 'published', 'scheduled']),
+    query('search').optional().isString().trim(),
+  ],
+  handleValidation,
+  getMyPosts
+);
+
+// PUBLIC routes
 router.get('/:id',
   [param('id').isMongoId()],
   handleValidation,

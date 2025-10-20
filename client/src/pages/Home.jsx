@@ -11,7 +11,7 @@ import { useTheme } from '../context/ThemeContext';
 const LIMIT = 5;
 
 export default function Home() {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const { isDark } = useTheme();
   const navigate = useNavigate();
 
@@ -167,18 +167,29 @@ export default function Home() {
                       </button>
                     ) : (
                       <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button
-                          onClick={() => navigate('/register')}
-                          className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
-                        >
-                          🚀 Get Started
-                        </button>
-                        <button
-                          onClick={() => navigate('/login')}
-                          className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-2xl font-semibold hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
-                        >
-                          🔑 Sign In
-                        </button>
+                        {user ? (
+                          <button
+                            onClick={() => navigate('/compose')}
+                            className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+                          >
+                            ✍️ Create Post
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => navigate('/register')}
+                              className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+                            >
+                              🚀 Get Started
+                            </button>
+                            <button
+                              onClick={() => navigate('/login')}
+                              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-2xl font-semibold hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+                            >
+                              🔑 Sign In
+                            </button>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
