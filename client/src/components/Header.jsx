@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
@@ -9,6 +9,7 @@ export default function Header() {
   const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [open, setOpen] = useState(false);
@@ -60,9 +61,10 @@ export default function Header() {
     return () => { if (timer) clearTimeout(timer); };
   }, [user]);
 
-  // Debounced search
+  // Debounced search (only when authenticated)
   useEffect(() => {
     const q = query.trim();
+    if (!user) { setResults([]); setOpen(false); setHighlighted(-1); return; }
     if (!q) { setResults([]); setOpen(false); setHighlighted(-1); return; }
     const id = setTimeout(async () => {
       try {
@@ -75,7 +77,7 @@ export default function Header() {
       } catch {}
     }, 200);
     return () => clearTimeout(id);
-  }, [query]);
+  }, [query, user]);
 
   // Close mobile menu and search when clicking outside
   useEffect(() => {
@@ -125,6 +127,13 @@ export default function Header() {
     }
   }
 
+  function guardSearchEvent(e) {
+    if (user) return;
+    e.preventDefault();
+    e.stopPropagation();
+    navigate('/login', { replace: false, state: { from: location, next: location?.pathname || '/' } });
+  }
+
   return (
     <header className="relative overflow-visible w-full shadow-2xl z-50">
       {/* Enhanced Background gradient with better contrast */}
@@ -170,7 +179,8 @@ export default function Header() {
                   ref={inputRef}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  onFocus={() => query && setOpen(true)}
+                  onFocus={(e) => { if (!user) return guardSearchEvent(e); if (query) setOpen(true); }}
+                  onClick={(e) => { if (!user) return guardSearchEvent(e); }}
                   onBlur={() => setTimeout(() => setOpen(false), 150)}
                   onKeyDown={handleKeyDown}
                   placeholder="Search users by name, username, place..."
@@ -179,6 +189,7 @@ export default function Header() {
                       ? 'bg-gray-800/95 text-white placeholder-gray-300 focus:ring-white/50 focus:bg-gray-800 border-gray-600/50' 
                       : 'bg-white/95 text-gray-800 placeholder-gray-600 focus:ring-white/50 focus:bg-white border-white/20'
                   }`}
+                  readOnly={!user}
                 />
                 <div className={`absolute left-4 top-1/2 transform -translate-y-1/2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                   🔍
@@ -504,7 +515,10 @@ export default function Header() {
                 
                 if (touchHandledRef.current) return;
                 touchHandledRef.current = true;
-                
+                if (!user) {
+                  navigate('/login', { replace: false, state: { from: location, next: location?.pathname || '/' } });
+                  return;
+                }
                 setMobileSearchOpen(!mobileSearchOpen);
                 setMobileMenuOpen(false);
                 
@@ -524,6 +538,10 @@ export default function Header() {
                 }
                 
                 console.log('Mobile search toggle clicked, current state:', mobileSearchOpen);
+                if (!user) {
+                  navigate('/login', { replace: false, state: { from: location, next: location?.pathname || '/' } });
+                  return;
+                }
                 setMobileSearchOpen(!mobileSearchOpen);
                 setMobileMenuOpen(false);
               }}
@@ -615,7 +633,8 @@ export default function Header() {
                 ref={inputRef}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                onFocus={() => query && setOpen(true)}
+                onFocus={(e) => { if (!user) return guardSearchEvent(e); if (query) setOpen(true); }}
+                onClick={(e) => { if (!user) return guardSearchEvent(e); }}
                 onBlur={() => setTimeout(() => setOpen(false), 150)}
                 onKeyDown={handleKeyDown}
                 placeholder="Search users..."
@@ -624,6 +643,7 @@ export default function Header() {
                     ? 'bg-gradient-to-r from-gray-800/95 to-gray-800/90 text-white placeholder-gray-300 focus:ring-white/50 focus:bg-gray-800 border-gray-600/50' 
                     : 'bg-gradient-to-r from-white/95 to-white/90 text-gray-800 placeholder-gray-600 focus:ring-white/50 focus:bg-white border-white/30'
                 }`}
+                readOnly={!user}
               />
               <div className={`absolute left-5 top-1/2 transform -translate-y-1/2 text-xl ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                 🔍
