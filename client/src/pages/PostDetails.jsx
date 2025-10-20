@@ -26,6 +26,45 @@ export default function PostDetails() {
   // Loading states
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
+  
+  // Image navigation states
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Image navigation functions
+  const nextImage = () => {
+    if (Array.isArray(post?.mediaUrl)) {
+      setCurrentImageIndex((prev) => (prev + 1) % post.mediaUrl.length);
+    }
+  };
+
+  const prevImage = () => {
+    if (Array.isArray(post?.mediaUrl)) {
+      setCurrentImageIndex((prev) => (prev - 1 + post.mediaUrl.length) % post.mediaUrl.length);
+    }
+  };
+
+  // Reset image index when post changes
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [post?._id]);
+
+  // Keyboard navigation for images
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (Array.isArray(post?.mediaUrl) && post.mediaUrl.length > 1) {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          prevImage();
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          nextImage();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [post?.mediaUrl, nextImage, prevImage]);
 
   function getDocumentIcon(mimeType) {
     if (!mimeType) return '📄';
@@ -372,13 +411,82 @@ export default function PostDetails() {
           {/* Media Content */}
           {post.type === 'image' && post.mediaUrl && (
             <div className="relative">
-              <img 
-                src={post.mediaUrl} 
-                alt={post.title} 
-                className="w-full object-contain max-h-[80vh] rounded-2xl mx-auto block shadow-lg" 
-              />
+              {Array.isArray(post.mediaUrl) ? (
+                // Multiple images with navigation
+                <div className="relative">
+                  <img 
+                    src={post.mediaUrl[currentImageIndex]} 
+                    alt={`${post.title} - Image ${currentImageIndex + 1}`} 
+                    className="w-full object-contain max-h-[80vh] rounded-2xl mx-auto block shadow-lg" 
+                    onError={(e) => {
+                      console.error('Failed to load image:', post.mediaUrl[currentImageIndex]);
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                  
+                  {/* Navigation arrows */}
+                  {post.mediaUrl.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevImage}
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-all duration-200 ease-out hover:scale-110"
+                        aria-label="Previous image"
+                      >
+                        <svg className="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={nextImage}
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-all duration-200 ease-out hover:scale-110"
+                        aria-label="Next image"
+                      >
+                        <svg className="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </>
+                  )}
+                  
+                  {/* Image counter and dots */}
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-lg">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        {currentImageIndex + 1} / {post.mediaUrl.length}
+                      </span>
+                      <div className="flex gap-1">
+                        {post.mediaUrl.map((_, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setCurrentImageIndex(index)}
+                            className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                              index === currentImageIndex 
+                                ? 'bg-blue-500 dark:bg-blue-400' 
+                                : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+                            }`}
+                            aria-label={`Go to image ${index + 1}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // Single image
+                <img 
+                  src={post.mediaUrl} 
+                  alt={post.title} 
+                  className="w-full object-contain max-h-[80vh] rounded-2xl mx-auto block shadow-lg" 
+                  onError={(e) => {
+                    console.error('Failed to load image:', post.mediaUrl);
+                    e.target.style.display = 'none';
+                  }}
+                />
+              )}
               <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl px-3 py-1 shadow-lg">
-                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">📸 Image</span>
+                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  📸 {Array.isArray(post.mediaUrl) ? `${post.mediaUrl.length} Images` : 'Image'}
+                </span>
               </div>
             </div>
           )}

@@ -11,13 +11,13 @@ const postSchema = new mongoose.Schema(
     type: { type: String, enum: ['text', 'image', 'video', 'document', 'article'], default: 'text', index: true },
 
     // Image (legacy fields kept for backward compatibility)
-    imageUrl: { type: String },
-    imagePublicId: { type: String },
+    imageUrl: { type: mongoose.Schema.Types.Mixed }, // Can be String or Array
+    imagePublicId: { type: mongoose.Schema.Types.Mixed }, // Can be String or Array
 
     // General media
-    mediaUrl: { type: String },
-    mediaPublicId: { type: String },
-    mediaMimeType: { type: String },
+    mediaUrl: { type: mongoose.Schema.Types.Mixed }, // Can be String or Array
+    mediaPublicId: { type: mongoose.Schema.Types.Mixed }, // Can be String or Array
+    mediaMimeType: { type: mongoose.Schema.Types.Mixed }, // Can be String or Array
 
 
     // Document specific

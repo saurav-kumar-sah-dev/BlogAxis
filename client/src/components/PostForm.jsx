@@ -154,24 +154,25 @@ export default function PostForm({ initial, onSubmit, submitLabel }) {
                   </div>
                   <div>
                     <label htmlFor="image-upload" className="cursor-pointer">
-                      <span className="text-lg font-semibold text-gray-900 dark:text-white">Upload Image</span>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Click to browse or drag and drop</p>
+                      <span className="text-lg font-semibold text-gray-900 dark:text-white">Upload Images</span>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Click to browse or drag and drop (multiple images allowed)</p>
                     </label>
                     <input 
                       type="file" 
                       accept="image/*" 
                       id="image-upload"
+                      multiple
                       className="hidden" 
                       {...register('image')} 
                     />
                   </div>
                   <div className="text-xs text-gray-400 dark:text-gray-500">
-                    Supported formats: JPG, PNG, GIF, WebP (Max 10MB)
+                    Supported formats: JPG, PNG, GIF, WebP (Max 10MB each, up to 10 images)
                   </div>
                   {isSubmitting && uploadProgress.type === 'image' && (
                     <div className="w-full max-w-xs">
                       <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        <span>Uploading image...</span>
+                        <span>Uploading images...</span>
                         <span>{uploadProgress.progress}%</span>
                       </div>
                       <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
@@ -408,7 +409,7 @@ export default function PostForm({ initial, onSubmit, submitLabel }) {
                 {isSubmitting ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    {uploadProgress.type === 'image' ? 'Uploading Image...' : 
+                    {uploadProgress.type === 'image' ? 'Uploading Images...' : 
                      uploadProgress.type === 'video' ? 'Uploading Video...' : 
                      uploadProgress.type === 'document' ? 'Uploading Document...' :
                      'Publishing...'}

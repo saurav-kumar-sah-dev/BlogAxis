@@ -21,10 +21,27 @@ exports.createPost = async (req, res) => {
     };
 
     // Handle uploads based on type
-    if (type === 'image' && req.files?.image?.[0]) {
-      const result = await uploadBuffer(req.files.image[0].buffer, 'blog/posts', 'image');
-      doc.imageUrl = result.secure_url; doc.imagePublicId = result.public_id;
-      doc.mediaUrl = result.secure_url; doc.mediaPublicId = result.public_id; doc.mediaMimeType = req.files.image[0].mimetype;
+    if (type === 'image' && req.files?.image) {
+      const images = req.files.image;
+      if (images.length === 1) {
+        // Single image
+        const result = await uploadBuffer(images[0].buffer, 'blog/posts', 'image');
+        doc.imageUrl = result.secure_url; 
+        doc.imagePublicId = result.public_id;
+        doc.mediaUrl = result.secure_url; 
+        doc.mediaPublicId = result.public_id; 
+        doc.mediaMimeType = images[0].mimetype;
+      } else {
+        // Multiple images
+        const uploadPromises = images.map(file => uploadBuffer(file.buffer, 'blog/posts', 'image'));
+        const results = await Promise.all(uploadPromises);
+        
+        doc.imageUrl = results.map(r => r.secure_url);
+        doc.imagePublicId = results.map(r => r.public_id);
+        doc.mediaUrl = results.map(r => r.secure_url);
+        doc.mediaPublicId = results.map(r => r.public_id);
+        doc.mediaMimeType = images.map(img => img.mimetype);
+      }
     }
 
     if (type === 'document' && req.files?.document?.[0]) {
@@ -259,12 +276,44 @@ exports.updatePost = async (req, res) => {
     }
 
     // Replace media depending on type & files
-    if (req.files?.image?.[0]) {
-      if (post.imagePublicId) await destroy(post.imagePublicId);
-      if (post.mediaPublicId && post.mediaPublicId !== post.imagePublicId) { try { await destroy(post.mediaPublicId); } catch (e) {} }
-      const result = await uploadBuffer(req.files.image[0].buffer, 'blog/posts', 'image');
-      post.imageUrl = result.secure_url; post.imagePublicId = result.public_id;
-      post.mediaUrl = result.secure_url; post.mediaPublicId = result.public_id; post.mediaMimeType = req.files.image[0].mimetype;
+    if (req.files?.image) {
+      const images = req.files.image;
+      
+      // Clean up old images
+      if (post.imagePublicId) {
+        if (Array.isArray(post.imagePublicId)) {
+          await Promise.all(post.imagePublicId.map(id => destroy(id).catch(() => {})));
+        } else {
+          await destroy(post.imagePublicId).catch(() => {});
+        }
+      }
+      if (post.mediaPublicId && post.mediaPublicId !== post.imagePublicId) {
+        if (Array.isArray(post.mediaPublicId)) {
+          await Promise.all(post.mediaPublicId.map(id => destroy(id).catch(() => {})));
+        } else {
+          await destroy(post.mediaPublicId).catch(() => {});
+        }
+      }
+      
+      if (images.length === 1) {
+        // Single image
+        const result = await uploadBuffer(images[0].buffer, 'blog/posts', 'image');
+        post.imageUrl = result.secure_url; 
+        post.imagePublicId = result.public_id;
+        post.mediaUrl = result.secure_url; 
+        post.mediaPublicId = result.public_id; 
+        post.mediaMimeType = images[0].mimetype;
+      } else {
+        // Multiple images
+        const uploadPromises = images.map(file => uploadBuffer(file.buffer, 'blog/posts', 'image'));
+        const results = await Promise.all(uploadPromises);
+        
+        post.imageUrl = results.map(r => r.secure_url);
+        post.imagePublicId = results.map(r => r.public_id);
+        post.mediaUrl = results.map(r => r.secure_url);
+        post.mediaPublicId = results.map(r => r.public_id);
+        post.mediaMimeType = images.map(img => img.mimetype);
+      }
       post.type = 'image';
     }
 
@@ -346,7 +395,14 @@ exports.deletePost = async (req, res) => {
     if (!post) return res.status(404).json({ error: 'Post not found' });
     if (String(post.user) !== req.user.id) return res.status(403).json({ error: 'Forbidden' });
 
-    if (post.imagePublicId) { try { await destroy(post.imagePublicId); } catch (e) {} }
+    // Clean up images (handle both single and multiple)
+    if (post.imagePublicId) {
+      if (Array.isArray(post.imagePublicId)) {
+        await Promise.all(post.imagePublicId.map(id => destroy(id).catch(() => {})));
+      } else {
+        try { await destroy(post.imagePublicId); } catch (e) {}
+      }
+    }
     if (post.videoPublicId) { try { await destroy(post.videoPublicId); } catch (e) {} }
     
     // Handle local document deletion
@@ -363,8 +419,13 @@ exports.deletePost = async (req, res) => {
       try { await destroy(post.docPublicId); } catch (e) {}
     }
     
-    if (post.mediaPublicId && !post.mediaPublicId.startsWith('document-')) { 
-      try { await destroy(post.mediaPublicId); } catch (e) {} 
+    // Clean up media (handle both single and multiple)
+    if (post.mediaPublicId && !post.mediaPublicId.startsWith('document-')) {
+      if (Array.isArray(post.mediaPublicId)) {
+        await Promise.all(post.mediaPublicId.map(id => destroy(id).catch(() => {})));
+      } else {
+        try { await destroy(post.mediaPublicId); } catch (e) {}
+      }
     }
     await Post.findByIdAndDelete(req.params.id);
     // Also delete comments for this post

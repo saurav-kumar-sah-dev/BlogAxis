@@ -17,9 +17,9 @@ export default function Compose() {
 
       // Append file per type
       if (vals.type === 'image') {
-        const img = vals.image?.[0];
-        if (img) {
-          fd.append('image', img);
+        const images = vals.image; // Now expects a FileList or array
+        if (images && images.length > 0) {
+          Array.from(images).forEach(img => fd.append('image', img));
           // Simulate upload progress for images
           setUploadProgress({ type: 'image', progress: 0 });
           for (let i = 0; i <= 100; i += 10) {

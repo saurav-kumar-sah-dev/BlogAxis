@@ -37,8 +37,11 @@ useEffect(() => {
       fd.append('type', vals.type || 'text');
 
       // Handle different file types with progress
-      if (vals.type === 'image' && vals.image?.[0]) {
-        fd.append('image', vals.image[0]);
+      if (vals.type === 'image' && vals.image) {
+        // Handle multiple images
+        Array.from(vals.image).forEach(file => {
+          fd.append('image', file);
+        });
         // Simulate upload progress for images
         setUploadProgress({ type: 'image', progress: 0 });
         for (let i = 0; i <= 100; i += 10) {

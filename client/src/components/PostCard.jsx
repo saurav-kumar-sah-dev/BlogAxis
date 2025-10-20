@@ -212,10 +212,46 @@ export default function PostCard({ post, onDelete }) {
       {post.type === 'image' && post.mediaUrl && (
         <Link to={`/posts/${post._id}`} className="relative block group/media">
           <div className="relative overflow-hidden rounded-t-3xl">
-            <img src={post.mediaUrl} alt="" className="w-full object-cover max-h-[60vh] sm:h-56 group-hover/media:scale-102 transition-transform duration-500 ease-out" />
+            {Array.isArray(post.mediaUrl) ? (
+              // Multiple images gallery
+              <div className="grid grid-cols-2 gap-1 max-h-[60vh] sm:h-56">
+                {post.mediaUrl.slice(0, 4).map((url, index) => (
+                  <div key={index} className="relative overflow-hidden">
+                    <img 
+                      src={url} 
+                      alt={`Image ${index + 1}`} 
+                      className="w-full h-full object-cover group-hover/media:scale-102 transition-transform duration-500 ease-out"
+                      style={{ aspectRatio: '1/1' }}
+                      onError={(e) => {
+                        console.error('Failed to load image:', url);
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                    {index === 3 && post.mediaUrl.length > 4 && (
+                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                        <span className="text-white text-lg font-bold">+{post.mediaUrl.length - 4}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Single image
+              <img 
+                src={post.mediaUrl} 
+                alt="" 
+                className="w-full object-cover max-h-[60vh] sm:h-56 group-hover/media:scale-102 transition-transform duration-500 ease-out" 
+                onError={(e) => {
+                  console.error('Failed to load image:', post.mediaUrl);
+                  e.target.style.display = 'none';
+                }}
+              />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover/media:opacity-100 transition-opacity duration-300"></div>
             <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl px-3 py-1 shadow-lg">
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">📸 Image</span>
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                📸 {Array.isArray(post.mediaUrl) ? `${post.mediaUrl.length} Images` : 'Image'}
+              </span>
             </div>
           </div>
         </Link>

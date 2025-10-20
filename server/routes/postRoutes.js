@@ -15,7 +15,7 @@ const uploadAny = (req, res, next) => {
   // Use memory storage for all file types initially
   // The controller will handle saving documents to disk
   upload.fields([
-    { name: 'image', maxCount: 1 },
+    { name: 'image', maxCount: 10 }, // Allow up to 10 images
     { name: 'video', maxCount: 1 },
     { name: 'document', maxCount: 1 },
   ])(req, res, (err) => {
