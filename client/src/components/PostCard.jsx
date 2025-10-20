@@ -207,7 +207,7 @@ export default function PostCard({ post, onDelete }) {
 
   return (
     <Fragment>
-    <article className="group bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-200 ease-out overflow-hidden flex flex-col border border-white/20 dark:border-gray-700/50 hover:scale-[1.02] hover:-translate-y-1 will-change-transform">
+    <article className="group bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-200 ease-out flex flex-col border border-white/20 dark:border-gray-700/50 hover:scale-[1.02] hover:-translate-y-1 will-change-transform overflow-hidden">
       {/* Enhanced Media */}
       {post.type === 'image' && post.mediaUrl && (
         <Link to={`/posts/${post._id}`} className="relative block group/media">
@@ -284,10 +284,10 @@ export default function PostCard({ post, onDelete }) {
       )}
       <div className="p-6 sm:p-8 flex-1 flex flex-col">
         {/* Enhanced User info header */}
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-start justify-between gap-1 mb-4 w-full">
           <Link 
             to={userId ? `/users/${userId}` : '#'} 
-            className="flex items-center gap-3 hover:opacity-80 transition-all duration-200 ease-out group/user"
+            className="flex items-center gap-3 hover:opacity-80 transition-all duration-200 ease-out group/user flex-shrink-0 min-w-0"
           >
             <div className="relative">
               <img
@@ -302,41 +302,48 @@ export default function PostCard({ post, onDelete }) {
               />
               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full shadow-lg"></div>
             </div>
-            <div>
-              <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover/user:text-blue-600 dark:group-hover/user:text-blue-400 transition-colors">{userName}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+            <div className="min-w-0 max-w-[120px] sm:max-w-[160px]">
+              <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover/user:text-blue-600 dark:group-hover/user:text-blue-400 transition-colors truncate">{userName}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 truncate">
                 <span>📅</span>
-                {new Date(post.createdAt).toLocaleDateString()}
+                <span className="truncate">{new Date(post.createdAt).toLocaleDateString()}</span>
               </p>
             </div>
           </Link>
-          {shouldShowFollow && (
-            <button
-              onClick={handleToggleFollow}
-              disabled={followLoading}
-              className={`ml-auto px-4 py-2 rounded-2xl text-xs font-semibold transition-all duration-200 ease-out shadow-lg hover:shadow-xl hover:scale-[1.02] ${isFollowing ? 'bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 text-gray-800 dark:text-gray-100 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-600 dark:hover:to-gray-500' : 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600'} ${followLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              {followLoading ? (
-                <span className="flex items-center gap-1">
-                  <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></div>
-                  Loading...
-                </span>
-              ) : (
-                <span className="flex items-center gap-1">
-                  {isFollowing ? '✅' : '➕'} {isFollowing ? 'Following' : 'Follow'}
-                </span>
-              )}
-            </button>
-          )}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {shouldShowFollow && (
+              <button
+                onClick={handleToggleFollow}
+                disabled={followLoading}
+                className={`w-8 h-8 rounded-lg text-sm font-semibold transition-all duration-200 ease-out shadow-sm hover:shadow-md hover:scale-[1.02] flex items-center justify-center ${isFollowing ? 'bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 text-gray-800 dark:text-gray-100 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-600 dark:hover:to-gray-500' : 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600'} ${followLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                title={isFollowing ? 'Unfollow' : 'Follow'}
+              >
+                {followLoading ? (
+                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <span>{isFollowing ? '✅' : '➕'}</span>
+                )}
+              </button>
+            )}
+            {!isOwner && user && (
+              <ReportButton 
+                key={`report-post-${post._id}`}
+                targetType="post" 
+                targetId={post._id} 
+                targetTitle={post.title}
+                className="w-8 h-8 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-semibold rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-200 ease-out shadow-sm hover:shadow-md hover:scale-[1.02] flex items-center justify-center"
+              />
+            )}
+          </div>
         </div>
 
-        <div className="flex justify-between items-start gap-4 mb-4">
-          <Link to={`/posts/${post._id}`} className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white line-clamp-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 group/title">
-            <span className="group-hover/title:bg-gradient-to-r group-hover/title:from-blue-600 group-hover/title:to-purple-600 group-hover/title:bg-clip-text group-hover/title:text-transparent">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
+          <Link to={`/posts/${post._id}`} className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white line-clamp-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 group/title flex-1 min-w-0">
+            <span className="group-hover/title:bg-gradient-to-r group-hover/title:from-blue-600 group-hover/title:to-purple-600 group-hover/title:bg-clip-text group-hover/title:text-transparent break-words">
               {post.title}
             </span>
           </Link>
-          <div className="flex gap-2 shrink-0">
+          <div className="flex gap-2 shrink-0 self-start">
             {isOwner && (
               <>
                 <Link 
@@ -353,24 +360,16 @@ export default function PostCard({ post, onDelete }) {
                 </button>
               </>
             )}
-            {!isOwner && user && (
-              <ReportButton 
-                targetType="post" 
-                targetId={post._id} 
-                targetTitle={post.title}
-                className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-semibold rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 ease-out shadow-md hover:shadow-lg hover:scale-[1.02]"
-              />
-            )}
           </div>
         </div>
         {post.type !== 'article' && (
-          <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 whitespace-pre-line line-clamp-3 leading-relaxed mb-4">{post.body}</p>
+          <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 whitespace-pre-line line-clamp-3 leading-relaxed mb-4 break-words overflow-hidden">{post.body}</p>
         )}
 
         {/* Enhanced Actions */}
         <div className="mt-auto pt-4 border-t border-gray-200/50 dark:border-gray-700/50">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 w-full overflow-hidden">
+            <div className="flex items-center gap-2 flex-wrap">
               <button 
                 onClick={toggleLike} 
                 className={`px-4 py-2 rounded-2xl text-sm font-semibold transition-all duration-200 ease-out shadow-md hover:shadow-lg hover:scale-[1.02] ${liked ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white' : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-800 dark:text-gray-100 hover:from-green-100 hover:to-emerald-100 dark:hover:from-green-900/20 dark:hover:to-emerald-900/20'}`}
@@ -388,7 +387,7 @@ export default function PostCard({ post, onDelete }) {
                 </span>
               </button>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
               <Link 
                 to={`/posts/${post._id}`} 
                 className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-semibold rounded-2xl hover:from-blue-600 hover:to-indigo-600 transition-all duration-200 ease-out shadow-md hover:shadow-lg hover:scale-[1.02]"
