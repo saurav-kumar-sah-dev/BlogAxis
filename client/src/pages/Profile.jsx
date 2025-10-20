@@ -585,6 +585,20 @@ export default function Profile() {
               </div>
             )}
             
+            {(bio || profile.bio) && (
+              <div className="rounded-2xl p-4 sm:p-6 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border border-orange-200/50 dark:border-orange-700/50 lg:col-span-2 shadow-lg hover:shadow-xl transition-shadow">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-2xl">📝</span>
+                  <span className="text-sm font-semibold text-orange-700 dark:text-orange-300">Bio</span>
+                </div>
+                <div className="pl-4 border-l-4 border-orange-300 dark:border-orange-600/70">
+                  <div className="whitespace-pre-wrap text-base sm:text-lg leading-relaxed text-orange-900/90 dark:text-orange-100/90 break-words">
+                    {bio || profile.bio}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {place && (
               <div className="rounded-2xl p-4 sm:p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 border border-indigo-200/50 dark:border-indigo-700/50">
                 <div className="flex items-center gap-3 mb-3">
