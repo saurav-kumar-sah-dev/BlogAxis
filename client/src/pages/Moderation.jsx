@@ -29,6 +29,8 @@ export default function Moderation() {
   const [moderationNotes, setModerationNotes] = useState('');
   const [actionTaken, setActionTaken] = useState('none');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDismissing, setIsDismissing] = useState(false);
+  const [isHidingPost, setIsHidingPost] = useState(false);
 
   useEffect(() => {
     loadReports();
@@ -116,6 +118,7 @@ export default function Moderation() {
   };
 
   const handleDismissReport = async (reportId) => {
+    setIsDismissing(true);
     try {
       const response = await api.put(`/reports/${reportId}`, {
         status: 'dismissed',
@@ -132,6 +135,24 @@ export default function Moderation() {
       }
     } catch (error) {
       toast.error('Failed to dismiss report');
+    } finally {
+      setIsDismissing(false);
+    }
+  };
+
+  const handleHidePost = async (postId) => {
+    setIsHidingPost(true);
+    try {
+      await api.put(`/admin/posts/${postId}/hidden`, {
+        hidden: true,
+        reason: 'Quick hide from moderation dashboard'
+      });
+      toast.success('Post hidden successfully');
+      loadReports();
+    } catch (error) {
+      toast.error('Failed to hide post');
+    } finally {
+      setIsHidingPost(false);
     }
   };
 
@@ -415,33 +436,50 @@ export default function Moderation() {
                         </button>
                         {report.reportedPost && (
                           <button
-                            onClick={async () => {
-                              try {
-                                await api.put(`/admin/posts/${report.reportedPost._id}/hidden`, {
-                                  hidden: true,
-                                  reason: 'Quick hide from moderation dashboard'
-                                });
-                                toast.success('Post hidden successfully');
-                                loadReports();
-                              } catch (error) {
-                                toast.error('Failed to hide post');
-                              }
-                            }}
-                            className="flex-1 px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl font-semibold hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 ease-out hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                            onClick={() => handleHidePost(report.reportedPost._id)}
+                            disabled={isHidingPost}
+                            className={`flex-1 px-4 py-2 text-white rounded-xl font-semibold transition-all duration-200 ease-out shadow-lg ${
+                              isHidingPost 
+                                ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
+                                : 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 hover:scale-[1.02] hover:shadow-xl'
+                            }`}
                           >
                             <span className="flex items-center justify-center gap-2">
-                              <span>🙈</span>
-                              <span>Hide Post</span>
+                              {isHidingPost ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                  <span>Hiding...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>🙈</span>
+                                  <span>Hide Post</span>
+                                </>
+                              )}
                             </span>
                           </button>
                         )}
                         <button
                           onClick={() => handleDismissReport(report._id)}
-                          className="flex-1 px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl font-semibold hover:from-gray-600 hover:to-gray-700 transition-all duration-200 ease-out hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                          disabled={isDismissing}
+                          className={`flex-1 px-4 py-2 text-white rounded-xl font-semibold transition-all duration-200 ease-out shadow-lg ${
+                            isDismissing 
+                              ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
+                              : 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 hover:scale-[1.02] hover:shadow-xl'
+                          }`}
                         >
                           <span className="flex items-center justify-center gap-2">
-                            <span>❌</span>
-                            <span>Dismiss</span>
+                            {isDismissing ? (
+                              <>
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                <span>Dismissing...</span>
+                              </>
+                            ) : (
+                              <>
+                                <span>❌</span>
+                                <span>Dismiss</span>
+                              </>
+                            )}
                           </span>
                         </button>
                       </div>

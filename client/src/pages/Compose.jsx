@@ -8,7 +8,7 @@ export default function Compose() {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const submit = async (vals) => {
+  const submit = async (vals, setUploadProgress) => {
     try {
       const fd = new FormData();
       fd.append('title', vals.title);
@@ -18,15 +18,39 @@ export default function Compose() {
       // Append file per type
       if (vals.type === 'image') {
         const img = vals.image?.[0];
-        if (img) fd.append('image', img);
+        if (img) {
+          fd.append('image', img);
+          // Simulate upload progress for images
+          setUploadProgress({ type: 'image', progress: 0 });
+          for (let i = 0; i <= 100; i += 10) {
+            setUploadProgress({ type: 'image', progress: i });
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+        }
       } else if (vals.type === 'video') {
         const vid = vals.video?.[0];
-        if (vid) fd.append('video', vid);
+        if (vid) {
+          fd.append('video', vid);
+          // Simulate upload progress for videos (longer)
+          setUploadProgress({ type: 'video', progress: 0 });
+          for (let i = 0; i <= 100; i += 5) {
+            setUploadProgress({ type: 'video', progress: i });
+            await new Promise(resolve => setTimeout(resolve, 150));
+          }
+        }
         if (typeof vals.videoStart === 'number') fd.append('videoStart', String(vals.videoStart));
         if (typeof vals.videoEnd === 'number') fd.append('videoEnd', String(vals.videoEnd));
       } else if (vals.type === 'document') {
         const doc = vals.document?.[0];
-        if (doc) fd.append('document', doc);
+        if (doc) {
+          fd.append('document', doc);
+          // Simulate upload progress for documents
+          setUploadProgress({ type: 'document', progress: 0 });
+          for (let i = 0; i <= 100; i += 8) {
+            setUploadProgress({ type: 'document', progress: i });
+            await new Promise(resolve => setTimeout(resolve, 120));
+          }
+        }
       } else if (vals.type === 'article') {
         if (vals.articleContent) fd.append('articleContent', vals.articleContent);
       }

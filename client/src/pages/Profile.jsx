@@ -109,6 +109,12 @@ export default function Profile() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deleteError, setDeleteError] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
+  
+  // Loading states
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [isRemovingAvatar, setIsRemovingAvatar] = useState(false);
 
   // Fetch profile
   useEffect(() => {
@@ -179,6 +185,7 @@ export default function Profile() {
   async function handleSave(e) {
     e.preventDefault();
     setError('');
+    setIsSaving(true);
     try {
       const form = new FormData();
       if (firstName) form.append('firstName', firstName);
@@ -214,11 +221,14 @@ export default function Profile() {
       if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (e) {
       setError(e.message || 'Update failed');
+    } finally {
+      setIsSaving(false);
     }
   }
 
   async function handleRemoveAvatar() {
     setError('');
+    setIsRemovingAvatar(true);
     try {
       const form = new FormData();
       form.append('removeAvatar', 'true');
@@ -235,6 +245,8 @@ export default function Profile() {
       });
     } catch (e) {
       setError(e.message || 'Failed');
+    } finally {
+      setIsRemovingAvatar(false);
     }
   }
 
@@ -293,19 +305,23 @@ export default function Profile() {
     e.preventDefault();
     setPasswordError('');
     setPasswordSuccess('');
+    setIsUpdatingPassword(true);
     
     if (newPassword !== confirmPassword) {
       setPasswordError('New passwords do not match');
+      setIsUpdatingPassword(false);
       return;
     }
     
     if (newPassword.length < 8) {
       setPasswordError('Password must be at least 8 characters long');
+      setIsUpdatingPassword(false);
       return;
     }
     
     if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(newPassword)) {
       setPasswordError('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character');
+      setIsUpdatingPassword(false);
       return;
     }
     
@@ -331,20 +347,25 @@ export default function Profile() {
       setTimeout(() => setPasswordSuccess(''), 3000);
     } catch (e) {
       setPasswordError(e.message || 'Password update failed');
+    } finally {
+      setIsUpdatingPassword(false);
     }
   }
 
   async function handleAccountDeletion(e) {
     e.preventDefault();
     setDeleteError('');
+    setIsDeletingAccount(true);
     
     if (!acceptTerms) {
       setDeleteError('You must accept the terms and conditions to delete your account');
+      setIsDeletingAccount(false);
       return;
     }
     
     if (deleteConfirmText !== 'DELETE') {
       setDeleteError('Please type DELETE to confirm account deletion');
+      setIsDeletingAccount(false);
       return;
     }
     
@@ -373,6 +394,8 @@ export default function Profile() {
       
     } catch (e) {
       setDeleteError(e.message || 'Account deletion failed');
+    } finally {
+      setIsDeletingAccount(false);
     }
   }
 
@@ -805,19 +828,47 @@ export default function Profile() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <button 
                   type="submit" 
-                  className="flex-1 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-3"
+                  disabled={isSaving}
+                  className={`flex-1 px-8 py-4 text-white rounded-2xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center gap-3 ${
+                    isSaving 
+                      ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
+                      : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl hover:scale-105'
+                  }`}
                 >
-                  <span className="text-xl">💾</span>
-                  <span>Save Changes</span>
+                  {isSaving ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-xl">💾</span>
+                      <span>Save Changes</span>
+                    </>
+                  )}
                 </button>
                 {profile.avatarUrl && (
                   <button 
                     type="button" 
-                    onClick={handleRemoveAvatar} 
-                    className="px-8 py-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-2xl hover:from-red-600 hover:to-red-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-3"
+                    onClick={handleRemoveAvatar}
+                    disabled={isRemovingAvatar}
+                    className={`px-8 py-4 text-white rounded-2xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center gap-3 ${
+                      isRemovingAvatar 
+                        ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
+                        : 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 hover:shadow-xl hover:scale-105'
+                    }`}
                   >
-                    <span className="text-xl">🗑️</span>
-                    <span>Remove Avatar</span>
+                    {isRemovingAvatar ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Removing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-xl">🗑️</span>
+                        <span>Remove Avatar</span>
+                      </>
+                    )}
                   </button>
                 )}
               </div>
@@ -915,10 +966,24 @@ export default function Profile() {
                   <div className="flex flex-col sm:flex-row gap-4">
                     <button 
                       type="submit" 
-                      className="flex-1 px-6 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-2xl hover:from-green-700 hover:to-green-800 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-3"
+                      disabled={isUpdatingPassword}
+                      className={`flex-1 px-6 py-4 text-white rounded-2xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center gap-3 ${
+                        isUpdatingPassword 
+                          ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
+                          : 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 hover:shadow-xl hover:scale-105'
+                      }`}
                     >
-                      <span className="text-xl">🔐</span>
-                      <span>Update Password</span>
+                      {isUpdatingPassword ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>Updating...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-xl">🔐</span>
+                          <span>Update Password</span>
+                        </>
+                      )}
                     </button>
                     <button 
                       type="button" 
@@ -1043,11 +1108,24 @@ export default function Profile() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button 
                     type="submit" 
-                    className="flex-1 px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl hover:from-red-700 hover:to-red-800 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                    disabled={!acceptTerms || deleteConfirmText !== 'DELETE' || (!profile.isGoogleUser && !deletePassword)}
+                    className={`flex-1 px-8 py-4 text-white rounded-2xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center gap-3 ${
+                      isDeletingAccount || !acceptTerms || deleteConfirmText !== 'DELETE' || (!profile.isGoogleUser && !deletePassword)
+                        ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
+                        : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 hover:shadow-xl hover:scale-105'
+                    }`}
+                    disabled={isDeletingAccount || !acceptTerms || deleteConfirmText !== 'DELETE' || (!profile.isGoogleUser && !deletePassword)}
                   >
-                    <span className="text-xl">🗑️</span>
-                    <span>Delete My Account</span>
+                    {isDeletingAccount ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Deleting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-xl">🗑️</span>
+                        <span>Delete My Account</span>
+                      </>
+                    )}
                   </button>
                   <button 
                     type="button" 

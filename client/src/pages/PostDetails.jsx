@@ -22,6 +22,10 @@ export default function PostDetails() {
   const [liked, setLiked] = useState(false);
   const [disliked, setDisliked] = useState(false);
   const [docUrl, setDocUrl] = useState('');
+  
+  // Loading states
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false);
 
   function getDocumentIcon(mimeType) {
     if (!mimeType) return '📄';
@@ -194,13 +198,16 @@ export default function PostDetails() {
     if (!user) return;
     const body = (newComment || '').trim();
     if (!body) return;
+    setIsSubmittingComment(true);
     try {
       const res = await api.post(`/posts/${id}/comments`, { body });
       const item = await res.json();
       if (!res.ok) throw new Error('Failed to comment');
       setComments(prev => [item, ...prev]);
       setNewComment('');
-    } catch {}
+    } catch {} finally {
+      setIsSubmittingComment(false);
+    }
   }
 
   async function loadReplies(parentId) {
@@ -234,6 +241,7 @@ export default function PostDetails() {
     if (!user) return;
     const body = (newComment || '').trim();
     if (!body) return;
+    setIsSubmittingReply(true);
     try {
       const res = await api.post(`/posts/${id}/comments`, { body, parent: parentId });
       const item = await res.json();
@@ -241,7 +249,9 @@ export default function PostDetails() {
       setReplies(prev => ({ ...prev, [parentId]: [item, ...(prev[parentId] || [])] }));
       setReplyingTo(null);
       setNewComment('');
-    } catch {}
+    } catch {} finally {
+      setIsSubmittingReply(false);
+    }
   }
 
   if (loading) return <div className="py-6 text-gray-600 dark:text-gray-300">Loading...</div>;
@@ -523,12 +533,26 @@ export default function PostDetails() {
                     />
                   </div>
                   <button 
-                    onClick={submitComment} 
-                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-200 ease-out hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                    onClick={submitComment}
+                    disabled={isSubmittingComment}
+                    className={`px-6 py-3 text-white rounded-2xl font-semibold transition-all duration-200 ease-out shadow-lg ${
+                      isSubmittingComment 
+                        ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
+                        : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 hover:scale-[1.02] hover:shadow-xl'
+                    }`}
                   >
                     <span className="flex items-center gap-2">
-                      <span>📝</span>
-                      <span>Post</span>
+                      {isSubmittingComment ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>Posting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>📝</span>
+                          <span>Post</span>
+                        </>
+                      )}
                     </span>
                   </button>
                 </div>
@@ -620,10 +644,22 @@ export default function PostDetails() {
                                   className="flex-1 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" 
                                 />
                                 <button 
-                                  onClick={() => submitReply(c._id)} 
-                                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-200"
+                                  onClick={() => submitReply(c._id)}
+                                  disabled={isSubmittingReply}
+                                  className={`px-4 py-2 rounded-xl text-white font-semibold transition-all duration-200 ${
+                                    isSubmittingReply 
+                                      ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
+                                      : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600'
+                                  }`}
                                 >
-                                  Reply
+                                  {isSubmittingReply ? (
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                      <span>Replying...</span>
+                                    </div>
+                                  ) : (
+                                    'Reply'
+                                  )}
                                 </button>
                                 <button 
                                   onClick={() => { setReplyingTo(null); setNewComment(''); }} 

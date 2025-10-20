@@ -25,6 +25,8 @@ export default function PostForm({ initial, onSubmit, submitLabel }) {
     resolver: zodResolver(postSchema),
   });
   const [active, setActive] = useState('text');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ type: '', progress: 0 });
   const type = watch('type');
 
   useEffect(() => {
@@ -35,6 +37,18 @@ export default function PostForm({ initial, onSubmit, submitLabel }) {
       if (initial.articleContent) setValue('articleContent', initial.articleContent);
     }
   }, [initial, setValue]);
+
+  const handleFormSubmit = async (data) => {
+    setIsSubmitting(true);
+    setUploadProgress({ type: data.type, progress: 0 });
+    
+    try {
+      await onSubmit(data, setUploadProgress);
+    } finally {
+      setIsSubmitting(false);
+      setUploadProgress({ type: '', progress: 0 });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-8 px-4 sm:px-6 lg:px-8">
@@ -54,7 +68,7 @@ export default function PostForm({ initial, onSubmit, submitLabel }) {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-6 sm:p-8 space-y-8">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-6 sm:p-8 space-y-8">
           {/* Content Type Selector */}
           <div className="space-y-4">
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
@@ -154,6 +168,20 @@ export default function PostForm({ initial, onSubmit, submitLabel }) {
                   <div className="text-xs text-gray-400 dark:text-gray-500">
                     Supported formats: JPG, PNG, GIF, WebP (Max 10MB)
                   </div>
+                  {isSubmitting && uploadProgress.type === 'image' && (
+                    <div className="w-full max-w-xs">
+                      <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+                        <span>Uploading image...</span>
+                        <span>{uploadProgress.progress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300 ease-out"
+                          style={{ width: `${uploadProgress.progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -186,6 +214,20 @@ export default function PostForm({ initial, onSubmit, submitLabel }) {
                   <div className="text-xs text-gray-400 dark:text-gray-500">
                     Supported formats: MP4, MOV, AVI, WebM (Max 2m30s)
                   </div>
+                  {isSubmitting && uploadProgress.type === 'video' && (
+                    <div className="w-full max-w-xs">
+                      <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+                        <span>Uploading video...</span>
+                        <span>{uploadProgress.progress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300 ease-out"
+                          style={{ width: `${uploadProgress.progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -256,6 +298,20 @@ export default function PostForm({ initial, onSubmit, submitLabel }) {
                   <div className="text-xs text-gray-400 dark:text-gray-500">
                     Maximum file size: 50MB
                   </div>
+                  {isSubmitting && uploadProgress.type === 'document' && (
+                    <div className="w-full max-w-xs">
+                      <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+                        <span>Uploading document...</span>
+                        <span>{uploadProgress.progress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full transition-all duration-300 ease-out"
+                          style={{ width: `${uploadProgress.progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -341,11 +397,28 @@ export default function PostForm({ initial, onSubmit, submitLabel }) {
           <div className="flex justify-center pt-6">
             <button 
               type="submit" 
-              className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-2xl hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 ease-out hover:scale-[1.02] shadow-lg hover:shadow-xl"
+              disabled={isSubmitting}
+              className={`group relative px-8 py-4 text-white text-lg font-semibold rounded-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 ease-out shadow-lg ${
+                isSubmitting 
+                  ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
+                  : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:scale-[1.02] hover:shadow-xl'
+              }`}
             >
               <span className="flex items-center gap-2">
-                <span>🚀</span>
-                {submitLabel || 'Publish Post'}
+                {isSubmitting ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    {uploadProgress.type === 'image' ? 'Uploading Image...' : 
+                     uploadProgress.type === 'video' ? 'Uploading Video...' : 
+                     uploadProgress.type === 'document' ? 'Uploading Document...' :
+                     'Publishing...'}
+                  </>
+                ) : (
+                  <>
+                    <span>🚀</span>
+                    {submitLabel || 'Publish Post'}
+                  </>
+                )}
               </span>
             </button>
           </div>

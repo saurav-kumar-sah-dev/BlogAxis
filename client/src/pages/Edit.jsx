@@ -29,22 +29,40 @@ useEffect(() => {
 }, [id, navigate]);
 
 
-  const submit = async (vals) => {
+  const submit = async (vals, setUploadProgress) => {
     try {
       const fd = new FormData();
       fd.append('title', vals.title);
       fd.append('body', vals.body);
       fd.append('type', vals.type || 'text');
 
-      // Handle different file types
+      // Handle different file types with progress
       if (vals.type === 'image' && vals.image?.[0]) {
         fd.append('image', vals.image[0]);
+        // Simulate upload progress for images
+        setUploadProgress({ type: 'image', progress: 0 });
+        for (let i = 0; i <= 100; i += 10) {
+          setUploadProgress({ type: 'image', progress: i });
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
       } else if (vals.type === 'video' && vals.video?.[0]) {
         fd.append('video', vals.video[0]);
+        // Simulate upload progress for videos
+        setUploadProgress({ type: 'video', progress: 0 });
+        for (let i = 0; i <= 100; i += 5) {
+          setUploadProgress({ type: 'video', progress: i });
+          await new Promise(resolve => setTimeout(resolve, 150));
+        }
         if (typeof vals.videoStart === 'number') fd.append('videoStart', String(vals.videoStart));
         if (typeof vals.videoEnd === 'number') fd.append('videoEnd', String(vals.videoEnd));
       } else if (vals.type === 'document' && vals.document?.[0]) {
         fd.append('document', vals.document[0]);
+        // Simulate upload progress for documents
+        setUploadProgress({ type: 'document', progress: 0 });
+        for (let i = 0; i <= 100; i += 8) {
+          setUploadProgress({ type: 'document', progress: i });
+          await new Promise(resolve => setTimeout(resolve, 120));
+        }
       } else if (vals.type === 'article' && vals.articleContent) {
         fd.append('articleContent', vals.articleContent);
       }
