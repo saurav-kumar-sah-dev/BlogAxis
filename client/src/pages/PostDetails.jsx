@@ -29,6 +29,7 @@ export default function PostDetails() {
   
   // Image navigation states
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [shouldFocusComments, setShouldFocusComments] = useState(false);
 
   // Image navigation functions
   const nextImage = () => {
@@ -173,6 +174,24 @@ export default function PostDetails() {
 
   useEffect(() => { loadPost(); }, [loadPost]);
   useEffect(() => { loadComments(); }, [loadComments]);
+
+  // If URL contains #comments, scroll into view after comments load
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.location.hash === '#comments') {
+      setShouldFocusComments(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!shouldFocusComments) return;
+    if (commentsLoading) return;
+    const el = document.getElementById('comments');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setShouldFocusComments(false);
+    }
+  }, [shouldFocusComments, commentsLoading]);
 
   // Resolve document URL for viewing
   useEffect(() => {
@@ -590,26 +609,26 @@ export default function PostDetails() {
         </div>
 
         {/* Comments Section */}
-        <div className="mt-12">
-          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 overflow-hidden">
+        <div id="comments" className="mt-8 sm:mt-12">
+          <div className="bg-white/98 dark:bg-gray-800/98 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 overflow-hidden">
             {/* Comments Header */}
-            <div className="p-6 sm:p-8 border-b border-gray-200/50 dark:border-gray-700/50">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
-                  <span className="text-white text-lg">💬</span>
+            <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-blue-500/10 dark:from-purple-500/20 dark:via-pink-500/20 dark:to-blue-500/20 border-b border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <span className="text-white text-lg sm:text-xl">💬</span>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Comments</h2>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{comments.length} {comments.length === 1 ? 'comment' : 'comments'}</p>
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Comments</h2>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">{comments.length} {comments.length === 1 ? 'comment' : 'comments'}</p>
                 </div>
               </div>
             </div>
 
             {/* Comment Input */}
             {user && (
-              <div className="p-6 sm:p-8 bg-gradient-to-r from-gray-50/50 to-blue-50/50 dark:from-gray-800/50 dark:to-blue-900/20 border-b border-gray-200/50 dark:border-gray-700/50">
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0">
+              <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-r from-gray-50/80 via-blue-50/80 to-purple-50/80 dark:from-gray-800/80 dark:via-blue-900/20 dark:to-purple-900/20 border-b border-gray-200/50 dark:border-gray-700/50">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                  <div className="flex-shrink-0 flex items-center gap-3">
                     <img
                       src={user.avatarUrl || `data:image/svg+xml;base64,${btoa(`
                         <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
@@ -618,96 +637,113 @@ export default function PostDetails() {
                         </svg>
                       `)}`}
                       alt={user.name}
-                      className="w-10 h-10 rounded-2xl object-cover border-2 border-white/30 dark:border-gray-600/30 shadow-lg"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl object-cover border-2 border-white/30 dark:border-gray-600/30 shadow-lg"
                     />
+                    <div className="hidden sm:block">
+                      <p className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">{user.name}</p>
+                      <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Share your thoughts</p>
+                    </div>
                   </div>
                   <div className="flex-1">
-                    <input 
+                    <textarea 
                       value={newComment} 
                       onChange={e => setNewComment(e.target.value)} 
                       placeholder="Share your thoughts..." 
-                      className="w-full px-4 py-3 rounded-2xl border-2 border-gray-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-lg hover:shadow-xl" 
+                      rows="3"
+                      className="w-full px-4 py-3 rounded-2xl border-2 border-gray-200 dark:border-gray-600 bg-white/90 dark:bg-gray-800/90 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-lg hover:shadow-xl resize-none" 
                     />
                   </div>
-                  <button 
-                    onClick={submitComment}
-                    disabled={isSubmittingComment}
-                    className={`px-6 py-3 text-white rounded-2xl font-semibold transition-all duration-200 ease-out shadow-lg ${
-                      isSubmittingComment 
-                        ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
-                        : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 hover:scale-[1.02] hover:shadow-xl'
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
+                  <div className="flex sm:flex-col gap-2 sm:gap-0">
+                    <button 
+                      onClick={submitComment}
+                      disabled={isSubmittingComment}
+                      className={`px-4 sm:px-6 py-2 sm:py-3 text-white rounded-xl sm:rounded-2xl font-semibold transition-all duration-200 ease-out shadow-lg flex items-center justify-center gap-2 ${
+                        isSubmittingComment 
+                          ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
+                          : 'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 hover:scale-[1.02] hover:shadow-xl'
+                      }`}
+                    >
                       {isSubmittingComment ? (
                         <>
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Posting...</span>
+                          <span className="text-sm sm:text-base">Posting...</span>
                         </>
                       ) : (
                         <>
-                          <span>📝</span>
-                          <span>Post</span>
+                          <span className="text-sm sm:text-base">📝</span>
+                          <span className="text-sm sm:text-base">Post</span>
                         </>
                       )}
-                    </span>
-                  </button>
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
+            
             {/* Comments List */}
-            <div className="p-6 sm:p-8">
+            <div className="p-4 sm:p-6 lg:p-8">
               {commentsLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-                    <span className="text-gray-600 dark:text-gray-300">Loading comments...</span>
+                    <div className="relative">
+                      <div className="w-8 h-8 border-4 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"></div>
+                      <div className="absolute inset-0 w-8 h-8 border-4 border-transparent border-t-purple-600 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+                    </div>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Loading comments...</span>
                   </div>
                 </div>
               ) : comments.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="text-6xl mb-4">💬</div>
-                  <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">No comments yet</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Be the first to share your thoughts!</p>
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">No comments yet</h3>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Be the first to share your thoughts!</p>
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   {comments.map(c => (
-                    <div key={c._id} className="bg-gradient-to-r from-gray-50/50 to-blue-50/50 dark:from-gray-800/50 dark:to-blue-900/20 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50">
-                      <div className="flex items-start gap-4">
+                    <div key={c._id} className="bg-gradient-to-r from-white/90 via-blue-50/50 to-purple-50/50 dark:from-gray-800/90 dark:via-blue-900/20 dark:to-purple-900/20 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300 ease-out hover:scale-[1.01]">
+                      <div className="flex items-start gap-3 sm:gap-4">
                         <Link to={`/users/${c.user?._id || c.user}`} className="shrink-0 group">
                           <img 
                             src={c.user?.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"40\"><rect width=\"40\" height=\"40\" fill=\"#e5e7eb\"/><text x=\"20\" y=\"25\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"16\" fill=\"#6b7280\">U</text></svg>')}`} 
                             alt="" 
-                            className="w-10 h-10 rounded-2xl object-cover border-2 border-white/30 dark:border-gray-600/30 shadow-lg group-hover:scale-105 transition-transform duration-200" 
+                            className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl object-cover border-2 border-white/30 dark:border-gray-600/30 shadow-lg group-hover:scale-105 transition-transform duration-200" 
                           />
                         </Link>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Link 
-                              to={`/users/${c.user?._id || c.user}`} 
-                              className="font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                            >
-                              {c.user?.name || 'User'}
-                            </Link>
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 mb-2">
+                            <div className="min-w-0">
+                              <Link 
+                                to={`/users/${c.user?._id || c.user}`} 
+                                className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate"
+                              >
+                                {c.user?.name || 'User'}
+                              </Link>
+                              {c.user?.username && (
+                                <div className="text-xs text-gray-500 dark:text-gray-400 truncate flex items-center gap-1">
+                                  <span>@</span>
+                                  <span>{c.user.username}</span>
+                                </div>
+                              )}
+                            </div>
                             <span className="text-xs text-gray-500 dark:text-gray-400">
                               {new Date(c.createdAt).toLocaleDateString()}
                             </span>
                           </div>
-                          <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed mb-3">
+                          <p className="text-sm sm:text-base text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed mb-3 break-words">
                             {c.body}
                           </p>
-                          <div className="flex items-center gap-3">
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                             <button 
                               onClick={() => toggleCommentReaction(c._id, 'like')} 
-                              className="px-3 py-1 rounded-xl bg-white/80 dark:bg-gray-700/80 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-green-100 dark:hover:bg-green-900/20 hover:text-green-600 dark:hover:text-green-400 transition-all duration-200" 
+                              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 text-green-700 dark:text-green-300 text-xs sm:text-sm font-medium hover:from-green-200 hover:to-emerald-200 dark:hover:from-green-900/30 dark:hover:to-emerald-900/30 transition-all duration-200 ease-out hover:scale-[1.02] shadow-sm" 
                               title="Like this comment"
                             >
                               👍 {(c.likes || []).length || 0}
                             </button>
                             <button 
                               onClick={() => toggleCommentReaction(c._id, 'dislike')} 
-                              className="px-3 py-1 rounded-xl bg-white/80 dark:bg-gray-700/80 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-red-100 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200" 
+                              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-100 to-pink-100 dark:from-red-900/20 dark:to-pink-900/20 text-red-700 dark:text-red-300 text-xs sm:text-sm font-medium hover:from-red-200 hover:to-pink-200 dark:hover:from-red-900/30 dark:hover:to-pink-900/30 transition-all duration-200 ease-out hover:scale-[1.02] shadow-sm" 
                               title="Dislike this comment"
                             >
                               👎 {(c.dislikes || []).length || 0}
@@ -715,7 +751,7 @@ export default function PostDetails() {
                             {user && (
                               <button 
                                 onClick={() => { setReplyingTo(c._id); }} 
-                                className="px-3 py-1 rounded-xl bg-white/80 dark:bg-gray-700/80 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-all duration-200" 
+                                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 text-xs sm:text-sm font-medium hover:from-blue-200 hover:to-indigo-200 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 transition-all duration-200 ease-out hover:scale-[1.02] shadow-sm" 
                                 title="Reply"
                               >
                                 💬 Reply
@@ -723,7 +759,7 @@ export default function PostDetails() {
                             )}
                             <button 
                               onClick={() => { const open = !repliesOpen[c._id]; setRepliesOpen(prev => ({ ...prev, [c._id]: open })); if (open && !replies[c._id]) loadReplies(c._id); }} 
-                              className="ml-auto px-3 py-1 rounded-xl bg-white/80 dark:bg-gray-700/80 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600/20 transition-all duration-200" 
+                              className="ml-auto px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 text-purple-700 dark:text-purple-300 text-xs sm:text-sm font-medium hover:from-purple-200 hover:to-pink-200 dark:hover:from-purple-900/30 dark:hover:to-pink-900/30 transition-all duration-200 ease-out hover:scale-[1.02] shadow-sm" 
                               title="Toggle replies"
                             >
                               {repliesOpen[c._id] ? '🔼 Hide' : '🔽 View'} replies
@@ -732,47 +768,50 @@ export default function PostDetails() {
                           
                           {/* Reply Input */}
                           {replyingTo === c._id && (
-                            <div className="mt-4 p-4 bg-white/80 dark:bg-gray-800/80 rounded-2xl border border-gray-200 dark:border-gray-600">
-                              <div className="flex gap-3">
-                                <input 
+                            <div className="mt-4 p-4 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border border-blue-200/50 dark:border-blue-700/50">
+                              <div className="flex flex-col sm:flex-row gap-3">
+                                <textarea 
                                   value={newComment} 
                                   onChange={e => setNewComment(e.target.value)} 
                                   placeholder="Write a reply..." 
-                                  className="flex-1 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" 
+                                  rows="2"
+                                  className="flex-1 px-4 py-2 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white/90 dark:bg-gray-800/90 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none" 
                                 />
-                                <button 
-                                  onClick={() => submitReply(c._id)}
-                                  disabled={isSubmittingReply}
-                                  className={`px-4 py-2 rounded-xl text-white font-semibold transition-all duration-200 ${
-                                    isSubmittingReply 
-                                      ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
-                                      : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600'
-                                  }`}
-                                >
-                                  {isSubmittingReply ? (
-                                    <div className="flex items-center gap-2">
-                                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                      <span>Replying...</span>
-                                    </div>
-                                  ) : (
-                                    'Reply'
-                                  )}
-                                </button>
-                                <button 
-                                  onClick={() => { setReplyingTo(null); setNewComment(''); }} 
-                                  className="px-4 py-2 rounded-xl bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500 transition-all duration-200"
-                                >
-                                  Cancel
-                                </button>
+                                <div className="flex gap-2">
+                                  <button 
+                                    onClick={() => submitReply(c._id)}
+                                    disabled={isSubmittingReply}
+                                    className={`px-4 py-2 rounded-xl text-white font-semibold transition-all duration-200 ${
+                                      isSubmittingReply 
+                                        ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
+                                        : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 hover:scale-[1.02]'
+                                    }`}
+                                  >
+                                    {isSubmittingReply ? (
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        <span>Replying...</span>
+                                      </div>
+                                    ) : (
+                                      'Reply'
+                                    )}
+                                  </button>
+                                  <button 
+                                    onClick={() => { setReplyingTo(null); setNewComment(''); }} 
+                                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 transition-all duration-200 hover:scale-[1.02]"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           )}
                           
                           {/* Replies */}
                           {repliesOpen[c._id] && (
-                            <div className="mt-4 pl-6 border-l-2 border-blue-200 dark:border-blue-800 space-y-4">
+                            <div className="mt-4 pl-4 sm:pl-6 border-l-2 border-gradient-to-b from-blue-200 to-purple-200 dark:from-blue-700 dark:to-purple-700 space-y-3 sm:space-y-4">
                               {(replies[c._id] || []).map(r => (
-                                <div key={r._id} className="bg-white/60 dark:bg-gray-800/60 rounded-2xl p-4 border border-gray-200/50 dark:border-gray-700/50">
+                                <div key={r._id} className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-gray-200/30 dark:border-gray-700/30 shadow-md hover:shadow-lg transition-all duration-200">
                                   <div className="flex items-start gap-3">
                                     <Link to={`/users/${r.user?._id || r.user}`} className="shrink-0 group">
                                       <img 
@@ -782,31 +821,38 @@ export default function PostDetails() {
                                       />
                                     </Link>
                                     <div className="flex-1 min-w-0">
-                                      <div className="flex items-center gap-2 mb-1">
-                                        <Link 
-                                          to={`/users/${r.user?._id || r.user}`} 
-                                          className="text-sm font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                                        >
-                                          {r.user?.name || 'User'}
-                                        </Link>
+                                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-1">
+                                        <div className="min-w-0">
+                                          <Link 
+                                            to={`/users/${r.user?._id || r.user}`} 
+                                            className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate"
+                                          >
+                                            {r.user?.name || 'User'}
+                                          </Link>
+                                          {r.user?.username && (
+                                            <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                              @{r.user.username}
+                                            </div>
+                                          )}
+                                        </div>
                                         <span className="text-xs text-gray-500 dark:text-gray-400">
                                           {new Date(r.createdAt).toLocaleDateString()}
                                         </span>
                                       </div>
-                                      <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed mb-2">
+                                      <p className="text-xs sm:text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed mb-2 break-words">
                                         {r.body}
                                       </p>
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex items-center gap-2 flex-wrap">
                                         <button 
                                           onClick={() => toggleCommentReaction(r._id, 'like')} 
-                                          className="px-2 py-1 rounded-lg bg-white/80 dark:bg-gray-700/80 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-green-100 dark:hover:bg-green-900/20 hover:text-green-600 dark:hover:text-green-400 transition-all duration-200" 
+                                          className="px-2 py-1 rounded-lg bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 text-green-700 dark:text-green-300 text-xs hover:from-green-200 hover:to-emerald-200 dark:hover:from-green-900/30 dark:hover:to-emerald-900/30 transition-all duration-200 ease-out hover:scale-[1.02]" 
                                           title="Like this reply"
                                         >
                                           👍 {(r.likes || []).length || 0}
                                         </button>
                                         <button 
                                           onClick={() => toggleCommentReaction(r._id, 'dislike')} 
-                                          className="px-2 py-1 rounded-lg bg-white/80 dark:bg-gray-700/80 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-red-100 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200" 
+                                          className="px-2 py-1 rounded-lg bg-gradient-to-r from-red-100 to-pink-100 dark:from-red-900/20 dark:to-pink-900/20 text-red-700 dark:text-red-300 text-xs hover:from-red-200 hover:to-pink-200 dark:hover:from-red-900/30 dark:hover:to-pink-900/30 transition-all duration-200 ease-out hover:scale-[1.02]" 
                                           title="Dislike this reply"
                                         >
                                           👎 {(r.dislikes || []).length || 0}
