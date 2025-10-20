@@ -27,6 +27,30 @@
 3. **Create your first post** and start blogging!
 4. **Explore features** like following users, commenting, and more
 
+## 🆕 Recent Updates & Improvements
+
+### ✨ **New Features Added:**
+- **📚 My Posts Page**: Complete personal content management system
+  - View all your posts (drafts, published, scheduled)
+  - Filter by status and search within your content
+  - Responsive design optimized for all devices
+  - Quick actions for editing and managing posts
+- **🗑️ Complete Account Deletion**: Comprehensive cascade deletion system
+  - Removes all user data including posts, comments, follows, and notifications
+  - Cleans up Cloudinary media files automatically
+  - Preserves admin audit trails for compliance
+- **🎯 Smart Empty States**: Context-aware user experience
+  - Different actions based on login status
+  - Helpful guidance for new users
+  - Quick access to relevant features
+
+### 🔧 **Technical Improvements:**
+- **New API Endpoint**: `GET /posts/my` for personal post management
+- **Enhanced Data Cleanup**: Automatic removal of orphaned data
+- **Improved Error Handling**: Better fallback mechanisms
+- **Code Optimization**: Removed unnecessary debug logs
+- **Better Route Organization**: Fixed route conflicts and improved structure
+
 ## ✨ Key Features
 
 ### 🔐 **Authentication & User Management**
@@ -36,6 +60,13 @@
 - **JWT Authentication**: Secure token-based authentication
 - **Multi-Account Management**: Add, switch, and remove multiple user accounts
 - **User Profiles**: Comprehensive user profiles with avatars, bio, location, and additional info
+- **Complete Account Deletion**: Comprehensive cascade deletion system that removes:
+  - All user posts and associated media from Cloudinary
+  - All comments and reactions from posts/comments
+  - All follow relationships (followers/following)
+  - All notifications involving the user
+  - All reports filed by or against the user
+  - All audit trail references (preserved for admin records)
 
 ### 📝 **Blog Management & Content Creation**
 - **Rich Content Types**: Support for text, images, videos, documents, and articles
@@ -47,6 +78,14 @@
   - Article editor for long-form content
   - Tags and categories management
   - Publishing options (draft, scheduled, published)
+- **My Posts Management**: Complete personal content management system featuring:
+  - **Draft Management**: Create, edit, and manage draft posts
+  - **Status Filtering**: Filter posts by draft, published, or scheduled status
+  - **Search Within Posts**: Search through your own content
+  - **Status Badges**: Visual indicators for post status
+  - **Responsive Design**: Optimized for both laptop and mobile devices
+  - **Quick Actions**: Easy access to edit, delete, and publish posts
+  - **Empty State Guidance**: Helpful tips and quick actions for new users
 - **Professional Post Display**: Stunning post details page featuring:
   - Modern card-based layout with glass morphism effects
   - Enhanced media display with type indicators
@@ -81,6 +120,10 @@
 - **Advanced Search Interface**: Enhanced search bar with icons and clear functionality
 - **Modern Pagination**: Beautiful pagination with gradient buttons and page information
 - **Interactive Comments**: Nested comment system with modern styling and reactions
+- **Smart Empty States**: Context-aware empty states that show relevant actions:
+  - **Logged-in users**: "Create Post" button for immediate content creation
+  - **Logged-out users**: "Get Started" and "Sign In" buttons for account creation
+  - **My Posts page**: Helpful tips and quick actions for new content creators
 
 ### 🔧 **Technical Features**
 - **RESTful API**: Well-structured backend API with proper validation
@@ -91,6 +134,11 @@
 - **Multi-Account Support**: Token validation and account switching
 - **Real-time Notifications**: WebSocket-like notification system
 - **Audit Logging**: Complete tracking of administrative actions
+- **Advanced API Endpoints**: 
+  - **GET /posts/my**: Fetch user's own posts with filtering and search
+  - **Cascade Deletion**: Automatic cleanup of all user-related data
+  - **Draft Management**: Complete CRUD operations for draft posts
+  - **Status Filtering**: Filter posts by draft, published, or scheduled status
 
 ## 🛠️ Tech Stack
 
@@ -128,6 +176,7 @@ BlogAxis/
 │   │   │   ├── Login.jsx
 │   │   │   ├── Register.jsx
 │   │   │   ├── Profile.jsx
+│   │   │   ├── MyPosts.jsx
 │   │   │   ├── Compose.jsx
 │   │   │   ├── Edit.jsx
 │   │   │   ├── AuthCallback.jsx
