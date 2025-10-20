@@ -343,9 +343,9 @@ export default function PostDetails() {
         {/* Main Post Card */}
         <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 overflow-hidden">
           {/* Post Header */}
-          <div className="p-6 sm:p-8 border-b border-gray-200/50 dark:border-gray-700/50">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-4">
+          <div className="p-5 sm:p-8 border-b border-gray-200/50 dark:border-gray-700/50">
+            <div className="flex items-center justify-between mb-5 sm:mb-6 gap-3">
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                 <Link to={`/users/${postUser?._id || post.user}`} className="group">
                   <img
                     src={userAvatar || `data:image/svg+xml;base64,${btoa(`
@@ -358,14 +358,14 @@ export default function PostDetails() {
                     className="w-12 h-12 rounded-2xl object-cover border-2 border-white/30 dark:border-gray-600/30 shadow-lg group-hover:scale-105 transition-transform duration-200"
                   />
                 </Link>
-                <div>
+                <div className="min-w-0">
                   <Link 
                     to={`/users/${postUser?._id || post.user}`} 
-                    className="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate"
                   >
                     {userName}
                   </Link>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                  <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
                     <span>📅</span>
                     {new Date(post.createdAt).toLocaleDateString('en-US', { 
                       year: 'numeric', 
@@ -379,10 +379,43 @@ export default function PostDetails() {
               </div>
               
               {/* Action Buttons */}
-              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
+                {/* Mobile compact reactions */}
+                <div className="flex items-center gap-2 sm:hidden">
+                  <div className="relative">
+                    <button
+                      onClick={() => toggleLike('like')}
+                      className={`w-9 h-9 rounded-full grid place-items-center shadow-md transition ${
+                        liked ? 'bg-green-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100'
+                      }`}
+                      aria-label="Like"
+                    >
+                      👍
+                    </button>
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-4 px-1.5 rounded-full bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-[10px] leading-4 text-center shadow">
+                      {likesCount}
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <button
+                      onClick={() => toggleLike('dislike')}
+                      className={`w-9 h-9 rounded-full grid place-items-center shadow-md transition ${
+                        disliked ? 'bg-red-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100'
+                      }`}
+                      aria-label="Dislike"
+                    >
+                      👎
+                    </button>
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-4 px-1.5 rounded-full bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-[10px] leading-4 text-center shadow">
+                      {dislikesCount}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Tablet/desktop reactions */}
                 <button 
                   onClick={() => toggleLike('like')} 
-                  className={`px-4 py-2 rounded-2xl text-sm font-semibold transition-all duration-200 ease-out hover:scale-[1.02] shadow-md hover:shadow-lg ${
+                  className={`hidden sm:inline-flex px-4 py-2 rounded-2xl text-sm font-semibold transition-all duration-200 ease-out hover:scale-[1.02] shadow-md hover:shadow-lg ${
                     liked 
                       ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white' 
                       : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-800 dark:text-gray-100 hover:from-green-100 hover:to-emerald-100 dark:hover:from-green-900/20 dark:hover:to-emerald-900/20'
@@ -394,7 +427,7 @@ export default function PostDetails() {
                 </button>
                 <button 
                   onClick={() => toggleLike('dislike')} 
-                  className={`px-4 py-2 rounded-2xl text-sm font-semibold transition-all duration-200 ease-out hover:scale-[1.02] shadow-md hover:shadow-lg ${
+                  className={`hidden sm:inline-flex px-4 py-2 rounded-2xl text-sm font-semibold transition-all duration-200 ease-out hover:scale-[1.02] shadow-md hover:shadow-lg ${
                     disliked 
                       ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white' 
                       : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-800 dark:text-gray-100 hover:from-red-100 hover:to-pink-100 dark:hover:from-red-900/20 dark:hover:to-pink-900/20'
@@ -429,8 +462,8 @@ export default function PostDetails() {
           </div>
 
           {/* Post Title */}
-          <div className="p-6 sm:p-8">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white leading-tight mb-4">
+          <div className="p-5 sm:p-8">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white leading-tight mb-3 sm:mb-4 break-words">
               {post.title}
             </h1>
           </div>
