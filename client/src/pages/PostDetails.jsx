@@ -181,18 +181,8 @@ export default function PostDetails() {
       try {
         if (!post || post.type !== 'document' || !post.mediaUrl) return;
         
-        // Check if it's a local document (new format)
-        if (post.mediaUrl.startsWith('/api/documents/')) {
-          setDocUrl(post.mediaUrl);
-        } else {
-          // Handle Cloudinary documents (backward compatibility)
-          const cloudinaryPath = post.docPublicId || post.mediaPublicId;
-          if (cloudinaryPath) {
-            setDocUrl(`/api/media/preview/${cloudinaryPath}`);
-          } else {
-            setDocUrl(post.mediaUrl);
-          }
-        }
+        // All documents are now stored in Cloudinary
+        setDocUrl(post.mediaUrl);
       } catch (e) {
         console.error('Error resolving document URL:', e);
         setDocUrl(post?.mediaUrl || '');
@@ -533,33 +523,6 @@ export default function PostDetails() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex-shrink-0 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-                    <a
-                      href={post.mediaUrl.startsWith('/api/documents/') 
-                        ? post.mediaUrl 
-                        : `/api/media/preview/${post.docPublicId || post.mediaPublicId || ''}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 ease-out hover:scale-[1.02] shadow-lg hover:shadow-xl"
-                    >
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                      Open
-                    </a>
-                    <a
-                      href={post.mediaUrl.startsWith('/api/documents/') 
-                        ? `${post.mediaUrl}?download=true` 
-                        : `/api/media/raw/${post.docPublicId || post.mediaPublicId || ''}`}
-                      download={getDocumentFilename()}
-                      className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-2xl hover:from-gray-700 hover:to-gray-800 transition-all duration-200 ease-out hover:scale-[1.02] shadow-lg hover:shadow-xl"
-                    >
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      Download
-                    </a>
-                  </div>
                 </div>
               </div>
           
@@ -576,14 +539,40 @@ export default function PostDetails() {
               </div>
               <iframe 
                 title={getDocumentFilename()}
-                src={post.mediaUrl.startsWith('/api/documents/') 
-                  ? post.mediaUrl 
-                  : `/api/media/preview/${post.docPublicId || post.mediaPublicId}`} 
+                src={`https://docs.google.com/gview?url=${encodeURIComponent(post.mediaUrl)}&embedded=true`} 
                 className="w-full h-[70vh] bg-white"
                 style={{ border: 'none' }}
               />
             </div>
           )}
+
+          {(post.docMimeType?.includes('msword') ||
+            post.docMimeType?.includes('officedocument') ||
+            post.docMimeType?.includes('excel') ||
+            post.docMimeType?.includes('powerpoint') ||
+            post.mediaMimeType?.includes('msword') ||
+            post.mediaMimeType?.includes('officedocument') ||
+            post.mediaMimeType?.includes('excel') ||
+            post.mediaMimeType?.includes('powerpoint')) &&
+            (post.docPublicId || post.mediaPublicId) && (
+            <div className="w-full rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white shadow-lg">
+              <div className="bg-gray-50 dark:bg-gray-800 px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Document Preview</span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Doc/Sheet/Slide</span>
+                  </div>
+                </div>
+              </div>
+              <iframe 
+                title={getDocumentFilename()}
+                src={`https://docs.google.com/gview?url=${encodeURIComponent(post.mediaUrl)}&embedded=true`}
+                className="w-full h-[70vh] bg-white"
+                style={{ border: 'none' }}
+              />
+            </div>
+          )}
+
         </div>
       )}
           {/* Text Content */}

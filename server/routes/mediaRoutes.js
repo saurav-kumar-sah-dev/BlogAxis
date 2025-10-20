@@ -200,3 +200,27 @@ router.get(/^\/preview\/(.+)/, async (req, res) => {
 });
 
 module.exports = router;
+ 
+// Proxy download by absolute URL and custom filename
+router.get('/proxy-download', async (req, res) => {
+  try {
+    const url = String(req.query.url || '');
+    const filename = String(req.query.filename || 'document.pdf');
+    if (!url || !/^https:\/\//i.test(url)) {
+      return res.status(400).json({ error: 'Missing or invalid url' });
+    }
+    const response = await fetch(url);
+    if (!response.ok) {
+      return res.status(response.status).json({ error: `Upstream error ${response.status}` });
+    }
+    const contentType = response.headers.get('content-type') || 'application/octet-stream';
+    const contentLength = response.headers.get('content-length');
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    if (contentLength) res.setHeader('Content-Length', contentLength);
+    response.body.pipe(res);
+  } catch (e) {
+    console.error('proxy-download error:', e);
+    res.status(500).json({ error: 'Failed to download' });
+  }
+});

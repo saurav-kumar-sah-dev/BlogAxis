@@ -49,28 +49,16 @@ exports.createPost = async (req, res) => {
       const originalName = file.originalname || 'document';
       const fileSize = file.size || 0;
       
-      // Always save document to disk (since we're using memory storage)
-      const fs = require('fs').promises;
-      const path = require('path');
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      const ext = path.extname(originalName);
-      const filename = `document-${uniqueSuffix}${ext}`;
-      const uploadDir = path.join(__dirname, '../uploads/documents');
+      // Upload document to Cloudinary for persistent storage
+      const result = await uploadBuffer(file.buffer, 'blog/documents', 'raw');
       
-      // Ensure directory exists
-      await fs.mkdir(uploadDir, { recursive: true });
-      
-      // Save file to disk
-      const filePath = path.join(uploadDir, filename);
-      await fs.writeFile(filePath, file.buffer);
-      
-      doc.docUrl = `/api/documents/${filename}`;
-      doc.docPublicId = filename;
+      doc.docUrl = result.secure_url;
+      doc.docPublicId = result.public_id;
       doc.docMimeType = file.mimetype;
       doc.docOriginalName = originalName;
       doc.docSize = fileSize;
-      doc.mediaUrl = doc.docUrl;
-      doc.mediaPublicId = filename;
+      doc.mediaUrl = result.secure_url;
+      doc.mediaPublicId = result.public_id;
       doc.mediaMimeType = file.mimetype;
     }
 
@@ -318,43 +306,28 @@ exports.updatePost = async (req, res) => {
     }
 
     if (req.files?.document?.[0]) {
-      // Delete old local document file if it exists
-      if (post.docPublicId && post.docPublicId.startsWith('document-')) {
-        try {
-          const fs = require('fs').promises;
-          const oldFilePath = path.join(__dirname, '../uploads/documents', post.docPublicId);
-          await fs.unlink(oldFilePath);
-        } catch (e) {
-          // Could not delete old document file
-        }
+      // Clean up old document from Cloudinary
+      if (post.docPublicId) {
+        await destroy(post.docPublicId).catch(() => {});
+      }
+      if (post.mediaPublicId && post.mediaPublicId !== post.docPublicId) {
+        await destroy(post.mediaPublicId).catch(() => {});
       }
       
-      // Handle new document upload
+      // Handle new document upload to Cloudinary
       const file = req.files.document[0];
       const originalName = file.originalname || 'document';
       const fileSize = file.size || 0;
       
-      // Always save document to disk (since we're using memory storage)
-      const fs = require('fs').promises;
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      const ext = path.extname(originalName);
-      const filename = `document-${uniqueSuffix}${ext}`;
-      const uploadDir = path.join(__dirname, '../uploads/documents');
+      const result = await uploadBuffer(file.buffer, 'blog/documents', 'raw');
       
-      // Ensure directory exists
-      await fs.mkdir(uploadDir, { recursive: true });
-      
-      // Save file to disk
-      const filePath = path.join(uploadDir, filename);
-      await fs.writeFile(filePath, file.buffer);
-      
-      post.docUrl = `/api/documents/${filename}`;
-      post.docPublicId = filename;
+      post.docUrl = result.secure_url;
+      post.docPublicId = result.public_id;
       post.docMimeType = file.mimetype;
       post.docOriginalName = originalName;
       post.docSize = fileSize;
-      post.mediaUrl = post.docUrl;
-      post.mediaPublicId = filename;
+      post.mediaUrl = result.secure_url;
+      post.mediaPublicId = result.public_id;
       post.mediaMimeType = file.mimetype;
       post.type = 'document';
     }
@@ -405,17 +378,8 @@ exports.deletePost = async (req, res) => {
     }
     if (post.videoPublicId) { try { await destroy(post.videoPublicId); } catch (e) {} }
     
-    // Handle local document deletion
-    if (post.docPublicId && post.docPublicId.startsWith('document-')) {
-      try {
-        const fs = require('fs').promises;
-        const filePath = path.join(__dirname, '../uploads/documents', post.docPublicId);
-        await fs.unlink(filePath);
-      } catch (e) {
-        // Could not delete document file
-      }
-    } else if (post.docPublicId) {
-      // Handle Cloudinary document deletion (for backward compatibility)
+    // Handle document deletion from Cloudinary
+    if (post.docPublicId) {
       try { await destroy(post.docPublicId); } catch (e) {}
     }
     
