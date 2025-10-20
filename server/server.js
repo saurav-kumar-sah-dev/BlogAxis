@@ -115,6 +115,17 @@ app.use('/api/users', userRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/media', mediaRoutes);
+// Ensure documents directory exists and also serve it statically for direct access
+try {
+  const fs = require('fs');
+  const documentsDir = path.join(__dirname, 'uploads/documents');
+  if (!fs.existsSync(documentsDir)) {
+    fs.mkdirSync(documentsDir, { recursive: true });
+  }
+  app.use('/api/documents', express.static(documentsDir));
+} catch (e) {
+  console.warn('Warning: could not initialize documents static hosting:', e?.message);
+}
 app.use('/api/documents', documentRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/reports', reportRoutes);
