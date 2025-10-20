@@ -327,8 +327,8 @@ export default function PostDetails() {
   const userAvatar = postUser?.avatarUrl;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-8 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
+      <div className="max-w-4xl mx-auto w-full">
         {/* Navigation */}
         <div className="mb-8">
           <Link 
@@ -379,7 +379,7 @@ export default function PostDetails() {
               </div>
               
               {/* Action Buttons */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                 <button 
                   onClick={() => toggleLike('like')} 
                   className={`px-4 py-2 rounded-2xl text-sm font-semibold transition-all duration-200 ease-out hover:scale-[1.02] shadow-md hover:shadow-lg ${
@@ -408,15 +408,19 @@ export default function PostDetails() {
                   <>
                     <Link 
                       to={`/edit/${post._id}`} 
-                      className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 ease-out hover:scale-[1.02] shadow-md hover:shadow-lg"
+                      className="px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 ease-out hover:scale-[1.02] shadow-md hover:shadow-lg inline-flex items-center gap-1"
+                      title="Edit"
                     >
-                      ✏️ Edit
+                      <span>✏️</span>
+                      <span className="hidden sm:inline">Edit</span>
                     </Link>
                     <button 
                       onClick={handleDelete} 
-                      className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-semibold rounded-2xl hover:from-red-600 hover:to-red-700 transition-all duration-200 ease-out hover:scale-[1.02] shadow-md hover:shadow-lg"
+                      className="px-3 sm:px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-semibold rounded-2xl hover:from-red-600 hover:to-red-700 transition-all duration-200 ease-out hover:scale-[1.02] shadow-md hover:shadow-lg inline-flex items-center gap-1"
+                      title="Delete"
                     >
-                      🗑️ Delete
+                      <span>🗑️</span>
+                      <span className="hidden sm:inline">Delete</span>
                     </button>
                   </>
                 )}
@@ -527,7 +531,7 @@ export default function PostDetails() {
             </div>
           )}
           {post.type === 'document' && post.mediaUrl && (
-            <div className="p-6 sm:p-8">
+            <div className="p-6 sm:p-8 overflow-x-hidden">
               <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-3xl p-8 shadow-lg">
                 <div className="flex flex-col sm:flex-row items-center space-y-6 sm:space-y-0 sm:space-x-6">
                   <div className="flex-shrink-0">

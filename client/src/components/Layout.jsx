@@ -7,7 +7,7 @@ export default function Layout({ children }) {
   
   return (
     <div 
-      className="min-h-screen flex flex-col transition-colors"
+      className="min-h-screen flex flex-col transition-colors overflow-x-hidden"
       style={{
         backgroundColor: isDark ? '#111827' : '#ffffff',
         color: isDark ? '#f9fafb' : '#111827'
@@ -25,12 +25,12 @@ export default function Layout({ children }) {
         </div>
       </header>
       <main 
-        className="flex-1 transition-colors"
+        className="flex-1 transition-colors overflow-x-hidden"
         style={{
           backgroundColor: isDark ? '#111827' : '#ffffff'
         }}
       >
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-6xl mx-auto px-4 w-full">
           {children}
         </div>
       </main>
