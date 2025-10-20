@@ -50,7 +50,7 @@ export default function Header() {
         setNotifItems(data.data || []);
       } catch (error) {
         // Handle network errors or other issues
-        console.log('Notifications fetch error:', error.message);
+        // Notifications fetch error - handled silently
         setUnread(0);
         setNotifItems([]);
       } finally {
@@ -518,7 +518,7 @@ export default function Header() {
               onTouchEnd={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Mobile search toggle touched, current state:', mobileSearchOpen);
+                // Mobile search toggle touched
                 
                 if (touchHandledRef.current) return;
                 touchHandledRef.current = true;

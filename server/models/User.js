@@ -69,11 +69,10 @@ userSchema.methods.comparePassword = function(candidate) {
 // Comprehensive cascade delete for all user-related data
 async function cascadeDeleteUserData(userId) {
   try {
-    console.log(`Starting cascade deletion for user: ${userId}`);
-    
+    // Starting cascade deletion for user
+
     // 1. Delete user's posts and associated media
     const posts = await Post.find({ user: userId }).select('_id imagePublicId videoPublicId docPublicId mediaPublicId');
-    console.log(`Found ${posts.length} posts to delete`);
     
     // Delete all media files from Cloudinary
     await Promise.all(posts.map(async post => {
@@ -97,88 +96,76 @@ async function cascadeDeleteUserData(userId) {
         }
       }
       
-      // Delete all media files
-      await Promise.all(mediaIds.map(async id => {
-        try { 
-          await destroy(id); 
-          console.log(`Deleted media: ${id}`);
-        } catch (e) {
-          console.warn(`Failed to delete media ${id}:`, e.message);
-        }
-      }));
+            // Delete all media files
+            await Promise.all(mediaIds.map(async id => {
+              try {
+                await destroy(id);
+              } catch (e) {
+                // Failed to delete media - continue with other deletions
+              }
+            }));
     }));
     
     // Delete all posts
     await Post.deleteMany({ user: userId });
-    console.log(`Deleted ${posts.length} posts`);
-    
+
     // 2. Delete user's comments
-    const commentsDeleted = await Comment.deleteMany({ user: userId });
-    console.log(`Deleted ${commentsDeleted.deletedCount} comments`);
-    
+    await Comment.deleteMany({ user: userId });
+
     // 3. Remove user from all likes/dislikes in posts
-    const postsUpdated = await Post.updateMany(
+    await Post.updateMany(
       { $or: [{ likes: userId }, { dislikes: userId }] },
-      { 
-        $pull: { 
-          likes: userId, 
-          dislikes: userId 
-        } 
+      {
+        $pull: {
+          likes: userId,
+          dislikes: userId
+        }
       }
     );
-    console.log(`Updated ${postsUpdated.modifiedCount} posts to remove likes/dislikes`);
-    
+
     // 4. Remove user from all likes/dislikes in comments
-    const commentsUpdated = await Comment.updateMany(
+    await Comment.updateMany(
       { $or: [{ likes: userId }, { dislikes: userId }] },
-      { 
-        $pull: { 
-          likes: userId, 
-          dislikes: userId 
-        } 
+      {
+        $pull: {
+          likes: userId,
+          dislikes: userId
+        }
       }
     );
-    console.log(`Updated ${commentsUpdated.modifiedCount} comments to remove likes/dislikes`);
-    
+
     // 5. Remove user from followers/following lists of other users
-    const followersUpdated = await mongoose.model('User').updateMany(
+    await mongoose.model('User').updateMany(
       { followers: userId },
       { $pull: { followers: userId } }
     );
-    console.log(`Removed user from ${followersUpdated.modifiedCount} users' followers list`);
-    
-    const followingUpdated = await mongoose.model('User').updateMany(
+
+    await mongoose.model('User').updateMany(
       { following: userId },
       { $pull: { following: userId } }
     );
-    console.log(`Removed user from ${followingUpdated.modifiedCount} users' following list`);
-    
+
     // 6. Delete all notifications involving this user
-    const notificationsDeleted = await Notification.deleteMany({
+    await Notification.deleteMany({
       $or: [
         { toUser: userId },
         { fromUser: userId }
       ]
     });
-    console.log(`Deleted ${notificationsDeleted.deletedCount} notifications`);
-    
+
     // 7. Delete all reports involving this user
-    const reportsDeleted = await Report.deleteMany({
+    await Report.deleteMany({
       $or: [
         { reporter: userId },
         { reportedUser: userId }
       ]
     });
-    console.log(`Deleted ${reportsDeleted.deletedCount} reports`);
-    
+
     // 8. Update audit logs to remove user references (set to null instead of deleting for audit trail)
-    const auditUpdated = await Audit.updateMany(
+    await Audit.updateMany(
       { admin: userId },
       { $unset: { admin: 1 } }
     );
-    console.log(`Updated ${auditUpdated.modifiedCount} audit logs`);
-    
-    console.log(`Cascade deletion completed for user: ${userId}`);
     
   } catch (error) {
     console.error(`Error during cascade deletion for user ${userId}:`, error);

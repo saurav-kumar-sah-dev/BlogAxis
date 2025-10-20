@@ -197,7 +197,7 @@ exports.getPosts = async (req, res) => {
   } catch (e) {
     // Fallback: simple query with populate to avoid taking down the feed
     try {
-      console.error('getPosts aggregate failed, falling back:', e?.message || e);
+      // getPosts aggregate failed, falling back to simple query
       const query = search ? { $or: [ { title: { $regex: search, $options: 'i' } }, { body: { $regex: search, $options: 'i' } } ] } : {};
       const [items, count] = await Promise.all([
         Post.find(query)
@@ -217,7 +217,7 @@ exports.getPosts = async (req, res) => {
         hasNext: page * limit < count,
       });
     } catch (e2) {
-      console.error('getPosts fallback failed:', e2?.message || e2);
+      // getPosts fallback also failed
       res.status(500).json({ error: e2.message || 'Failed to load posts' });
     }
   }
