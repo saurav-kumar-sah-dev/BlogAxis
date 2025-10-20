@@ -53,6 +53,7 @@ passport.use(new GoogleStrategy({
       username: username,
       avatarUrl: profile.photos[0]?.value,
       isGoogleUser: true
+      // dateOfBirth will be required later through a separate flow
     });
     
     await user.save();

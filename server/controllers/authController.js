@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const User = require('../models/User');
 const { generateUsername } = require('../utils/usernameGenerator');
+const { validateAge } = require('../utils/ageValidation');
 
 const sign = (id, role) => jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
 
@@ -12,6 +13,16 @@ exports.register = async (req, res) => {
     // Validation
     if (password !== confirmPassword) {
       return res.status(400).json({ error: 'Passwords do not match' });
+    }
+    
+    // Age validation - must be 13 or older
+    if (!dateOfBirth) {
+      return res.status(400).json({ error: 'Date of birth is required' });
+    }
+    
+    const ageValidation = validateAge(dateOfBirth, 13);
+    if (!ageValidation.isValid) {
+      return res.status(400).json({ error: ageValidation.error });
     }
     
     const exists = await User.findOne({ email });
@@ -31,7 +42,7 @@ exports.register = async (req, res) => {
       email, 
       password, 
       username,
-      dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+      dateOfBirth: new Date(dateOfBirth),
       acceptTerms: acceptTerms === 'true' || acceptTerms === true
     });
     
@@ -242,6 +253,53 @@ exports.acceptTerms = async (req, res) => {
     
     res.json({ 
       message: 'Terms and conditions accepted successfully',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        dateOfBirth: user.dateOfBirth,
+        place: user.place,
+        info: user.info,
+        role: user.role,
+        suspended: user.suspended,
+        acceptTerms: user.acceptTerms,
+        isGoogleUser: user.isGoogleUser,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+};
+
+exports.updateDateOfBirth = async (req, res) => {
+  try {
+    const { dateOfBirth } = req.body;
+    
+    if (!dateOfBirth) {
+      return res.status(400).json({ error: 'Date of birth is required' });
+    }
+    
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    // Age validation - must be 13 or older
+    const ageValidation = validateAge(dateOfBirth, 13);
+    if (!ageValidation.isValid) {
+      return res.status(400).json({ error: ageValidation.error });
+    }
+    
+    // Update user's date of birth
+    user.dateOfBirth = new Date(dateOfBirth);
+    await user.save();
+    
+    res.json({ 
+      message: 'Date of birth updated successfully',
       user: {
         id: user._id,
         name: user.name,

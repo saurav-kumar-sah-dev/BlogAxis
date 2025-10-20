@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const Post = require('./Post');
 const { destroy } = require('../utils/cloudinary');
+const { validateAge } = require('../utils/ageValidation');
 
 const userSchema = new mongoose.Schema({
   // Basic info
@@ -16,7 +17,7 @@ const userSchema = new mongoose.Schema({
   bio: { type: String, trim: true, maxlength: 200 },
   place: { type: String, trim: true, maxlength: 100 },
   info: { type: String, trim: true, maxlength: 500 },
-  dateOfBirth: { type: Date },
+  dateOfBirth: { type: Date, required: function() { return !this.isGoogleUser; } },
   
   // Avatar
   avatarUrl: { type: String },
@@ -43,6 +44,17 @@ userSchema.pre('save', async function(next) {
   if (!this.isModified('password') || !this.password) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+// Age validation middleware
+userSchema.pre('save', function(next) {
+  if (this.isModified('dateOfBirth') && this.dateOfBirth && !this.isGoogleUser) {
+    const ageValidation = validateAge(this.dateOfBirth, 13);
+    if (!ageValidation.isValid) {
+      return next(new Error(ageValidation.error));
+    }
+  }
   next();
 });
 

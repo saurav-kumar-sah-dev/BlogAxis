@@ -8,6 +8,26 @@ import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
+// Reusable age validation function
+const calculateAge = (birthDate) => {
+  if (!birthDate) return null;
+  const today = new Date();
+  const birth = new Date(birthDate);
+  const age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  const dayDiff = today.getDate() - birth.getDate();
+  return monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? age - 1 : age;
+};
+
+// Age validation schema
+const ageValidation = (minAge = 13) => z.string().min(1, 'Date of birth is required').refine((date) => {
+  if (!date) return false;
+  const age = calculateAge(date);
+  return age !== null && age >= minAge;
+}, {
+  message: `You must be at least ${minAge} years old to create an account`,
+});
+
 const schema = z.object({
   firstName: z.string().min(1, 'First name required'),
   lastName: z.string().min(1, 'Last name required'),
@@ -17,7 +37,7 @@ const schema = z.object({
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
       'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'),
   confirmPassword: z.string().min(8, 'Min 8 characters'),
-  dateOfBirth: z.string().optional(),
+  dateOfBirth: ageValidation(13), // Use reusable age validation
   acceptTerms: z.boolean().refine(val => val === true, {
     message: "You must accept the terms and conditions to create an account",
   }),
@@ -87,6 +107,15 @@ export default function Register() {
   const { isDark } = useTheme();
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
+  
+  // Calculate min and max dates for age restriction
+  const today = new Date();
+  const maxDate = new Date(today.getFullYear() - 13, today.getMonth(), today.getDate());
+  const minDate = new Date(today.getFullYear() - 120, today.getMonth(), today.getDate());
+  
+  // Format dates for input
+  const maxDateString = maxDate.toISOString().split('T')[0];
+  const minDateString = minDate.toISOString().split('T')[0];
 
   const { register, handleSubmit, formState: { errors }, watch } = useForm({
     defaultValues: {
@@ -102,6 +131,10 @@ export default function Register() {
   });
 
   const watchedPassword = watch('password');
+  const watchedDateOfBirth = watch('dateOfBirth');
+  
+  // Calculate age in real-time using the reusable function
+  const currentAge = calculateAge(watchedDateOfBirth);
 
   const onSubmit = async (vals) => {
     try {
@@ -236,7 +269,7 @@ export default function Register() {
             {/* Date of Birth Field */}
             <div>
               <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Date of Birth
+                Date of Birth <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -247,9 +280,26 @@ export default function Register() {
                 <input
                   id="dateOfBirth"
                   type="date"
+                  required
+                  min={minDateString}
+                  max={maxDateString}
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                   {...register('dateOfBirth')}
                 />
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  You must be at least 13 years old to create an account
+                </div>
+                {currentAge !== null && (
+                  <div className={`text-xs font-medium ${
+                    currentAge >= 13 
+                      ? 'text-green-600 dark:text-green-400' 
+                      : 'text-red-600 dark:text-red-400'
+                  }`}>
+                    Age: {currentAge} {currentAge >= 13 ? '✓' : '✗'}
+                  </div>
+                )}
               </div>
               {errors.dateOfBirth && (
                 <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
@@ -344,7 +394,7 @@ export default function Register() {
                   </label>
                   <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                     By creating an account, you agree to our terms of service and privacy policy. 
-                    You must be at least 13 years old to create an account.
+                    <strong className="text-red-600 dark:text-red-400"> You must be at least 13 years old to create an account.</strong>
                   </div>
                 </div>
               </div>
