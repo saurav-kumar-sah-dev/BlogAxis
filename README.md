@@ -109,7 +109,6 @@
 | **Validation** | Express Validator | Server-side input validation |
 | **Security** | Helmet, HPP, Rate Limiting | Security middleware |
 
-<<<<<<< HEAD
 ## 📁 Project Structure
 
 ```
@@ -229,12 +228,21 @@ BlogAxis/
    # Google OAuth (optional)
    GOOGLE_CLIENT_ID=your-google-client-id
    GOOGLE_CLIENT_SECRET=your-google-client-secret
+   # For local testing (Google Console redirect)
+   GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
    
    # Session
    SESSION_SECRET=your-session-secret
    
-   # Client URL
-   CLIENT_URL=http://localhost:5174
+   # Client URLs
+   # Used by server-side redirects after OAuth
+   CLIENT_URL=http://localhost:5173
+   # Used by CORS allowlist (comma-separated for multiple origins)
+   CLIENT_ORIGIN=http://localhost:5173,http://localhost:5174
+   
+   # Server
+   NODE_ENV=development
+   PORT=5000
    ```
 
 5. **Start the development servers**
@@ -252,7 +260,7 @@ BlogAxis/
    ```
 
 6. **Access the application**
-   - Frontend: http://localhost:5174
+   - Frontend: http://localhost:5173
    - Backend API: http://localhost:5000
 
 ## 🔧 Configuration
@@ -424,12 +432,12 @@ BlogAxis/
 ### Frontend (Vercel/Netlify)
 1. Build the project: `npm run build`
 2. Deploy the `dist` folder to your hosting service
-3. Update API URLs for production
+3. Ensure `VITE_API_BASE_URL` is set to your production API origin (without trailing /api)
 
-### Backend (Railway/Heroku)
+### Backend (Render/Railway/Heroku)
 1. Set environment variables in your hosting platform
 2. Deploy the server directory
-3. Update CORS settings for production domain
+3. Update CORS settings for production domain(s): set `CLIENT_ORIGIN` to your frontend URL(s)
 
 ### Database (MongoDB Atlas)
 1. Create a MongoDB Atlas cluster
