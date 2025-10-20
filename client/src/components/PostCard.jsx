@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useEffect, useState, Fragment } from 'react';
@@ -10,6 +10,7 @@ export default function PostCard({ post, onDelete }) {
   const { user } = useAuth();
   const { isDark } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const ownerId = post && typeof post.user === 'object' ? post.user?._id : post.user;
   const isOwner = user && String(ownerId) === user.id;
   const [likes, setLikes] = useState(post.likesCount || 0);
@@ -72,8 +73,14 @@ export default function PostCard({ post, onDelete }) {
     return () => { cancelled = true; };
   }, [post._id]);
 
+  function requireAuth(redirectPath) {
+    if (user) return true;
+    navigate('/login', { replace: false, state: { from: location, next: redirectPath || location?.pathname } });
+    return false;
+  }
+
   async function toggleLike() {
-    if (!user) return;
+    if (!requireAuth(`/posts/${post._id}`)) return;
     try {
       const res = await api.post(`/posts/${post._id}/like`, {});
       const data = await res.json();
@@ -84,7 +91,7 @@ export default function PostCard({ post, onDelete }) {
   }
 
   async function toggleDislike() {
-    if (!user) return;
+    if (!requireAuth(`/posts/${post._id}`)) return;
     try {
       const res = await api.post(`/posts/${post._id}/dislike`, {});
       const data = await res.json();
@@ -95,6 +102,7 @@ export default function PostCard({ post, onDelete }) {
   }
 
   async function openComments() {
+    if (!requireAuth(`/posts/${post._id}#comments`)) return;
     navigate(`/posts/${post._id}#comments`);
   }
 
