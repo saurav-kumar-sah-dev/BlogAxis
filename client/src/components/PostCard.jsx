@@ -79,6 +79,12 @@ export default function PostCard({ post, onDelete }) {
     return false;
   }
 
+  function authNavigate(ev, targetPath) {
+    if (user) return;
+    ev.preventDefault();
+    navigate('/login', { replace: false, state: { from: location, next: targetPath } });
+  }
+
   async function toggleLike() {
     if (!requireAuth(`/posts/${post._id}`)) return;
     try {
@@ -207,7 +213,7 @@ export default function PostCard({ post, onDelete }) {
     <article className="group bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-200 ease-out flex flex-col border border-white/20 dark:border-gray-700/50 hover:scale-[1.02] hover:-translate-y-1 will-change-transform overflow-hidden">
       {/* Enhanced Media */}
       {post.type === 'image' && post.mediaUrl && (
-        <Link to={`/posts/${post._id}`} className="relative block group/media">
+        <Link to={`/posts/${post._id}`} className="relative block group/media" onClick={(e) => authNavigate(e, `/posts/${post._id}`)}>
           <div className="relative overflow-hidden rounded-t-3xl">
             {Array.isArray(post.mediaUrl) ? (
               // Multiple images gallery
@@ -254,7 +260,7 @@ export default function PostCard({ post, onDelete }) {
         </Link>
       )}
       {post.type === 'video' && post.mediaUrl && (
-        <Link to={`/posts/${post._id}`} className="relative block group/media">
+        <Link to={`/posts/${post._id}`} className="relative block group/media" onClick={(e) => authNavigate(e, `/posts/${post._id}`)}>
           <div className="relative overflow-hidden rounded-t-3xl">
             <video src={post.mediaUrl} className="w-full max-h-[60vh] sm:max-h-80 group-hover/media:scale-102 transition-transform duration-500 ease-out" controls preload="metadata" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover/media:opacity-100 transition-opacity duration-300"></div>
@@ -270,7 +276,7 @@ export default function PostCard({ post, onDelete }) {
         </Link>
       )}
       {post.type === 'document' && post.mediaUrl && (
-        <Link to={`/posts/${post._id}`} className="block group/document">
+        <Link to={`/posts/${post._id}`} className="block group/document" onClick={(e) => authNavigate(e, `/posts/${post._id}`)}>
           <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-t-3xl p-6 hover:shadow-xl transition-all duration-200 ease-out group-hover/document:scale-[1.02]">
             <div className="flex items-center space-x-4">
               <div className="flex-shrink-0">
@@ -321,6 +327,7 @@ export default function PostCard({ post, onDelete }) {
           <Link 
             to={userId ? `/users/${userId}` : '#'} 
             className="flex items-center gap-3 hover:opacity-80 transition-all duration-200 ease-out group/user flex-shrink-0 min-w-0"
+            onClick={(e) => { if (!userId) return; authNavigate(e, `/users/${userId}`); }}
           >
             <div className="relative">
               <img
@@ -371,7 +378,7 @@ export default function PostCard({ post, onDelete }) {
         </div>
 
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
-          <Link to={`/posts/${post._id}`} className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white line-clamp-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 group/title flex-1 min-w-0">
+          <Link to={`/posts/${post._id}`} className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white line-clamp-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 group/title flex-1 min-w-0" onClick={(e) => authNavigate(e, `/posts/${post._id}`)}>
             <span className="group-hover/title:bg-gradient-to-r group-hover/title:from-blue-600 group-hover/title:to-purple-600 group-hover/title:bg-clip-text group-hover/title:text-transparent break-words">
               {post.title}
             </span>
@@ -424,6 +431,7 @@ export default function PostCard({ post, onDelete }) {
               <Link 
                 to={`/posts/${post._id}`} 
                 className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-semibold rounded-2xl hover:from-blue-600 hover:to-indigo-600 transition-all duration-200 ease-out shadow-md hover:shadow-lg hover:scale-[1.02]"
+                onClick={(e) => authNavigate(e, `/posts/${post._id}`)}
               >
                 <span className="flex items-center gap-1">
                   📖 Read more
@@ -432,6 +440,7 @@ export default function PostCard({ post, onDelete }) {
               <Link 
                 to={`/posts/${post._id}#comments`} 
                 className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-semibold rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all duration-200 ease-out shadow-md hover:shadow-lg hover:scale-[1.02]"
+                onClick={(e) => authNavigate(e, `/posts/${post._id}#comments`)}
               >
                 <span className="flex items-center gap-1">
                   💬 {commentCount}
