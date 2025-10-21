@@ -158,22 +158,22 @@ export default function Header() {
 
       <div className="relative z-10">
         {/* Main Header Row */}
-        <div className="flex items-center justify-between py-3 px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between py-2.5 px-4 sm:px-6 lg:px-8">
           {/* Enhanced Logo */}
           <Link to="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0">
-            <div className="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-white/20 backdrop-blur-md group-hover:bg-white/30 transition-all duration-300 shadow-lg group-hover:shadow-xl group-hover:scale-105">
-              <span className="text-xl sm:text-2xl filter drop-shadow-sm">✨</span>
+            <div className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-white/20 backdrop-blur-md group-hover:bg-white/30 transition-all duration-300 shadow-lg group-hover:shadow-xl group-hover:scale-105">
+              <span className="text-lg sm:text-xl filter drop-shadow-sm">✨</span>
             </div>
             <div className="group-hover:scale-105 transition-transform duration-300">
-              <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-white drop-shadow-lg tracking-tight">BlogAxis</h1>
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white drop-shadow-lg tracking-tight">BlogAxis</h1>
               <p className="text-xs lg:text-sm text-white/90 hidden sm:block font-medium">Your central hub for blogging</p>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-2 xl:gap-4">
+          <nav className="hidden lg:flex items-center gap-1.5 xl:gap-3">
             {/* Enhanced Desktop search */}
-            <div className="w-80 xl:w-96 relative">
+            <div className="w-72 xl:w-80 relative">
               <div className="relative">
                 <input
                   ref={inputRef}
@@ -476,7 +476,7 @@ export default function Header() {
                 {user.role === 'admin' && (
                   <Link 
                     to="/admin" 
-                    className="px-3 py-2 rounded-xl bg-yellow-300/90 text-gray-800 hover:bg-yellow-300 transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-105 border border-yellow-200"
+                    className="px-2.5 py-1.5 rounded-lg bg-yellow-400/80 text-gray-800 hover:bg-yellow-400 transition-all duration-300 text-xs font-medium shadow-md hover:shadow-lg hover:scale-105 border border-yellow-300/50"
                   >
                     🛡️ Admin
                   </Link>
@@ -981,10 +981,10 @@ export default function Header() {
                       <Link 
                         to="/admin" 
                         onClick={() => { setMobileMenuOpen(false); setMobileSearchOpen(false); }}
-                        className="px-4 py-3 rounded-2xl bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-800 hover:from-yellow-500 hover:to-orange-500 active:scale-95 transition-all duration-300 text-sm font-bold shadow-lg border border-yellow-300 hover:shadow-xl"
+                        className="px-3 py-2.5 rounded-xl bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-800 hover:from-yellow-500 hover:to-orange-500 active:scale-95 transition-all duration-300 text-sm font-semibold shadow-lg border border-yellow-300 hover:shadow-xl"
                       >
                         <span className="flex items-center gap-2">
-                          <span className="text-lg">🛡️</span>
+                          <span className="text-base">🛡️</span>
                           <span>Admin</span>
                         </span>
                       </Link>
