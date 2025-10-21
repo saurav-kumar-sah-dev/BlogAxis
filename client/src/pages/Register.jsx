@@ -46,10 +46,10 @@ const schema = z.object({
   path: ["confirmPassword"],
 });
 
-// Password strength indicator component
+// Enhanced Password strength indicator component
 function PasswordStrengthIndicator({ password }) {
   const getStrength = (password) => {
-    if (!password) return { score: 0, label: '', color: '' };
+    if (!password) return { score: 0, label: '', color: '', bgColor: '', checks: {} };
     
     let score = 0;
     const checks = {
@@ -62,41 +62,65 @@ function PasswordStrengthIndicator({ password }) {
     
     score = Object.values(checks).filter(Boolean).length;
     
-    if (score <= 2) return { score, label: 'Weak', color: 'text-red-500' };
-    if (score <= 3) return { score, label: 'Fair', color: 'text-yellow-500' };
-    if (score <= 4) return { score, label: 'Good', color: 'text-blue-500' };
-    return { score, label: 'Strong', color: 'text-green-500' };
+    if (score <= 2) return { score, label: 'Weak', color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-500', checks };
+    if (score <= 3) return { score, label: 'Fair', color: 'text-yellow-600 dark:text-yellow-400', bgColor: 'bg-yellow-500', checks };
+    if (score <= 4) return { score, label: 'Good', color: 'text-blue-600 dark:text-blue-400', bgColor: 'bg-blue-500', checks };
+    return { score, label: 'Strong', color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-500', checks };
   };
 
   const strength = getStrength(password);
   
+  // Don't show anything if password is empty or if all requirements are met
+  if (!password || password.length === 0 || strength.score === 5) {
+    return null;
+  }
+  
   return (
-    <div className="mt-2">
-      <div className="flex items-center gap-2 mb-1">
+    <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 animate-in slide-in-from-top-2 duration-300">
+      <div className="flex items-center gap-3 mb-2">
         <div className="flex gap-1">
           {[1, 2, 3, 4, 5].map((i) => (
             <div
               key={i}
-              className={`h-1 w-8 rounded ${
+              className={`h-2 w-6 sm:w-8 rounded-full transition-all duration-300 ${
                 i <= strength.score
-                  ? strength.score <= 2
-                    ? 'bg-red-500'
-                    : strength.score <= 3
-                    ? 'bg-yellow-500'
-                    : strength.score <= 4
-                    ? 'bg-blue-500'
-                    : 'bg-green-500'
+                  ? strength.bgColor
                   : 'bg-gray-200 dark:bg-gray-600'
               }`}
             />
           ))}
         </div>
-        <span className={`text-xs font-medium ${strength.color}`}>
+        <span className={`text-sm font-semibold ${strength.color} flex items-center gap-1`}>
+          <span className="text-lg">
+            {strength.score <= 2 ? '⚠️' : strength.score <= 3 ? '⚡' : strength.score <= 4 ? '💪' : '🛡️'}
+          </span>
           {strength.label}
         </span>
       </div>
-      <div className="text-xs text-gray-500 dark:text-gray-400">
-        Password must contain: uppercase, lowercase, number, and special character (@$!%*?&)
+      <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+        <div className="font-medium mb-1">Password requirements:</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+          <div className={`flex items-center gap-1 transition-colors duration-200 ${strength.checks.length ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
+            <span className="transition-transform duration-200">{strength.checks.length ? '✅' : '⭕'}</span>
+            <span>At least 8 characters</span>
+          </div>
+          <div className={`flex items-center gap-1 transition-colors duration-200 ${strength.checks.uppercase ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
+            <span className="transition-transform duration-200">{strength.checks.uppercase ? '✅' : '⭕'}</span>
+            <span>Uppercase letter</span>
+          </div>
+          <div className={`flex items-center gap-1 transition-colors duration-200 ${strength.checks.lowercase ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
+            <span className="transition-transform duration-200">{strength.checks.lowercase ? '✅' : '⭕'}</span>
+            <span>Lowercase letter</span>
+          </div>
+          <div className={`flex items-center gap-1 transition-colors duration-200 ${strength.checks.number ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
+            <span className="transition-transform duration-200">{strength.checks.number ? '✅' : '⭕'}</span>
+            <span>Number</span>
+          </div>
+        </div>
+        <div className={`flex items-center gap-1 mt-1 transition-colors duration-200 ${strength.checks.special ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
+          <span className="transition-transform duration-200">{strength.checks.special ? '✅' : '⭕'}</span>
+          <span>Special character (@$!%*?&)</span>
+        </div>
       </div>
     </div>
   );
@@ -107,6 +131,8 @@ export default function Register() {
   const { isDark } = useTheme();
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
   
   // Calculate min and max dates for age restriction
   const today = new Date();
@@ -158,122 +184,155 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center mb-4">
-            <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-            </svg>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20 flex items-center justify-center py-4 sm:py-8 px-3 sm:px-4 lg:px-8">
+      {/* Enhanced Background with animated elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-4 sm:left-10 w-16 h-16 sm:w-32 sm:h-32 rounded-full opacity-10 animate-pulse" style={{ background: isDark ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)' }} />
+        <div className="absolute top-40 right-4 sm:right-20 w-12 h-12 sm:w-24 sm:h-24 rounded-full opacity-15 animate-bounce" style={{ background: isDark ? 'rgba(139, 92, 246, 0.3)' : 'rgba(139, 92, 246, 0.2)' }} />
+        <div className="absolute bottom-40 left-4 sm:left-20 w-14 h-14 sm:w-28 sm:h-28 rounded-full opacity-10 animate-pulse" style={{ background: isDark ? 'rgba(236, 72, 153, 0.3)' : 'rgba(236, 72, 153, 0.2)' }} />
+        <div className="absolute bottom-20 right-4 sm:right-10 w-10 h-10 sm:w-20 sm:h-20 rounded-full opacity-15 animate-bounce" style={{ background: isDark ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)' }} />
+        
+        {/* Additional mobile-optimized floating elements */}
+        <div className="absolute top-1/3 left-1/4 w-8 h-8 sm:w-16 sm:h-16 rounded-full opacity-5 animate-ping" style={{ background: isDark ? 'rgba(255, 193, 7, 0.3)' : 'rgba(255, 193, 7, 0.2)' }} />
+        <div className="absolute top-2/3 right-1/3 w-6 h-6 sm:w-12 sm:h-12 rounded-full opacity-8 animate-pulse" style={{ background: isDark ? 'rgba(220, 38, 127, 0.3)' : 'rgba(220, 38, 127, 0.2)' }} />
+      </div>
+
+      <div className="relative z-10 w-full max-w-md sm:max-w-lg lg:max-w-2xl">
+        {/* Enhanced Header */}
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="inline-flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div className="relative">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 rounded-3xl flex items-center justify-center shadow-2xl animate-pulse">
+                <svg className="h-8 w-8 sm:h-10 sm:w-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+              </div>
+              <div className="absolute inset-0 w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 rounded-3xl animate-ping opacity-20"></div>
+            </div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Create Account
+            </h1>
+            <div className="relative">
+              <span className="text-2xl sm:text-3xl lg:text-4xl animate-pulse">✨</span>
+              <div className="absolute inset-0 text-2xl sm:text-3xl lg:text-4xl animate-ping opacity-20">✨</div>
+            </div>
           </div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-            Create Account
-          </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Join our community and start sharing your stories
+          <p className="text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed px-4">
+            Join our vibrant community and start sharing your amazing stories with the world
           </p>
         </div>
 
-        {/* Form */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Enhanced Form Container */}
+        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-4 sm:p-6 lg:p-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
             {/* Name Fields */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="group">
+                <label htmlFor="firstName" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                  <span className="text-green-600 dark:text-green-400">👤</span>
                   First Name
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 group-focus-within:text-green-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
                   <input
                     id="firstName"
                     type="text"
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                    placeholder="First name"
+                    className="block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-gray-700/90 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 shadow-sm hover:border-green-300 dark:hover:border-green-500 hover:shadow-md focus:shadow-lg backdrop-blur-sm"
+                    placeholder="Enter your first name"
                     {...register('firstName')}
                   />
                 </div>
                 {errors.firstName && (
-                  <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
-                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                    {errors.firstName.message}
-                  </p>
+                  <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+                      <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      {errors.firstName.message}
+                    </p>
+                  </div>
                 )}
               </div>
 
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <div className="group">
+                <label htmlFor="lastName" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                  <span className="text-blue-600 dark:text-blue-400">👤</span>
                   Last Name
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
                   <input
                     id="lastName"
                     type="text"
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                    placeholder="Last name"
+                    className="block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-gray-700/90 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md focus:shadow-lg backdrop-blur-sm"
+                    placeholder="Enter your last name"
                     {...register('lastName')}
                   />
                 </div>
                 {errors.lastName && (
-                  <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
-                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                    {errors.lastName.message}
-                  </p>
+                  <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+                      <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      {errors.lastName.message}
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
 
             {/* Email Field */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div className="group">
+              <label htmlFor="email" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                <span className="text-purple-600 dark:text-purple-400">📧</span>
                 Email Address
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 group-focus-within:text-purple-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
                 <input
                   id="email"
                   type="email"
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Enter your email"
+                  className="block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-gray-700/90 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 shadow-sm hover:border-purple-300 dark:hover:border-purple-500 hover:shadow-md focus:shadow-lg backdrop-blur-sm"
+                  placeholder="Enter your email address"
                   {...register('email')}
                 />
               </div>
               {errors.email && (
-                <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
-                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                  {errors.email.message}
-                </p>
+                <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                  <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+                    <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {errors.email.message}
+                  </p>
+                </div>
               )}
             </div>
 
             {/* Date of Birth Field */}
-            <div>
-              <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Date of Birth <span className="text-red-500">*</span>
+            <div className="group">
+              <label htmlFor="dateOfBirth" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                <span className="text-orange-600 dark:text-orange-400">🎂</span>
+                Date of Birth <span className="text-red-500 text-lg">*</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`h-4 w-4 sm:h-5 sm:w-5 transition-colors ${
+                    dateOfBirth ? 'text-green-500' : 'text-gray-400 group-focus-within:text-orange-500'
+                  }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 </div>
@@ -283,51 +342,64 @@ export default function Register() {
                   required
                   min={minDateString}
                   max={maxDateString}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                  className={`block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 border-2 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-gray-700/90 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none transition-all duration-200 shadow-sm focus:shadow-lg backdrop-blur-sm ${
+                    dateOfBirth 
+                      ? 'border-green-300 dark:border-green-600 hover:border-green-400 dark:hover:border-green-500 focus:ring-2 focus:ring-green-500 focus:border-green-500' 
+                      : 'border-gray-200 dark:border-gray-600 hover:border-orange-300 dark:hover:border-orange-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500'
+                  }`}
                   {...register('dateOfBirth')}
+                  onChange={(e) => {
+                    setDateOfBirth(e.target.value);
+                    register('dateOfBirth').onChange(e);
+                  }}
                 />
               </div>
-              <div className="flex items-center justify-between mt-1">
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  You must be at least 13 years old to create an account
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
+                <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                  <span>🔒</span>
+                  <span>You must be at least 13 years old to create an account</span>
                 </div>
                 {currentAge !== null && (
-                  <div className={`text-xs font-medium ${
+                  <div className={`text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1 ${
                     currentAge >= 13 
-                      ? 'text-green-600 dark:text-green-400' 
-                      : 'text-red-600 dark:text-red-400'
+                      ? 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30' 
+                      : 'text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30'
                   }`}>
-                    Age: {currentAge} {currentAge >= 13 ? '✓' : '✗'}
+                    <span>Age: {currentAge}</span>
+                    <span className="text-sm">{currentAge >= 13 ? '✅' : '❌'}</span>
                   </div>
                 )}
               </div>
               {errors.dateOfBirth && (
-                <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
-                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                  {errors.dateOfBirth.message}
-                </p>
+                <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                  <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+                    <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {errors.dateOfBirth.message}
+                  </p>
+                </div>
               )}
             </div>
 
             {/* Password Fields */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div className="space-y-4">
+              <div className="group">
+                <label htmlFor="password" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                  <span className="text-indigo-600 dark:text-indigo-400">🔐</span>
                   Password
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                   </div>
                   <input
                     id="password"
                     type="password"
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                    placeholder="Password"
+                    className="block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-gray-700/90 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-md focus:shadow-lg backdrop-blur-sm"
+                    placeholder="Start typing to see password requirements"
                     {...register('password')}
                     onChange={(e) => {
                       setPassword(e.target.value);
@@ -337,101 +409,149 @@ export default function Register() {
                 </div>
                 <PasswordStrengthIndicator password={watchedPassword} />
                 {errors.password && (
-                  <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
-                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                    {errors.password.message}
-                  </p>
+                  <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+                      <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      {errors.password.message}
+                    </p>
+                  </div>
                 )}
               </div>
 
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <div className="group">
+                <label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                  <span className={`transition-colors ${
+                    confirmPassword && password === confirmPassword 
+                      ? 'text-green-600 dark:text-green-400' 
+                      : confirmPassword && password !== confirmPassword 
+                        ? 'text-red-600 dark:text-red-400' 
+                        : 'text-pink-600 dark:text-pink-400'
+                  }`}>🔒</span>
                   Confirm Password
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className={`h-4 w-4 sm:h-5 sm:w-5 transition-colors ${
+                      confirmPassword && password === confirmPassword 
+                        ? 'text-green-500' 
+                        : confirmPassword && password !== confirmPassword 
+                          ? 'text-red-500' 
+                          : 'text-gray-400 group-focus-within:text-pink-500'
+                    }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <input
                     id="confirmPassword"
                     type="password"
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                    placeholder="Confirm password"
+                    className={`block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 border-2 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-gray-700/90 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none transition-all duration-200 shadow-sm focus:shadow-lg backdrop-blur-sm ${
+                      confirmPassword && password === confirmPassword 
+                        ? 'border-green-300 dark:border-green-600 hover:border-green-400 dark:hover:border-green-500 focus:ring-2 focus:ring-green-500 focus:border-green-500' 
+                        : confirmPassword && password !== confirmPassword 
+                          ? 'border-red-300 dark:border-red-600 hover:border-red-400 dark:hover:border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500' 
+                          : 'border-gray-200 dark:border-gray-600 hover:border-pink-300 dark:hover:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:border-pink-500'
+                    }`}
+                    placeholder="Confirm your password"
                     {...register('confirmPassword')}
+                    onChange={(e) => {
+                      setConfirmPassword(e.target.value);
+                      register('confirmPassword').onChange(e);
+                    }}
                   />
                 </div>
                 {errors.confirmPassword && (
-                  <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
-                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                    {errors.confirmPassword.message}
-                  </p>
+                  <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+                      <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      {errors.confirmPassword.message}
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
 
             {/* Terms and Conditions */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <input
-                  type="checkbox"
-                  id="acceptTerms"
-                  {...register('acceptTerms')}
-                  className="mt-1 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <div className="flex-1">
-                  <label htmlFor="acceptTerms" className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer block">
-                    ✅ I agree to the{' '}
-                    <Link to="/terms" className="text-blue-600 dark:text-blue-400 hover:underline" target="_blank">
+            <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="flex-shrink-0 mt-1">
+                  <input
+                    type="checkbox"
+                    id="acceptTerms"
+                    {...register('acceptTerms')}
+                    className="h-5 w-5 text-green-600 focus:ring-green-500 border-gray-300 rounded-lg shadow-sm"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <label htmlFor="acceptTerms" className="text-sm sm:text-base font-semibold text-gray-700 dark:text-gray-300 cursor-pointer block">
+                    <span className="text-green-600 dark:text-green-400 mr-2">✅</span>
+                    I agree to the{' '}
+                    <Link to="/terms" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline font-medium transition-colors" target="_blank">
                       Terms and Conditions
                     </Link>
-                    {' '}and Privacy Policy
+                    {' '}and{' '}
+                    <Link to="/privacy" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline font-medium transition-colors" target="_blank">
+                      Privacy Policy
+                    </Link>
                   </label>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                    By creating an account, you agree to our terms of service and privacy policy. 
-                    <strong className="text-red-600 dark:text-red-400"> You must be at least 13 years old to create an account.</strong>
-                  </div>
+                  {!watch('acceptTerms') && errors.acceptTerms && (
+                    <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2 leading-relaxed animate-in slide-in-from-top-2 duration-300">
+                      <div className="flex items-start gap-2">
+                        <span className="text-orange-500 dark:text-orange-400 mt-0.5">🔒</span>
+                        <div>
+                          By creating an account, you agree to our terms of service and privacy policy.
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
               {errors.acceptTerms && (
-                <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
-                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                  {errors.acceptTerms.message}
-                </p>
+                <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                  <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+                    <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {errors.acceptTerms.message}
+                  </p>
+                </div>
               )}
             </div>
 
-            {/* Register Button */}
+            {/* Enhanced Register Button */}
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 transform hover:scale-105"
+              className="group relative w-full flex justify-center items-center py-3 sm:py-4 px-4 sm:px-6 border border-transparent text-sm sm:text-base font-bold rounded-xl sm:rounded-2xl text-white bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 hover:from-green-600 hover:via-blue-600 hover:to-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
             >
-              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                <svg className="h-5 w-5 text-green-300 group-hover:text-green-200" fill="currentColor" viewBox="0 0 20 20">
+              <span className="absolute left-0 inset-y-0 flex items-center pl-3 sm:pl-4">
+                <svg className="h-5 w-5 sm:h-6 sm:w-6 text-green-200 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
               </span>
-              Create Account
+              <span className="flex items-center gap-2">
+                <span className="text-lg sm:text-xl">🚀</span>
+                <span>Create Account</span>
+              </span>
             </button>
 
-            {/* Sign In Link */}
+            {/* Enhanced Sign In Link */}
             <div className="text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Already have an account?{' '}
-                <Link 
-                  to="/login" 
-                  className="font-medium text-green-600 dark:text-green-400 hover:text-green-500 dark:hover:text-green-300 transition-colors duration-200"
-                >
-                  Sign in here
-                </Link>
-              </p>
+              <div className="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 font-medium">
+                  Already have an account?{' '}
+                  <Link 
+                    to="/login" 
+                    className="inline-flex items-center gap-1 font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-200 hover:scale-105"
+                  >
+                    <span>✨</span>
+                    <span>Sign in here</span>
+                    <span>→</span>
+                  </Link>
+                </p>
+              </div>
             </div>
         </form>
         </div>
