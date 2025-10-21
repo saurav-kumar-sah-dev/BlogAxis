@@ -11,6 +11,14 @@
 - **Portfolio**: [saurav-portfolio-dun.vercel.app](https://saurav-portfolio-dun.vercel.app/)
 - **Email**: sauravshubham903@gmail.com
 
+## 📢 Featured on LinkedIn
+
+**🚀 [BlogAxis Featured Post on LinkedIn](https://www.linkedin.com/posts/sauravkumarsah-dev_mernstack-reactjs-nodejs-activity-7386242371044356096-zqQT?utm_source=share&utm_medium=member_desktop&rcm=ACoAADzT84EBx_LhVv32fYVUqjOTRutIkbU6iZk)**
+
+> *"🚀 Excited to share my latest project, BlogAxis! It's a full-stack MERN blog application packed with advanced features like comprehensive content management, user authentication, admin controls, and much more. Check out the full article to learn about the technical challenges I solved and the features I implemented!"*
+
+**Tags**: #MERNStack #ReactJS #NodeJS #MongoDB #TailwindCSS #WebDevelopment #BlogAxis #FullStackDeveloper
+
 ## 🚀 Live Application
 
 **🌐 [Visit BlogAxis Live Application](https://blog-axis.vercel.app)**
