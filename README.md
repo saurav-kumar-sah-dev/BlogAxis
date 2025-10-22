@@ -40,10 +40,12 @@
 
 ### **🏠 Home Page**
 ![Home Page](screenshots/home-page.png)
+
 *Welcome page with glass morphism effects, gradient designs, and modern post previews*
 
 ### **✍️ Post Creation Interface**
 ![Create Post](screenshots/create-post.png)
+
 *Beautiful post creation interface with content type selection, drag-and-drop uploads, and modern styling*
 
 ### **👤 User Profile Page**
@@ -53,10 +55,12 @@
 
 ### **📊 Admin Dashboard**
 ![Admin Dashboard](screenshots/admin-dashboard.png)
+
 *Powerful admin interface with user management, content moderation, and statistics*
 
 ### **📝 My Posts Management**
 ![My Posts](screenshots/my-posts..png)
+
 *Personal content management with draft/published status, search, and quick actions*
 
 ### **🎯 Key Features Showcase**
