@@ -38,11 +38,33 @@
 
 > **🎨 Modern UI/UX Design with Glass Morphism Effects**
 
-| Home Page | Post Creation | Admin Dashboard | User Profile |
-|-----------|---------------|-----------------|--------------|
-| ![Home](https://via.placeholder.com/300x200/3B82F6/FFFFFF?text=Home+Page) | ![Compose](https://via.placeholder.com/300x200/10B981/FFFFFF?text=Create+Post) | ![Admin](https://via.placeholder.com/300x200/8B5CF6/FFFFFF?text=Admin+Panel) | ![Profile](https://via.placeholder.com/300x200/F59E0B/FFFFFF?text=User+Profile) |
+### **🏠 Home Page**
+![Home Page](screenshots/home-page.png)
+*Welcome page with glass morphism effects, gradient designs, and modern post previews*
 
-*Screenshots coming soon - showcasing the beautiful modern interface with glass morphism effects, gradient designs, and responsive layout.*
+### **✍️ Post Creation Interface**
+![Create Post](screenshots/create-post.png)
+*Beautiful post creation interface with content type selection, drag-and-drop uploads, and modern styling*
+
+### **👤 User Profile Page**
+![User Profile](screenshots/user-profile.png)
+*Comprehensive user profile with gradient banner, profile details, and edit functionality*
+
+### **📊 Admin Dashboard**
+![Admin Dashboard](screenshots/admin-dashboard.png)
+*Powerful admin interface with user management, content moderation, and statistics*
+
+### **📝 My Posts Management**
+![My Posts](screenshots/my-posts..png)
+*Personal content management with draft/published status, search, and quick actions*
+
+### **🎯 Key Features Showcase**
+- **Glass Morphism Design**: Modern backdrop blur effects with transparency
+- **Gradient Color System**: Beautiful color transitions throughout the interface
+- **Responsive Layout**: Perfect experience on desktop, tablet, and mobile
+- **Interactive Elements**: Hover effects, smooth animations, and micro-interactions
+- **Content Type Support**: Text, images, videos, documents, and articles
+- **Real-time Updates**: Live notifications and status changes
 
 ## 🌐 Live Application
 
