@@ -48,6 +48,7 @@
 
 ### **👤 User Profile Page**
 ![User Profile](screenshots/user-profile.png)
+
 *Comprehensive user profile with gradient banner, profile details, and edit functionality*
 
 ### **📊 Admin Dashboard**
