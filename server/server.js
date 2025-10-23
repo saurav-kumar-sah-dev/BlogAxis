@@ -157,7 +157,11 @@ if (NODE_ENV === 'production') {
   if (fs.existsSync(indexPath)) {
     app.use(express.static(clientPath));
     // Serve React app for all non-API routes (SPA routing)
-    app.get(/^\/(?!api).*/, (req, res) => res.sendFile(indexPath));
+    app.get('*', (req, res) => {
+      if (!req.path.startsWith('/api/')) {
+        res.sendFile(indexPath);
+      }
+    });
   } else {
     console.warn(`Frontend build not found at ${indexPath}; skipping static hosting. Frontend is served from Vercel.`);
     // Provide a helpful root response instead of a 500 when hitting the service root
