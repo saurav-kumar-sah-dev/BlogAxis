@@ -181,7 +181,7 @@ if (NODE_ENV === 'production') {
   }
 }
 
-// 404 handler for unmatched API routes
+// 404 handler for unmatched API routes (must be after all other routes)
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) {
     res.status(404).json({
