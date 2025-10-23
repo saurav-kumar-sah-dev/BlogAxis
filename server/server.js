@@ -156,6 +156,7 @@ if (NODE_ENV === 'production') {
 
   if (fs.existsSync(indexPath)) {
     app.use(express.static(clientPath));
+    // Serve React app for all non-API routes (SPA routing)
     app.get(/^\/(?!api).*/, (req, res) => res.sendFile(indexPath));
   } else {
     console.warn(`Frontend build not found at ${indexPath}; skipping static hosting. Frontend is served from Vercel.`);
@@ -166,8 +167,45 @@ if (NODE_ENV === 'production') {
       docs: '/api/health',
       frontend: 'https://blog-axis.vercel.app'
     }));
+    
+    // 404 handler for non-API routes when frontend is not served
+    app.get('*', (req, res) => {
+      res.status(404).json({
+        error: 'Page not found',
+        message: 'This is the BlogAxis API server. The frontend is hosted separately.',
+        frontend: 'https://blog-axis.vercel.app',
+        apiDocs: '/api/health',
+        timestamp: new Date().toISOString()
+      });
+    });
   }
 }
+
+// 404 handler for unmatched API routes
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    res.status(404).json({
+      error: 'API endpoint not found',
+      message: `The requested API endpoint ${req.originalUrl} does not exist`,
+      availableEndpoints: [
+        '/api/health',
+        '/api/auth/*',
+        '/api/posts/*',
+        '/api/users/*',
+        '/api/notifications/*',
+        '/api/admin/*',
+        '/api/media/*',
+        '/api/documents/*',
+        '/api/accounts/*',
+        '/api/reports/*',
+        '/api/contact/*'
+      ],
+      timestamp: new Date().toISOString()
+    });
+  } else {
+    next();
+  }
+});
 
 // Error handler to avoid silent 500s
 app.use((err, req, res, next) => {

@@ -17,6 +17,7 @@ import Privacy from './pages/Privacy';
 import Contact from './pages/Contact';
 import About from './pages/About';
 import MyPosts from './pages/MyPosts';
+import NotFound from './pages/NotFound';
 
 export default function App() {
   return (
@@ -40,6 +41,8 @@ export default function App() {
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
           <Route path="/moderation" element={<AdminRoute><Moderation /></AdminRoute>} />
           <Route path="/audit-trail" element={<AdminRoute><AuditTrail /></AdminRoute>} />
+          {/* 404 Catch-all route - must be last */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
     </BrowserRouter>
