@@ -397,9 +397,9 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        {/* Enhanced Profile Header */}
-        <div className="relative overflow-hidden rounded-3xl mb-8 shadow-2xl">
+      <div className="max-w-6xl mx-auto py-4 sm:py-6 lg:py-8 px-3 sm:px-4 lg:px-8">
+        {/* Enhanced Profile Header - Mobile Optimized */}
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl mb-6 sm:mb-8 shadow-2xl">
           {/* Enhanced Background with multiple gradients */}
           <div 
             className="absolute inset-0"
@@ -410,8 +410,8 @@ export default function Profile() {
             }}
           />
           
-          {/* Animated decorative elements */}
-          <div className="absolute inset-0">
+          {/* Animated decorative elements - Hidden on mobile for performance */}
+          <div className="absolute inset-0 hidden sm:block">
             <div className="absolute top-4 left-4 w-16 h-16 rounded-full opacity-30 animate-pulse" style={{ background: 'rgba(255,255,255,0.2)' }} />
             <div className="absolute top-8 right-8 w-12 h-12 rounded-full opacity-25 animate-bounce" style={{ background: 'rgba(255,255,255,0.15)' }} />
             <div className="absolute bottom-8 left-8 w-20 h-20 rounded-full opacity-20 animate-pulse" style={{ background: 'rgba(255,255,255,0.1)' }} />
@@ -421,10 +421,10 @@ export default function Profile() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
           </div>
           
-          <div className="relative z-10 p-8 sm:p-12">
-            <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-12">
-              {/* Enhanced Avatar Section */}
-              <div className="relative group">
+          <div className="relative z-10 p-4 sm:p-6 lg:p-8 xl:p-12">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 lg:gap-8 xl:gap-12">
+              {/* Enhanced Avatar Section - Mobile Optimized */}
+              <div className="relative group flex-shrink-0">
                 <div className="relative">
                   <img
                     src={profile.avatarUrl || `data:image/svg+xml;base64,${btoa(`
@@ -434,65 +434,67 @@ export default function Profile() {
                       </svg>
                     `)}`}
                     alt="avatar"
-                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-white/30 shadow-2xl group-hover:scale-105 transition-transform duration-300"
+                    className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 rounded-full object-cover border-2 sm:border-4 border-white/30 shadow-2xl group-hover:scale-105 transition-transform duration-300"
                   />
-                  {/* Online indicator */}
-                  <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 border-4 border-white rounded-full shadow-lg animate-pulse"></div>
+                  {/* Online indicator - Smaller on mobile */}
+                  <div className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 w-4 h-4 sm:w-6 sm:h-6 bg-green-500 border-2 sm:border-4 border-white rounded-full shadow-lg animate-pulse"></div>
                 </div>
               </div>
               
-              {/* Enhanced Profile Info */}
-              <div className="flex-1 text-white">
-                <div className="mb-4">
-                  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+              {/* Enhanced Profile Info - Mobile Optimized */}
+              <div className="flex-1 text-white text-center sm:text-left">
+                <div className="mb-3 sm:mb-4">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-1 sm:mb-2 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent leading-tight">
                     {profile.name}
                   </h1>
                   {profile.username && (
-                    <p className="text-white/80 text-lg sm:text-xl mb-3 font-medium">
+                    <p className="text-white/80 text-base sm:text-lg lg:text-xl mb-2 sm:mb-3 font-medium">
                       @{profile.username}
                     </p>
                   )}
                   {profile.bio && (
-                    <p className="text-white/90 whitespace-pre-wrap leading-relaxed text-base sm:text-lg mb-4 max-w-2xl">
+                    <p className="text-white/90 whitespace-pre-wrap leading-relaxed text-sm sm:text-base lg:text-lg mb-3 sm:mb-4 max-w-2xl mx-auto sm:mx-0">
                       {profile.bio}
                     </p>
                   )}
                 </div>
                 
-                {/* Enhanced Member Info */}
-                <div className="flex flex-wrap items-center gap-4 text-white/80 text-sm sm:text-base mb-6">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">📅</span>
-                    <span>Member since {new Date(profile.createdAt).toLocaleDateString()}</span>
+                {/* Enhanced Member Info - Mobile Optimized */}
+                <div className="flex flex-col sm:flex-row sm:flex-wrap items-center sm:items-center gap-2 sm:gap-4 text-white/80 text-xs sm:text-sm lg:text-base mb-4 sm:mb-6">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <span className="text-sm sm:text-lg">📅</span>
+                    <span className="truncate">Member since {new Date(profile.createdAt).toLocaleDateString()}</span>
                   </div>
                   {profile.updatedAt && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">🔄</span>
-                      <span>Updated {new Date(profile.updatedAt).toLocaleDateString()}</span>
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <span className="text-sm sm:text-lg">🔄</span>
+                      <span className="truncate">Updated {new Date(profile.updatedAt).toLocaleDateString()}</span>
                     </div>
                   )}
                 </div>
                 
-                {/* Enhanced Action Buttons */}
-                <div className="flex flex-wrap gap-3">
+                {/* Enhanced Action Buttons - Mobile Optimized */}
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   {shouldShowFollow && (
                     <button
                       onClick={handleFollowToggle}
                       disabled={followLoading}
-                      className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl ${
+                      className={`px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base ${
                         isFollowing 
                           ? 'bg-white/20 text-white hover:bg-white/30 border border-white/30 hover:scale-105' 
                           : 'bg-white text-gray-800 hover:bg-gray-100 hover:scale-105'
                       } ${followLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       {followLoading ? (
-                        <span className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                          Loading...
+                        <span className="flex items-center justify-center gap-2">
+                          <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                          <span className="hidden sm:inline">Loading...</span>
+                          <span className="sm:hidden">...</span>
                         </span>
                       ) : (
-                        <span className="flex items-center gap-2">
-                          {isFollowing ? '✅' : '➕'} {isFollowing ? 'Following' : 'Follow'}
+                        <span className="flex items-center justify-center gap-1 sm:gap-2">
+                          <span className="text-sm sm:text-base">{isFollowing ? '✅' : '➕'}</span>
+                          <span>{isFollowing ? 'Following' : 'Follow'}</span>
                         </span>
                       )}
                     </button>
@@ -502,7 +504,7 @@ export default function Profile() {
                       targetType="user" 
                       targetId={profile._id} 
                       targetTitle={profile.name}
-                      className="px-6 py-3 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl bg-white/10 text-white hover:bg-white/20 border border-white/30 hover:scale-105"
+                      className="px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl bg-white/10 text-white hover:bg-white/20 border border-white/30 hover:scale-105 text-sm sm:text-base"
                     />
                   )}
                 </div>
@@ -511,90 +513,90 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Enhanced Profile Details */}
-        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-6 sm:p-8 mb-8">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-2xl">👤</span>
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Profile Details</h3>
+        {/* Enhanced Profile Details - Mobile Optimized */}
+        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <span className="text-xl sm:text-2xl">👤</span>
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Profile Details</h3>
           </div>
           
-          {/* Enhanced Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+          {/* Enhanced Stats Grid - Mobile Optimized */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
             <button 
               type="button" 
               onClick={() => openList('followers')} 
-              className="group text-left rounded-2xl p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 hover:from-blue-100 hover:to-blue-200 dark:hover:from-blue-900/30 dark:hover:to-blue-800/30 transition-all duration-300 border border-blue-200/50 dark:border-blue-700/50 hover:scale-105 hover:shadow-lg"
+              className="group text-left rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 hover:from-blue-100 hover:to-blue-200 dark:hover:from-blue-900/30 dark:hover:to-blue-800/30 transition-all duration-300 border border-blue-200/50 dark:border-blue-700/50 hover:scale-105 hover:shadow-lg"
             >
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl">👥</span>
-                <span className="text-sm font-medium text-blue-600 dark:text-blue-400">Followers</span>
+              <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                <span className="text-lg sm:text-2xl">👥</span>
+                <span className="text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400">Followers</span>
               </div>
-              <div className="font-bold text-2xl sm:text-3xl text-blue-700 dark:text-blue-300">{followersCount}</div>
+              <div className="font-bold text-xl sm:text-2xl lg:text-3xl text-blue-700 dark:text-blue-300">{followersCount}</div>
             </button>
             
             <button 
               type="button" 
               onClick={() => openList('following')} 
-              className="group text-left rounded-2xl p-4 sm:p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 hover:from-green-100 hover:to-green-200 dark:hover:from-green-900/30 dark:hover:to-green-800/30 transition-all duration-300 border border-green-200/50 dark:border-green-700/50 hover:scale-105 hover:shadow-lg"
+              className="group text-left rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 hover:from-green-100 hover:to-green-200 dark:hover:from-green-900/30 dark:hover:to-green-800/30 transition-all duration-300 border border-green-200/50 dark:border-green-700/50 hover:scale-105 hover:shadow-lg"
             >
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl">🔄</span>
-                <span className="text-sm font-medium text-green-600 dark:text-green-400">Following</span>
+              <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                <span className="text-lg sm:text-2xl">🔄</span>
+                <span className="text-xs sm:text-sm font-medium text-green-600 dark:text-green-400">Following</span>
               </div>
-              <div className="font-bold text-2xl sm:text-3xl text-green-700 dark:text-green-300">{followingCount}</div>
+              <div className="font-bold text-xl sm:text-2xl lg:text-3xl text-green-700 dark:text-green-300">{followingCount}</div>
             </button>
             
             {username && (
-              <div className="rounded-2xl p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border border-purple-200/50 dark:border-purple-700/50">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-2xl">🏷️</span>
-                  <span className="text-sm font-medium text-purple-600 dark:text-purple-400">Username</span>
+              <div className="rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border border-purple-200/50 dark:border-purple-700/50">
+                <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                  <span className="text-lg sm:text-2xl">🏷️</span>
+                  <span className="text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-400">Username</span>
                 </div>
-                <div className="font-bold text-lg sm:text-xl text-purple-700 dark:text-purple-300">@{username}</div>
+                <div className="font-bold text-base sm:text-lg lg:text-xl text-purple-700 dark:text-purple-300 break-all">@{username}</div>
               </div>
             )}
             
             {dateOfBirth && (
-              <div className="rounded-2xl p-4 sm:p-6 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border border-orange-200/50 dark:border-orange-700/50">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-2xl">🎂</span>
-                  <span className="text-sm font-medium text-orange-600 dark:text-orange-400">Birthday</span>
+              <div className="rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border border-orange-200/50 dark:border-orange-700/50">
+                <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                  <span className="text-lg sm:text-2xl">🎂</span>
+                  <span className="text-xs sm:text-sm font-medium text-orange-600 dark:text-orange-400">Birthday</span>
                 </div>
-                <div className="font-bold text-lg sm:text-xl text-orange-700 dark:text-orange-300">{new Date(dateOfBirth).toLocaleDateString()}</div>
+                <div className="font-bold text-base sm:text-lg lg:text-xl text-orange-700 dark:text-orange-300">{new Date(dateOfBirth).toLocaleDateString()}</div>
               </div>
             )}
           </div>
           
-          {/* Enhanced Profile Information */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Enhanced Profile Information - Mobile Optimized */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {profile.name && (
-              <div className="rounded-2xl p-4 sm:p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 border border-indigo-200/50 dark:border-indigo-700/50">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl">📝</span>
-                  <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">Name</span>
+              <div className="rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 border border-indigo-200/50 dark:border-indigo-700/50">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                  <span className="text-lg sm:text-2xl">📝</span>
+                  <span className="text-xs sm:text-sm font-semibold text-indigo-600 dark:text-indigo-400">Name</span>
                 </div>
-                <div className="font-bold text-lg sm:text-xl text-indigo-700 dark:text-indigo-300">{profile.name}</div>
+                <div className="font-bold text-base sm:text-lg lg:text-xl text-indigo-700 dark:text-indigo-300 break-words">{profile.name}</div>
               </div>
             )}
 
             {place && (
-              <div className="rounded-2xl p-4 sm:p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 border border-indigo-200/50 dark:border-indigo-700/50">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl">📍</span>
-                  <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">Location</span>
+              <div className="rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 border border-indigo-200/50 dark:border-indigo-700/50">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                  <span className="text-lg sm:text-2xl">📍</span>
+                  <span className="text-xs sm:text-sm font-semibold text-indigo-600 dark:text-indigo-400">Location</span>
                 </div>
-                <div className="font-bold text-lg sm:text-xl text-indigo-700 dark:text-indigo-300">{place}</div>
+                <div className="font-bold text-base sm:text-lg lg:text-xl text-indigo-700 dark:text-indigo-300 break-words">{place}</div>
               </div>
             )}
 
             {(bio || profile.bio) && (
-              <div className="rounded-2xl p-4 sm:p-6 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border border-orange-200/50 dark:border-orange-700/50 lg:col-span-2 shadow-lg hover:shadow-xl transition-shadow">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl">📝</span>
-                  <span className="text-sm font-semibold text-orange-700 dark:text-orange-300">Bio</span>
+              <div className="rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border border-orange-200/50 dark:border-orange-700/50 lg:col-span-2 shadow-lg hover:shadow-xl transition-shadow">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                  <span className="text-lg sm:text-2xl">📝</span>
+                  <span className="text-xs sm:text-sm font-semibold text-orange-700 dark:text-orange-300">Bio</span>
                 </div>
-                <div className="pl-4 border-l-4 border-orange-300 dark:border-orange-600/70">
-                  <div className="whitespace-pre-wrap text-base sm:text-lg leading-relaxed text-orange-900/90 dark:text-orange-100/90 break-words">
+                <div className="pl-2 sm:pl-4 border-l-2 sm:border-l-4 border-orange-300 dark:border-orange-600/70">
+                  <div className="whitespace-pre-wrap text-sm sm:text-base lg:text-lg leading-relaxed text-orange-900/90 dark:text-orange-100/90 break-words">
                     {bio || profile.bio}
                   </div>
                 </div>
@@ -603,12 +605,12 @@ export default function Profile() {
           </div>
           
           {info && (
-            <div className="mt-6 rounded-2xl p-4 sm:p-6 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 border border-teal-200/50 dark:border-teal-700/50">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-2xl">ℹ️</span>
-                <span className="text-sm font-semibold text-teal-600 dark:text-teal-400">Additional Information</span>
+            <div className="mt-4 sm:mt-6 rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 border border-teal-200/50 dark:border-teal-700/50">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <span className="text-lg sm:text-2xl">ℹ️</span>
+                <span className="text-xs sm:text-sm font-semibold text-teal-600 dark:text-teal-400">Additional Information</span>
               </div>
-              <div className="font-medium whitespace-pre-wrap text-base sm:text-lg leading-relaxed text-teal-700 dark:text-teal-300">{info}</div>
+              <div className="font-medium whitespace-pre-wrap text-sm sm:text-base lg:text-lg leading-relaxed text-teal-700 dark:text-teal-300 break-words">{info}</div>
             </div>
           )}
         </div>
@@ -620,20 +622,27 @@ export default function Profile() {
         title={listType === 'followers' ? 'Followers' : 'Following'}
       >
         {listLoading ? (
-          <div className="p-4 text-gray-600 dark:text-gray-300">Loading...</div>
+          <div className="p-3 sm:p-4 text-gray-600 dark:text-gray-300 text-center">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-sm sm:text-base">Loading...</span>
+            </div>
+          </div>
         ) : listItems.length === 0 ? (
-          <div className="p-4 text-gray-600 dark:text-gray-300">No users to show</div>
+          <div className="p-3 sm:p-4 text-gray-600 dark:text-gray-300 text-center">
+            <span className="text-sm sm:text-base">No users to show</span>
+          </div>
         ) : (
-          <div className="divide-y divide-gray-200 dark:divide-gray-700 max-h-[65vh] overflow-y-auto pr-1">
+          <div className="divide-y divide-gray-200 dark:divide-gray-700 max-h-[60vh] sm:max-h-[65vh] overflow-y-auto pr-1">
             {listItems.map(u => (
-              <div key={u._id} className="flex items-center justify-between py-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <Link to={`/users/${u._id}`} onClick={() => setListOpen(false)}>
-                    <img src={u.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"28\" height=\"28\"><rect width=\"28\" height=\"28\" fill=\"#e5e7eb\"/><text x=\"14\" y=\"18\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"11\" fill=\"#6b7280\">U</text></svg>')}`} alt="" className="w-8 h-8 rounded-full object-cover border" />
+              <div key={u._id} className="flex items-center justify-between py-2 sm:py-3 px-1">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                  <Link to={`/users/${u._id}`} onClick={() => setListOpen(false)} className="flex-shrink-0">
+                    <img src={u.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"28\" height=\"28\"><rect width=\"28\" height=\"28\" fill=\"#e5e7eb\"/><text x=\"14\" y=\"18\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"11\" fill=\"#6b7280\">U</text></svg>')}`} alt="" className="w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover border" />
                   </Link>
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <Link to={`/users/${u._id}`} onClick={() => setListOpen(false)} className="block">
-                      <div className="text-sm text-gray-900 dark:text-gray-100 truncate">{u.name}</div>
+                      <div className="text-xs sm:text-sm text-gray-900 dark:text-gray-100 truncate font-medium">{u.name}</div>
                     </Link>
                     <div className="text-xs text-gray-500 truncate">
                       {u.username && (
@@ -648,9 +657,10 @@ export default function Profile() {
                 {authUser && authUser.id !== u._id && (
                   <button
                     onClick={() => toggleFollowFromList(u._id, u.isFollowing)}
-                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${u.isFollowing ? 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
+                    className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors flex-shrink-0 ${u.isFollowing ? 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
                   >
-                    {u.isFollowing ? 'Unfollow' : 'Follow'}
+                    <span className="hidden sm:inline">{u.isFollowing ? 'Unfollow' : 'Follow'}</span>
+                    <span className="sm:hidden">{u.isFollowing ? '✓' : '+'}</span>
                   </button>
                 )}
               </div>
@@ -659,64 +669,64 @@ export default function Profile() {
         )}
       </Modal>
 
-        {/* Enhanced Edit Form */}
+        {/* Enhanced Edit Form - Mobile Optimized */}
         {isOwn && (
-          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-6 sm:p-8 mb-8">
-            <div className="flex items-center gap-3 mb-8">
-              <span className="text-3xl">✏️</span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Edit Profile</h2>
+          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
+            <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+              <span className="text-2xl sm:text-3xl">✏️</span>
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Edit Profile</h2>
             </div>
           
-            <form onSubmit={handleSave} className="space-y-8">
-              {/* Personal Information Section */}
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-2xl p-6 border border-blue-200/50 dark:border-blue-700/50">
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="text-2xl">👤</span>
-                  <h3 className="text-lg font-bold text-blue-800 dark:text-blue-200">Personal Information</h3>
+            <form onSubmit={handleSave} className="space-y-6 sm:space-y-8">
+              {/* Personal Information Section - Mobile Optimized */}
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-blue-200/50 dark:border-blue-700/50">
+                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                  <span className="text-xl sm:text-2xl">👤</span>
+                  <h3 className="text-base sm:text-lg font-bold text-blue-800 dark:text-blue-200">Personal Information</h3>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div>
-                    <label className="block text-sm font-semibold mb-3 text-blue-700 dark:text-blue-300">
+                    <label className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-3 text-blue-700 dark:text-blue-300">
                       👤 First Name
                     </label>
                     <input 
                       value={firstName} 
                       onChange={e => setFirstName(e.target.value)} 
-                      className="w-full border-2 border-blue-200 dark:border-blue-700 rounded-xl p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm" 
+                      className="w-full border-2 border-blue-200 dark:border-blue-700 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm text-sm sm:text-base" 
                       placeholder="Enter your first name"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-semibold mb-3 text-blue-700 dark:text-blue-300">
+                    <label className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-3 text-blue-700 dark:text-blue-300">
                       👤 Last Name
                     </label>
                     <input 
                       value={lastName} 
                       onChange={e => setLastName(e.target.value)} 
-                      className="w-full border-2 border-blue-200 dark:border-blue-700 rounded-xl p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm" 
+                      className="w-full border-2 border-blue-200 dark:border-blue-700 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm text-sm sm:text-base" 
                       placeholder="Enter your last name"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Account Information Section */}
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-2xl p-6 border border-purple-200/50 dark:border-purple-700/50">
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="text-2xl">🏷️</span>
-                  <h3 className="text-lg font-bold text-purple-800 dark:text-purple-200">Account Information</h3>
+              {/* Account Information Section - Mobile Optimized */}
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-purple-200/50 dark:border-purple-700/50">
+                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                  <span className="text-xl sm:text-2xl">🏷️</span>
+                  <h3 className="text-base sm:text-lg font-bold text-purple-800 dark:text-purple-200">Account Information</h3>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-semibold mb-3 text-purple-700 dark:text-purple-300">
+                  <label className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-3 text-purple-700 dark:text-purple-300">
                     🏷️ Username
                   </label>
                   <input 
                     value={username} 
                     onChange={e => setUsername(e.target.value)} 
-                    className="w-full border-2 border-purple-200 dark:border-purple-700 rounded-xl p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 backdrop-blur-sm" 
+                    className="w-full border-2 border-purple-200 dark:border-purple-700 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 backdrop-blur-sm text-sm sm:text-base" 
                     placeholder="Choose a unique username"
                   />
                   <p className="text-xs mt-2 text-purple-600 dark:text-purple-400">
@@ -725,57 +735,57 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* Additional Information Section */}
-              <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-2xl p-6 border border-green-200/50 dark:border-green-700/50">
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="text-2xl">📍</span>
-                  <h3 className="text-lg font-bold text-green-800 dark:text-green-200">Additional Information</h3>
+              {/* Additional Information Section - Mobile Optimized */}
+              <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-green-200/50 dark:border-green-700/50">
+                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                  <span className="text-xl sm:text-2xl">📍</span>
+                  <h3 className="text-base sm:text-lg font-bold text-green-800 dark:text-green-200">Additional Information</h3>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div>
-                    <label className="block text-sm font-semibold mb-3 text-green-700 dark:text-green-300">
+                    <label className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-3 text-green-700 dark:text-green-300">
                       📅 Date of Birth
                     </label>
                     <input 
                       type="date"
                       value={dateOfBirth} 
                       onChange={e => setDateOfBirth(e.target.value)} 
-                      className="w-full border-2 border-green-200 dark:border-green-700 rounded-xl p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 backdrop-blur-sm" 
+                      className="w-full border-2 border-green-200 dark:border-green-700 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 backdrop-blur-sm text-sm sm:text-base" 
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-semibold mb-3 text-green-700 dark:text-green-300">
+                    <label className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-3 text-green-700 dark:text-green-300">
                       📍 Place
-                </label>
+                    </label>
                     <input 
                       value={place} 
                       onChange={e => setPlace(e.target.value)} 
-                      className="w-full border-2 border-green-200 dark:border-green-700 rounded-xl p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 backdrop-blur-sm" 
+                      className="w-full border-2 border-green-200 dark:border-green-700 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 backdrop-blur-sm text-sm sm:text-base" 
                       placeholder="Where are you from?"
                     />
                   </div>
                 </div>
               </div>
             
-              {/* Bio and Info Section */}
-              <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-2xl p-6 border border-orange-200/50 dark:border-orange-700/50">
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="text-2xl">📝</span>
-                  <h3 className="text-lg font-bold text-orange-800 dark:text-orange-200">About You</h3>
+              {/* Bio and Info Section - Mobile Optimized */}
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-orange-200/50 dark:border-orange-700/50">
+                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                  <span className="text-xl sm:text-2xl">📝</span>
+                  <h3 className="text-base sm:text-lg font-bold text-orange-800 dark:text-orange-200">About You</h3>
                 </div>
                 
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div>
-                    <label className="block text-sm font-semibold mb-3 text-orange-700 dark:text-orange-300">
+                    <label className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-3 text-orange-700 dark:text-orange-300">
                       📝 Bio
                     </label>
                     <textarea 
                       value={bio} 
                       onChange={e => setBio(e.target.value)} 
-                      rows={4} 
-                      className="w-full border-2 border-orange-200 dark:border-orange-700 rounded-xl p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 backdrop-blur-sm resize-none" 
+                      rows={3} 
+                      className="w-full border-2 border-orange-200 dark:border-orange-700 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 backdrop-blur-sm resize-none text-sm sm:text-base" 
                       placeholder="Tell us about yourself..."
                     />
                     <p className="text-xs mt-2 text-orange-600 dark:text-orange-400">
@@ -784,14 +794,14 @@ export default function Profile() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold mb-3 text-orange-700 dark:text-orange-300">
+                    <label className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-3 text-orange-700 dark:text-orange-300">
                       ℹ️ Additional Info
                     </label>
                     <textarea 
                       value={info} 
                       onChange={e => setInfo(e.target.value)} 
-                      rows={4} 
-                      className="w-full border-2 border-orange-200 dark:border-orange-700 rounded-xl p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 backdrop-blur-sm resize-none" 
+                      rows={3} 
+                      className="w-full border-2 border-orange-200 dark:border-orange-700 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 backdrop-blur-sm resize-none text-sm sm:text-base" 
                       placeholder="Share more about yourself, interests, hobbies..."
                     />
                     <p className="text-xs mt-2 text-orange-600 dark:text-orange-400">
@@ -801,15 +811,15 @@ export default function Profile() {
                 </div>
               </div>
             
-              {/* Avatar Upload Section */}
-              <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 rounded-2xl p-6 border border-indigo-200/50 dark:border-indigo-700/50">
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="text-2xl">🖼️</span>
-                  <h3 className="text-lg font-bold text-indigo-800 dark:text-indigo-200">Profile Picture</h3>
+              {/* Avatar Upload Section - Mobile Optimized */}
+              <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-indigo-200/50 dark:border-indigo-700/50">
+                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                  <span className="text-xl sm:text-2xl">🖼️</span>
+                  <h3 className="text-base sm:text-lg font-bold text-indigo-800 dark:text-indigo-200">Profile Picture</h3>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-semibold mb-3 text-indigo-700 dark:text-indigo-300">
+                  <label className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-3 text-indigo-700 dark:text-indigo-300">
                     🖼️ Upload New Picture
                   </label>
                   <input 
@@ -817,25 +827,25 @@ export default function Profile() {
                     type="file" 
                     accept="image/*" 
                     onChange={e => setAvatarFile(e.target.files?.[0] || null)} 
-                    className="w-full border-2 border-indigo-200 dark:border-indigo-700 rounded-xl p-4 bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 backdrop-blur-sm" 
+                    className="w-full border-2 border-indigo-200 dark:border-indigo-700 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 backdrop-blur-sm text-sm sm:text-base" 
                   />
                   {avatarFile && (
-                    <div className="mt-3 p-3 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-xl">
-                      <p className="text-sm text-green-700 dark:text-green-300 flex items-center gap-2">
-                        <span className="text-lg">✅</span>
-                        New image selected: <span className="font-semibold">{avatarFile.name}</span>
+                    <div className="mt-3 p-3 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-lg sm:rounded-xl">
+                      <p className="text-xs sm:text-sm text-green-700 dark:text-green-300 flex items-center gap-2">
+                        <span className="text-sm sm:text-lg">✅</span>
+                        <span className="truncate">New image selected: <span className="font-semibold">{avatarFile.name}</span></span>
                       </p>
                     </div>
                   )}
                 </div>
               </div>
               
-              {/* Enhanced Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4">
+              {/* Enhanced Action Buttons - Mobile Optimized */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <button 
                   type="submit" 
                   disabled={isSaving}
-                  className={`flex-1 px-8 py-4 text-white rounded-2xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center gap-3 ${
+                  className={`flex-1 px-6 sm:px-8 py-3 sm:py-4 text-white rounded-xl sm:rounded-2xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base ${
                     isSaving 
                       ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
                       : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl hover:scale-105'
@@ -843,12 +853,12 @@ export default function Profile() {
                 >
                   {isSaving ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       <span>Saving...</span>
                     </>
                   ) : (
                     <>
-                      <span className="text-xl">💾</span>
+                      <span className="text-lg sm:text-xl">💾</span>
                       <span>Save Changes</span>
                     </>
                   )}
@@ -858,7 +868,7 @@ export default function Profile() {
                     type="button" 
                     onClick={handleRemoveAvatar}
                     disabled={isRemovingAvatar}
-                    className={`px-8 py-4 text-white rounded-2xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center gap-3 ${
+                    className={`px-6 sm:px-8 py-3 sm:py-4 text-white rounded-xl sm:rounded-2xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base ${
                       isRemovingAvatar 
                         ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
                         : 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 hover:shadow-xl hover:scale-105'
@@ -866,12 +876,12 @@ export default function Profile() {
                   >
                     {isRemovingAvatar ? (
                       <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         <span>Removing...</span>
                       </>
                     ) : (
                       <>
-                        <span className="text-xl">🗑️</span>
+                        <span className="text-lg sm:text-xl">🗑️</span>
                         <span>Remove Avatar</span>
                       </>
                     )}
@@ -888,58 +898,58 @@ export default function Profile() {
         </div>
       )}
 
-        {/* Enhanced Password Update Section */}
+        {/* Enhanced Password Update Section - Mobile Optimized */}
         {isOwn && (
-          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-6 sm:p-8 mb-8">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-              <div className="flex items-center gap-3">
-                <span className="text-3xl">🔒</span>
-                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Password Security</h2>
+          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="text-2xl sm:text-3xl">🔒</span>
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Password Security</h2>
               </div>
               <button
                 onClick={() => setShowPasswordForm(!showPasswordForm)}
-                className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 ${
+                className={`px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm sm:text-base ${
                   showPasswordForm 
                     ? 'bg-gradient-to-r from-gray-500 to-gray-600 text-white hover:from-gray-600 hover:to-gray-700' 
                     : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800'
                 }`}
               >
-                {showPasswordForm ? '❌ Cancel' : '🔑 Change Password'}
+                {showPasswordForm ? '🔒 Hide Form' : '🔑 Change Password'}
               </button>
             </div>
           
           {passwordSuccess && (
-            <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg mb-6">
-              <p className="text-green-600 dark:text-green-400">{passwordSuccess}</p>
+            <div className="p-3 sm:p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg sm:rounded-xl mb-4 sm:mb-6">
+              <p className="text-green-600 dark:text-green-400 text-sm sm:text-base">{passwordSuccess}</p>
             </div>
           )}
           
             {showPasswordForm && (
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-2xl p-6 border border-blue-200/50 dark:border-blue-700/50">
-                <form onSubmit={handlePasswordUpdate} className="space-y-6">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 border border-blue-200/50 dark:border-blue-700/50">
+                <form onSubmit={handlePasswordUpdate} className="space-y-3 sm:space-y-4 lg:space-y-6">
                   <div>
-                    <label className="block text-sm font-semibold mb-3 text-blue-700 dark:text-blue-300">
+                    <label className="block text-xs sm:text-sm font-semibold mb-1 sm:mb-2 text-blue-700 dark:text-blue-300">
                       🔑 Current Password
                     </label>
                     <input 
                       type="password"
                       value={currentPassword} 
                       onChange={e => setCurrentPassword(e.target.value)} 
-                      className="w-full border-2 border-blue-200 dark:border-blue-700 rounded-xl p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm" 
+                      className="w-full border-2 border-blue-200 dark:border-blue-700 rounded-lg sm:rounded-xl p-2.5 sm:p-3 lg:p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm text-sm sm:text-base" 
                       placeholder="Enter your current password"
                       required
                     />
                   </div>
               
                   <div>
-                    <label className="block text-sm font-semibold mb-3 text-blue-700 dark:text-blue-300">
+                    <label className="block text-xs sm:text-sm font-semibold mb-1 sm:mb-2 text-blue-700 dark:text-blue-300">
                       🔐 New Password
                     </label>
                     <input 
                       type="password"
                       value={newPassword} 
                       onChange={e => setNewPassword(e.target.value)} 
-                      className="w-full border-2 border-blue-200 dark:border-blue-700 rounded-xl p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm" 
+                      className="w-full border-2 border-blue-200 dark:border-blue-700 rounded-lg sm:rounded-xl p-2.5 sm:p-3 lg:p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm text-sm sm:text-base" 
                       placeholder="Enter your new password"
                       required
                     />
@@ -947,33 +957,33 @@ export default function Profile() {
                   </div>
               
                   <div>
-                    <label className="block text-sm font-semibold mb-3 text-blue-700 dark:text-blue-300">
+                    <label className="block text-xs sm:text-sm font-semibold mb-1 sm:mb-2 text-blue-700 dark:text-blue-300">
                       🔐 Confirm New Password
                     </label>
                     <input 
                       type="password"
                       value={confirmPassword} 
                       onChange={e => setConfirmPassword(e.target.value)} 
-                      className="w-full border-2 border-blue-200 dark:border-blue-700 rounded-xl p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm" 
+                      className="w-full border-2 border-blue-200 dark:border-blue-700 rounded-lg sm:rounded-xl p-2.5 sm:p-3 lg:p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm text-sm sm:text-base" 
                       placeholder="Confirm your new password"
                       required
                     />
                   </div>
                   
                   {passwordError && (
-                    <div className="p-4 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-xl">
-                      <p className="text-red-700 dark:text-red-300 flex items-center gap-2">
-                        <span className="text-lg">⚠️</span>
+                    <div className="p-2.5 sm:p-3 lg:p-4 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg sm:rounded-xl">
+                      <p className="text-red-700 dark:text-red-300 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm lg:text-base">
+                        <span className="text-sm sm:text-base lg:text-lg">⚠️</span>
                         {passwordError}
                       </p>
                     </div>
                   )}
                   
-                  <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:gap-4">
                     <button 
                       type="submit" 
                       disabled={isUpdatingPassword}
-                      className={`flex-1 px-6 py-4 text-white rounded-2xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center gap-3 ${
+                      className={`flex-1 px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 text-white rounded-lg sm:rounded-xl lg:rounded-2xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center gap-1.5 sm:gap-2 lg:gap-3 text-xs sm:text-sm lg:text-base ${
                         isUpdatingPassword 
                           ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
                           : 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 hover:shadow-xl hover:scale-105'
@@ -981,12 +991,12 @@ export default function Profile() {
                     >
                       {isUpdatingPassword ? (
                         <>
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <div className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                           <span>Updating...</span>
                         </>
                       ) : (
                         <>
-                          <span className="text-xl">🔐</span>
+                          <span className="text-sm sm:text-lg lg:text-xl">🔐</span>
                           <span>Update Password</span>
                         </>
                       )}
@@ -1001,9 +1011,9 @@ export default function Profile() {
                         setPasswordError('');
                         setPasswordSuccess('');
                       }}
-                      className="px-6 py-4 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-2xl hover:from-gray-600 hover:to-gray-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-3"
+                      className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg sm:rounded-xl lg:rounded-2xl hover:from-gray-600 hover:to-gray-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-1.5 sm:gap-2 lg:gap-3 text-xs sm:text-sm lg:text-base"
                     >
-                      <span className="text-xl">❌</span>
+                      <span className="text-sm sm:text-lg lg:text-xl">❌</span>
                       <span>Cancel</span>
                     </button>
                   </div>
@@ -1013,56 +1023,56 @@ export default function Profile() {
         </div>
       )}
 
-        {/* Enhanced Account Deletion Section */}
+        {/* Enhanced Account Deletion Section - Mobile Optimized */}
         {isOwn && (
-          <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border-2 border-red-200 dark:border-red-800 rounded-3xl shadow-2xl p-6 sm:p-8 mb-8">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-              <div className="flex items-center gap-3">
-                <span className="text-3xl">⚠️</span>
+          <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border-2 border-red-200 dark:border-red-800 rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="text-2xl sm:text-3xl">⚠️</span>
                 <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400">
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-red-600 dark:text-red-400">
                     Danger Zone
                   </h2>
-                  <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+                  <p className="text-xs sm:text-sm text-red-600 dark:text-red-400 mt-1">
                     Once you delete your account, there is no going back. Please be certain.
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowDeleteForm(!showDeleteForm)}
-                className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 ${
+                className={`px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm sm:text-base ${
                   showDeleteForm 
                     ? 'bg-gradient-to-r from-gray-500 to-gray-600 text-white hover:from-gray-600 hover:to-gray-700' 
                     : 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800'
                 }`}
               >
-                {showDeleteForm ? '❌ Cancel' : '🗑️ Delete Account'}
+                {showDeleteForm ? '⚠️ Hide Form' : '🗑️ Delete Account'}
               </button>
             </div>
           
             {showDeleteForm && (
-              <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl p-6 border border-red-200 dark:border-red-700">
-                <div className="mb-6">
-                  <h3 className="text-xl font-bold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2">
-                    <span className="text-2xl">⚠️</span>
+              <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 border border-red-200 dark:border-red-700">
+                <div className="mb-3 sm:mb-4 lg:mb-6">
+                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-red-600 dark:text-red-400 mb-1.5 sm:mb-2 lg:mb-3 flex items-center gap-1.5 sm:gap-2">
+                    <span className="text-lg sm:text-xl lg:text-2xl">⚠️</span>
                     Are you absolutely sure?
                   </h3>
-                  <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                  <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
                     This action cannot be undone. This will permanently delete your account and remove all your data from our servers.
                   </p>
                 </div>
               
-              <form onSubmit={handleAccountDeletion} className="space-y-4">
+              <form onSubmit={handleAccountDeletion} className="space-y-3 sm:space-y-4 lg:space-y-5">
                 {!profile.isGoogleUser && (
                   <div>
-                    <label className="block text-sm font-semibold mb-3 text-red-700 dark:text-red-300">
+                    <label className="block text-xs sm:text-sm font-semibold mb-1.5 sm:mb-2 text-red-700 dark:text-red-300">
                       🔑 Enter your password to confirm
                     </label>
                     <input 
                       type="password"
                       value={deletePassword} 
                       onChange={e => setDeletePassword(e.target.value)} 
-                      className="w-full border-2 border-red-200 dark:border-red-700 rounded-xl p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 backdrop-blur-sm" 
+                      className="w-full border-2 border-red-200 dark:border-red-700 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 backdrop-blur-sm text-sm sm:text-base" 
                       placeholder="Enter your password"
                       required
                     />
@@ -1070,44 +1080,61 @@ export default function Profile() {
                 )}
                 
                 <div>
-                  <label className="block text-sm font-semibold mb-3 text-red-700 dark:text-red-300">
-                    Type <span className="font-bold text-red-600 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded">DELETE</span> to confirm
+                  <label className="block text-xs sm:text-sm font-semibold mb-1.5 sm:mb-2 text-red-700 dark:text-red-300">
+                    Type <span className="font-bold text-red-600 bg-red-100 dark:bg-red-900/30 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm">DELETE</span> to confirm
                   </label>
                   <input 
                     type="text"
                     value={deleteConfirmText} 
                     onChange={e => setDeleteConfirmText(e.target.value)} 
-                    className="w-full border-2 border-red-200 dark:border-red-700 rounded-xl p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 backdrop-blur-sm" 
+                    className="w-full border-2 border-red-200 dark:border-red-700 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 backdrop-blur-sm text-sm sm:text-base" 
                     placeholder="Type DELETE"
                     required
                   />
                 </div>
                 
-                <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border-2 border-red-300 dark:border-red-600 rounded-2xl p-6">
-                  <div className="flex items-start gap-4">
-                    <span className="text-3xl">⚠️</span>
-                    <div className="flex-1">
-                      <h4 className="text-lg font-bold text-red-800 dark:text-red-200 mb-3">
+                <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border-2 border-red-300 dark:border-red-600 rounded-lg sm:rounded-xl lg:rounded-2xl p-3 sm:p-4 lg:p-5">
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <span className="text-lg sm:text-xl lg:text-2xl flex-shrink-0 mt-0.5">⚠️</span>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm sm:text-base lg:text-lg font-bold text-red-800 dark:text-red-200 mb-2 sm:mb-3">
                         Final Warning
                       </h4>
-                      <div className="text-sm text-red-700 dark:text-red-300">
-                        <strong className="text-red-800 dark:text-red-200">By proceeding, you acknowledge that:</strong>
-                        <ul className="list-disc list-inside mt-3 space-y-2 text-red-600 dark:text-red-400">
-                          <li>My account and all associated data will be permanently deleted</li>
-                          <li>This action cannot be undone or reversed</li>
-                          <li>All my posts, comments, and profile information will be removed</li>
-                          <li>I will lose access to all my content and account features</li>
-                          <li>I will need to create a new account if I want to use the platform again</li>
-                        </ul>
+                      <div className="text-xs sm:text-sm text-red-700 dark:text-red-300">
+                        <p className="font-semibold text-red-800 dark:text-red-200 mb-2 sm:mb-3">
+                          By proceeding, you acknowledge that:
+                        </p>
+                        <div className="space-y-1 sm:space-y-1.5">
+                          <div className="flex items-start gap-2">
+                            <span className="text-red-500 dark:text-red-400 mt-0.5">•</span>
+                            <span className="text-red-600 dark:text-red-400 text-xs sm:text-sm">My account and all associated data will be permanently deleted</span>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-red-500 dark:text-red-400 mt-0.5">•</span>
+                            <span className="text-red-600 dark:text-red-400 text-xs sm:text-sm">This action cannot be undone or reversed</span>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-red-500 dark:text-red-400 mt-0.5">•</span>
+                            <span className="text-red-600 dark:text-red-400 text-xs sm:text-sm">All my posts, comments, and profile information will be removed</span>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-red-500 dark:text-red-400 mt-0.5">•</span>
+                            <span className="text-red-600 dark:text-red-400 text-xs sm:text-sm">I will lose access to all my content and account features</span>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-red-500 dark:text-red-400 mt-0.5">•</span>
+                            <span className="text-red-600 dark:text-red-400 text-xs sm:text-sm">I will need to create a new account if I want to use the platform again</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:gap-4 mt-4 sm:mt-5">
                   <button 
                     type="submit" 
-                    className={`flex-1 px-8 py-4 text-white rounded-2xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center gap-3 ${
+                    className={`flex-1 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 text-white rounded-lg sm:rounded-xl lg:rounded-2xl transition-all duration-300 font-semibold shadow-lg flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base ${
                       isDeletingAccount || deleteConfirmText !== 'DELETE' || (!profile.isGoogleUser && !deletePassword)
                         ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75' 
                         : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 hover:shadow-xl hover:scale-105'
@@ -1116,12 +1143,12 @@ export default function Profile() {
                   >
                     {isDeletingAccount ? (
                       <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         <span>Deleting...</span>
                       </>
                     ) : (
                       <>
-                        <span className="text-xl">🗑️</span>
+                        <span className="text-base sm:text-lg lg:text-xl">🗑️</span>
                         <span>Delete My Account</span>
                       </>
                     )}
@@ -1135,17 +1162,17 @@ export default function Profile() {
                       setDeleteError('');
                       setAcceptTerms(false);
                     }}
-                    className="px-8 py-4 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-2xl hover:from-gray-600 hover:to-gray-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-3"
+                    className="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg sm:rounded-xl lg:rounded-2xl hover:from-gray-600 hover:to-gray-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base"
                   >
-                    <span className="text-xl">❌</span>
+                    <span className="text-base sm:text-lg lg:text-xl">❌</span>
                     <span>Cancel</span>
                   </button>
                 </div>
                 
                 {deleteError && (
-                  <div className="p-4 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-xl">
-                    <p className="text-red-700 dark:text-red-300 flex items-center gap-2">
-                      <span className="text-lg">⚠️</span>
+                  <div className="p-2.5 sm:p-3 lg:p-4 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg sm:rounded-xl">
+                    <p className="text-red-700 dark:text-red-300 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm lg:text-base">
+                      <span className="text-sm sm:text-base lg:text-lg">⚠️</span>
                       {deleteError}
                     </p>
                   </div>
@@ -1160,18 +1187,26 @@ export default function Profile() {
   );
 }
 
-// Simple modal
+// Enhanced mobile-responsive modal
 function Modal({ open, onClose, title, children }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md mx-4 p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h4>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✖</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-md mx-2 sm:mx-4 p-3 sm:p-4 max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between mb-3 sm:mb-4 flex-shrink-0">
+          <h4 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate pr-2">{title}</h4>
+          <button 
+            onClick={onClose} 
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors flex-shrink-0"
+            aria-label="Close modal"
+          >
+            <span className="text-lg sm:text-xl">✖</span>
+          </button>
         </div>
-        {children}
+        <div className="flex-1 overflow-hidden">
+          {children}
+        </div>
       </div>
     </div>
   );
